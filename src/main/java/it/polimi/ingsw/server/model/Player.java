@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.TowerColor;
+
 import java.util.Objects;
 
 /**
@@ -8,12 +10,24 @@ import java.util.Objects;
 class Player {
     private final String username;
 
+    private int towers;
+
     protected Player(String username) {
         this.username = username;
+        towers = 8;
     }
 
-    void receiveTower(Tower tower) {
+    protected Tower sendTower() {
+        towers--;
+        return new Tower(TowerColor.BLACK, this);
+    }
 
+    protected void receiveTower(Tower tower) {
+        towers++;
+    }
+
+    public int getNumOfTowers() {
+        return towers;
     }
 
     @Override
