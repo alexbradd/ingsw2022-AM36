@@ -1,5 +1,8 @@
 package it.polimi.ingsw.server.model;
 
+import java.util.List;
+// TODO: replace NullPointerException with IllegalArgumentException (with a correct explanation passed)
+
 /**
  * The main class of the game model, it represents a single game instance, takes track of all the game parameters,
  * game entities (such as the Sack instance or the IslandList instance) and has a reference to the current {@link Phase}
@@ -11,29 +14,95 @@ package it.polimi.ingsw.server.model;
  * @see GameFactory
  */
 
-public class Game {
+public class Game extends Thread {
+    /**
+     * The number of players of the game.
+     */
     private final int nPlayers;
+
+    /**
+     * The initial number of towers of each player.
+     */
     private final int nTowers;
+
+    /**
+     * The number of movable students from a player's Entrance in each action phase.
+     */
     private final int nStudentsMovable;
+
+    /**
+     * The initial number of students in every player's Entrance.
+     */
     private final int nStudentsEntrance;
+
+    /**
+     * The number of students of every color in the sack.
+     */
     private static final int nStudentsOfColor = 26;
+
+    /**
+     * The number of professors.
+     */
     private static final int nProfessors = 5;
+
+    /**
+     * The number of characters on the play area.
+     */
     private static final int nOfCharacters = 3;
+
+    /**
+     * Whether the game mode is "expert rules" (see game rules).
+     */
     private final boolean expertMode;
 
+    /**
+     * The {@link Sack} instance.
+     */
     private final Sack sack;
+
+    /**
+     * The List<{@link Cloud}> instance. It represents the clouds on the play area.
+     */
     private final List<Cloud> clouds;
+    /**
+     * The {@link IslandList} instance. It represents the islands on the play area.
+     */
     private final IslandList islands;
+
+    /**
+     * The {@link MotherNature} instance.
+     */
     private final MotherNature motherNature;
-    private final Professor[nProfessors]professors;
-    private final Character[nOfCharacters]characters;
+
+    /**
+     * An array containing all the {@link Professor} instances.
+     */
+    private final Professor[] professors;
+
+    /**
+     * An array containing all the {@link Character} instances (i.e. chosen characters for the game, only in
+     * expert mode, see game rules).
+     */
+    private final Character[] characters;
+
+    /**
+     * A {@link PlayerList} instance representing the connected players.
+     */
     private final PlayerList players;
 
+    /**
+     * A {@link Phase} subclass instance, representing the current state of the game.
+     */
     private Phase currentPhase;
+
+    /**
+     * Whether the game is ended or not.
+     */
     private boolean ended;
 
     /**
-     * The default constructor.
+     * The default constructor. It initializes the fields by the values passed via parameters, and sets the
+     * initial phase to a lobby phase.
      *
      * @param nPlayers          the number of players
      * @param nTowers           the number of {@link Tower}s owned by each player
@@ -46,11 +115,11 @@ public class Game {
      * @param islands           the reference to the {@link IslandList} instance
      * @param motherNature      the reference to the {@link MotherNature} instance
      * @param players           the reference to the {@link PlayerList} instance
-     * @param currentPhase      the initial {@link Phase} of the game
+     *                          //@param currentPhase      the initial {@link Phase} of the game
      * @param ended             whether the game is ended or not (i.e. there is a winner)
      * @throws NullPointerException if any of the object parameters passed is null
      */
-    Game(int nPlayers, int nTowers, int nStudentsMovable, int nStudentsEntrance, boolean expertMode, Sack sack, List<Cloud> clouds, IslandList islands, MotherNature motherNature, PlayerList players, Phase currentPhase, boolean ended) {
+    Game(int nPlayers, int nTowers, int nStudentsMovable, int nStudentsEntrance, boolean expertMode, Sack sack, List<Cloud> clouds, IslandList islands, MotherNature motherNature, Professor[] professors, Character[] characters, PlayerList players, boolean ended) {
         this.nPlayers = nPlayers;
         this.nTowers = nTowers;
         this.nStudentsMovable = nStudentsMovable;
@@ -60,9 +129,12 @@ public class Game {
         this.clouds = clouds;
         this.islands = islands;
         this.motherNature = motherNature;
+        this.professors = professors;
+        this.characters = characters;
         this.players = players;
         this.currentPhase = currentPhase;
         this.ended = ended;
+        this.currentPhase = new LobbyPhase(this);
     }
 
     /**
@@ -104,16 +176,12 @@ public class Game {
      */
     public void consumeUserEvent(UserEvent c) {
         if (c.equals(null)) throw new NullPointerException("user event should not be null.");
-        c.consume(currentPhase);
-    }
 
-    /**
-     * It checks all win conditions, returning whether there is a winner for the game or not.
-     *
-     * @return whether one (or more) player has won the game
-     */
-    public boolean checkWin() {
-        // TODO
+        try {
+            c.consume(currentPhase);
+        } catch (Exception e) {     // TODO catch statements
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -125,10 +193,8 @@ public class Game {
     public String toString() {
         return "Game{" +
                 "nPlayers=" + nPlayers +
-                ", nTowers=" + nTowers +
-                ", nStudentsMovable=" + nStudentsMovable +
-                ", nStudentsEntrance=" + nStudentsEntrance +
                 ", expertMode=" + expertMode +
+                ", players=" + players +
                 ", currentPhase=" + currentPhase +
                 ", ended=" + ended +
                 '}';

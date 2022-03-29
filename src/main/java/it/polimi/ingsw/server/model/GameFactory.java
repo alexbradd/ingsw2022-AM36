@@ -16,7 +16,7 @@ public class GameFactory {
      * @return the {@link Game} instance with correctly set parameters
      */
     public static Game twoPlayerGame(boolean expertMode) {
-        Game g = new Game(2,
+        Game newGame = new Game(2,
                 8,
                 3,
                 7,
@@ -25,10 +25,12 @@ public class GameFactory {
                 new ArrayList<Cloud>(),
                 new IslandList(),
                 new MotherNature(),
+                new Professor[5],
+                expertMode ? CharacterFactory.pickThreeRandom() : null,
                 new PlayerList(),
-                new LobbyPhase(),
                 false
                 );
+        return newGame;
     }
 
     /**
@@ -38,7 +40,7 @@ public class GameFactory {
      * @return the {@link Game} instance with correctly set parameters
      */
     public static Game threePlayerGame(boolean expertMode) {
-        Game g = new Game(3,
+        Game newGame = new Game(3,
                 6,
                 4,
                 9,
@@ -47,9 +49,11 @@ public class GameFactory {
                 new ArrayList<Cloud>(),
                 new IslandList(),
                 new MotherNature(),
+                new Professor[5],
+                expertMode ? CharacterFactory.pickThreeRandom() : null,
                 new PlayerList(),
-                new LobbyPhase(),
                 false
         );
+        return newGame;
     }
 }
