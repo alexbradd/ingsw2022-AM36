@@ -1,0 +1,123 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage{enumerate}
+
+\title{Peer-Review 1: UML}
+\author{Leonardo Bianconi, Alexandru Gabriel Bradatan, Mattia Busso\\Gruppo 36}
+
+\begin{document}
+
+    \maketitle
+
+    In questo documento verrà svolta una valutazione del diagramma UML delle classi
+    del gruppo 09. L'analisi sarà suddivisa in 3 parti: individuazione dei lati
+    positivi, di quelli negativi e un confronto con l'architettura del progetto
+    del nostro gruppo.
+
+
+    \section{Lati positivi}
+
+    \subsection{Uso di \texttt{Enum} per gli assistenti}
+
+    Gli assistenti sono un'entità che contiene solo dati senza funzionalità.
+    Perciò l'utilizzo di \texttt{Enum} è un approccio migliore rispetto a creare
+    una classe.
+
+    \subsection{Astrazione per il movimento degli studenti}
+
+    L'utilizzo di una classe astratta \texttt{Place} che rappresenta un'entità
+    capace di ricevere o mandare studenti ad altre entità dello stesso tipo è un
+    approccio che permette di caratterizzare in modo efficace entità simili tra
+    loro come ad esempio \texttt{Cloud}, \texttt{Entrance} e \texttt{Table}.
+    Tuttavia, l'implementazione ha anche un difetto, vedasi~\ref{ereditarieta}.
+
+    \subsection{La classe \texttt{Board}}
+
+    L'utilizzo di una classe apposita che contiene tutti le entità che
+    modellano oggetti fisicamente presenti sul tavolo di gioco permette di
+    ridurre la dimensione della classe \texttt{Game} e di regolare l'accesso
+    tramite i metodi esposti.
+
+    \subsection{Uso del pattern \textit{Strategy} per le carte personaggio}
+
+    L'uso del pattern \textit{Strategy} permette di astrarre il comportamento
+    delle singole carte personaggio fornendo un'interfaccia unificata.
+
+    \subsection{Uso del pattern \textit{Factory} per la creazione di \texttt{Game}}
+
+    L'uso de pattern \textit{Factory} permette di nascondere il processo di
+    creazione di \texttt{Game} all'esterno.
+
+
+    \section{Lati negativi}
+
+    \subsection{Uso scorretto dell'ereditarietà}\label{ereditarieta}
+
+    \texttt{TwoPlayersGame} e \texttt{ThreePlayersGame} non aggiungono
+    comportamento alla superclasse e sarebbero potute essere implementate
+    parametrizzando la classe \texttt{Game}.
+
+    La classe \texttt{Place} definisce anche comportamento per la gestione dei
+    professori, funzione che non appartiene a tutte le sue sottoclassi (per
+    esempio \texttt{Cloud}). Sarebbe stato oppurtuno definire due interfacce:
+    una che caratterizza le entità che trattano studenti e un'altra che
+    caratterizza quelle che trattano professori.
+
+    \subsection{Uso errato o mancato del pattern \textit{Decorator}}
+    La decorazione della classe \texttt{Game} per aggiungere la modalità esperti
+    risulta eccessiva: come anche per \texttt{TwoPlayersGame} e
+    \texttt{ThreePlayersGame} sarebbe più semplice parametrizzare direttamente
+    la classe \texttt{Game}. Il metodo \texttt{drawCharacter()} sarebbe più
+    appropriato nella classe \texttt{Board} e chiamato durante
+    \texttt{StartGame()}.
+
+    Un caso invece in cui l'utilizzo del pattern sarebbe adeguato è per
+    modificare a runtime il comportamento dell'influenza.
+
+    \subsection{\texttt{Coin} è superflua}
+
+    La classe \texttt{Coin} è vuota e potrebbe essere rimpiazzata da un intero.
+
+    \subsection{Carte personaggio definiscono il proprio effetto a runtime}
+
+    Le carte personaggio hanno un comportamento fissato per tutta la durata del
+    gioco. Il metodo \texttt{ChooseStrategy()} permetterebbe di cambiare a
+    runtime gli effetti delle carte, comportamento che è contro le regole del
+    gioco. Unificare \texttt{Character} e \texttt{StrategyFX}
+    implementando una classe per ogni carta permetterebbe di ovviare a questo
+    problema.
+
+    \subsection{L'astrazione introdotta da \texttt{GamePhase} è insufficiente}
+
+    La classe \texttt{GamePhase} è un'opportunità mancata per implementare un
+    pattern \textit{State} che avrebbe potuto esprimere in modo più efficace
+    e chiaro la macchina a stati del gioco.
+
+
+    \section{Confronto tra le architetture}
+
+    Le due architetture differiscono su un punto fondamentale: il gruppo 09
+    implementa il pattern MVC utilizzando un controller ``\texttt{thick}'' che
+    esegue, oltre alla validazione sintattica dei messaggi del client, anche la
+    validazione semantica. La nostra architettura, invece, esegue il controllo
+    semantico all'interno del model, assottigliando il controller.
+
+    Due punti di forza dell'architettura del gruppo 09 rispetto alla nostra sono
+    i seguenti:
+
+    \begin{enumerate}
+        \item L'uso della classe \texttt{Board}
+        \item L'uso di \texttt{Enum} per gli assistenti
+    \end{enumerate}
+
+    Nella nostra architettura le responsabilità della classe \texttt{Board} sono
+    delegate alla classe \texttt{Game}, che però si occupa già della
+    progressione della macchina a stati. Separare le due permetterebbe una
+    migliore ``separation of concerns'' della classe \texttt{Game}. Inoltre la
+    nostra classe \texttt{Assistant} teoricamente permetterebbe la creazione di
+    carte con combinazioni di valori non valide. Un \texttt{Enum} permetterebbe
+    di definire un insieme di valori legittimi.
+
+\end{document}
