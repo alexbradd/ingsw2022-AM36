@@ -1,11 +1,13 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.PieceColor;
+
 /**
  * This class models the game's Student pieces.
  *
  * @author Mattia Busso
  */
-class Student {
+public class Student {
 
     /**
      * Color of the student piece.

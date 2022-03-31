@@ -1,11 +1,13 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.TowerColor;
+
 /**
  * This class models the game's towers.
  *
  * @author Mattia Busso
  */
-class Tower {
+public class Tower {
 
     /**
      * The tower's associated color.

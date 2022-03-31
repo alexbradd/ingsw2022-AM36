@@ -1,8 +1,8 @@
-package it.polimi.ingsw.server.model;
+package it.polimi.ingsw.server.model.enums;
 
 /**
  * Enumeration of the game's mage types.
  */
-enum Mage {
+public enum Mage {
     KING, FAIRY, SAGE, MAGE;
 }
