@@ -2,7 +2,19 @@ package it.polimi.ingsw.server.model;
 
 import javax.naming.OperationNotSupportedException;
 
+/**
+ * It represents the state of the game in which the server is waiting for other players to join. In this phase, the connection
+ * and peaceful disconnection of different clients is allowed. It takes track of the number of connected players and, once
+ * there is a sufficient amount, it takes the game to the next phase: the {@link PreparePhase}.
+ * @author Leonardo Bianconi
+ * @see Phase
+ * @see PreparePhase
+ */
+
 public class LobbyPhase extends Phase {
+    /**
+     * The number of players currently in the lobby.
+     */
     private int nPlayersInLobby;
 
     /**

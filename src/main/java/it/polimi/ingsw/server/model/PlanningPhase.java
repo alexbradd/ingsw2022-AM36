@@ -3,6 +3,9 @@ package it.polimi.ingsw.server.model;
 import javax.naming.OperationNotSupportedException;
 
 /**
+ * This class represents the game state in which a player must play an assistant card.
+ * It keeps track of whether the assistant has been played by the player, and waits for this condition to evolve to a
+ * new phase.
  * @author Leonardo Bianconi
  * @see Phase
  */
@@ -13,17 +16,17 @@ public class PlanningPhase extends Phase {
     private boolean playedAssistant;
 
     /**
-     *
-     * @param g
+     * The default constructor.
+     * @param g a reference to the {@link Game} instance
      */
     protected PlanningPhase(Game g) {
         super(g);
     }
 
     /**
-     *
-     * @param g
-     * @param startingPlayer
+     * This constructor allows specifying which player is the first to choose an assistant.
+     * @param g a reference to the {@link Game} instance
+     * @param startingPlayer the first player to choose an assistant
      */
     public PlanningPhase(Game g, int startingPlayer) {
         super(g);

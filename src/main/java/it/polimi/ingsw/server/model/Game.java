@@ -1,7 +1,8 @@
 package it.polimi.ingsw.server.model;
 
 import java.util.List;
-// TODO: replace NullPointerException with IllegalArgumentException (with a correct explanation passed)
+import java.util.Objects;
+import java.util.Objects.*;
 
 /**
  * The main class of the game model, it represents a single game instance, takes track of all the game parameters,
@@ -115,11 +116,38 @@ public class Game extends Thread {
      * @param islands           the reference to the {@link IslandList} instance
      * @param motherNature      the reference to the {@link MotherNature} instance
      * @param players           the reference to the {@link PlayerList} instance
-     *                          //@param currentPhase      the initial {@link Phase} of the game
      * @param ended             whether the game is ended or not (i.e. there is a winner)
-     * @throws NullPointerException if any of the object parameters passed is null
+     * @param professors        an array containing all the {@link Professor}s of the game
+     * @param characters        an array containing all the chose {@link Character}s for the game
+     * @throws IllegalArgumentException  if any of the object parameters passed is null
+     * @throws IndexOutOfBoundsException if any of the integer parameters is out of bounds
      */
-    Game(int nPlayers, int nTowers, int nStudentsMovable, int nStudentsEntrance, boolean expertMode, Sack sack, List<Cloud> clouds, IslandList islands, MotherNature motherNature, Professor[] professors, Character[] characters, PlayerList players, boolean ended) {
+    Game(int nPlayers, int nTowers, int nStudentsMovable, int nStudentsEntrance, boolean expertMode, Sack sack, List<Cloud> clouds, IslandList islands, MotherNature motherNature, Professor[] professors, Character[] characters, PlayerList players, boolean ended) throws IllegalArgumentException {
+
+        if (nPlayers < 2 || nPlayers > 3)
+            throw new IndexOutOfBoundsException("nPlayers must be in range [2, 3]");
+        if (nTowers < 1 || nTowers > 8)
+            throw new IndexOutOfBoundsException("nTowers must be in range [1, 8]");
+        if (nStudentsMovable < 3 || nStudentsMovable > 4)
+            throw new IndexOutOfBoundsException("nTowers must be in range [1, 8]");
+        if (nStudentsEntrance < 7 || nStudentsEntrance > 9)
+            throw new IndexOutOfBoundsException("nTowers must be in range [1, 8]");
+
+        if (sack == null)
+            throw new IllegalArgumentException("sack must not be null");
+        if (clouds == null)
+            throw new IllegalArgumentException("clouds must not be null");
+        if (islands == null)
+            throw new IllegalArgumentException("islands must not be null");
+        if (motherNature == null)
+            throw new IllegalArgumentException("motherNature must not be null");
+        if (professors == null)
+            throw new IllegalArgumentException("professors must not be null");
+        if (characters == null)
+            throw new IllegalArgumentException("characters must not be null");
+        if (players == null)
+            throw new IllegalArgumentException("players must not be null");
+
         this.nPlayers = nPlayers;
         this.nTowers = nTowers;
         this.nStudentsMovable = nStudentsMovable;
@@ -132,7 +160,6 @@ public class Game extends Thread {
         this.professors = professors;
         this.characters = characters;
         this.players = players;
-        this.currentPhase = currentPhase;
         this.ended = ended;
         this.currentPhase = new LobbyPhase(this);
     }
@@ -172,10 +199,10 @@ public class Game extends Thread {
      * This method is used to execute the code inside the {@link UserEvent}, it is part of the Command pattern.
      *
      * @param c the {@link UserEvent} to be executed
-     * @throws NullPointerException if c is a null pointer
+     * @throws IllegalArgumentException if c is a null pointer
      */
-    public void consumeUserEvent(UserEvent c) {
-        if (c.equals(null)) throw new NullPointerException("user event should not be null.");
+    public void consumeUserEvent(UserEvent c) throws IllegalArgumentException {
+        if (c == null) throw new IllegalArgumentException("user event should not be null.");
 
         try {
             c.consume(currentPhase);

@@ -4,25 +4,59 @@ import javax.naming.OperationNotSupportedException;
 import java.security.InvalidParameterException;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * This phase represents a state of the game in which a player is currently playing. Its subclasses represent the
+ * sub-phases in which a player's action turn can be subdivided. The ActionPhase class defines the common operations
+ * between them.
+ *
+ * @author Leonardo Bianconi
+ * @see Phase
+ * @see PreparePhase
+ * @see StudentMovePhase
+ * @see MNMovePhase
+ * @see CloudPickPhase
+ * @see EndgamePhase
+ */
+
 abstract class ActionPhase extends Phase {
+    /**
+     * An iterator that specifies the order of next players to play.
+     */
     private PlayerListIterator iterator;
+    /**
+     * The player currently playing.
+     */
     private Player curPlayer;
-    private boolean extraInfluenceCalculator;
+    /**
+     * Whether influence needs to be calculated on another island besides the one Mother Nature steps on (character effect
+     * - see game rules).
+     */
+    private boolean extraInfluenceCalculation;
+    /**
+     * The {@link MaxExtractor} instance for the calculations of professor acquisition during the round (may vary based on a
+     * character effect - see game rules).
+     */
     private MaxExtractor maximumExtractor;
+    /**
+     * The extra number of steps that Mother Nature can take during this round (the default value is 0, may vary based on
+     * a character effect - see game rules).
+     */
     private int extraMNMoves;
 
 
     /**
-     * {@inheritDoc}
+     * Additional constructor, selects automatically the first player to play, based on previously played assistants.
+     *
+     * @param game the Game instance
      */
     protected ActionPhase(Game game) {
         super(game);
     }
 
     /**
-     * The base constructor. // TODO
+     * The base constructor.
      *
-     * @param game
+     * @param game the Game instance
      */
     protected ActionPhase(Game game, PlayerListIterator iterator, Player player) {
         super(game);
@@ -50,14 +84,15 @@ abstract class ActionPhase extends Phase {
     /**
      * It returns the Player instance corresponding to the currently playing player.
      *
-     * @return
+     * @return the {@link Player} currently playing
      */
     protected Player getCurrentPlayer() {
         return null;
     }
 
     /**
-     *
+     * This method recalculates the affiliation of professors to players' schools. The calculation algorithm varies depending
+     * on the maximumExtractor attribute.
      */
     protected void assignProfessors() {
     }
@@ -93,17 +128,18 @@ abstract class ActionPhase extends Phase {
     }
 
     /**
-     * // TODO
+     * This method requests an extra influence calculation to be done in another island besides the one Mother Nature steps
+     * on (see game rules).
      *
-     * @param islandPiece
+     * @param islandPiece the island to be calculated on
      */
-    protected void requestExtraInfluenceCalculator(IslandPiece islandPiece) {
+    protected void requestExtraInfluenceCalculation(IslandPiece islandPiece) {
     }
 
     /**
-     * // TODO
+     * This method requests an extension of Mother Nature movement by a certain amount of steps.
      *
-     * @param steps
+     * @param steps the amount of steps of the extension
      */
     protected void requestMNMovementExtension(int steps) {
     }

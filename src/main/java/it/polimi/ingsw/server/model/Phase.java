@@ -17,16 +17,16 @@ import java.security.InvalidParameterException;
  * @see EndgamePhase
  */
 
-// TODO: replace NullPointerException with IllegalArgumentException (with a correct explanation passed)
-// TODO: replace some exceptions with IllegalStateException
-
 abstract public class Phase {
+    /**
+     * A reference to the {@link Game} instance.
+     */
     private Game game;
 
     /**
      * The default constructor.
      *
-     * @param game the {@link Game} instance
+     * @param game the {@link Game} instance.
      */
     protected Phase(Game game) {
         this.game = game;
@@ -77,7 +77,7 @@ abstract public class Phase {
      * @throws MageAlreadyChosenException     if the mage has already been chosen by another player
      */
 
-    public void chooseMageDeck(String username, int id) throws OperationNotSupportedException, IndexOutOfBoundsException, MageAlreadyChosenException, NullPointerException, PlayerNotInGameException {
+    public void chooseMageDeck(String username, int id) throws OperationNotSupportedException, IndexOutOfBoundsException, NullPointerException, InvalidPlayerException, MageAlreadyChosenException {
         throw new OperationNotSupportedException();
     }
 
@@ -93,7 +93,7 @@ abstract public class Phase {
      *                                         player's turn
      * @throws AssistantAlreadyPlayedException if this assistant has already been played by another player in this round
      * @throws AssistantNotInDeckException     if this assistant has already been played by the player
-     * @throws IndexOutOfBoundsException if the given id is out of bounds
+     * @throws IndexOutOfBoundsException       if the given id is out of bounds
      */
 
     public void playAssistant(String username, int id) throws OperationNotSupportedException, NullPointerException, InvalidPlayerException, AssistantAlreadyPlayedException, AssistantNotInDeckException, IndexOutOfBoundsException {
@@ -135,10 +135,10 @@ abstract public class Phase {
      * @param source      the source of the student movement
      * @param destination the destination of the student movement
      * @throws OperationNotSupportedException if this operation is not supported by the current phase of the game
+     * @throws IllegalArgumentException       if the movement is not allowed
      * @throws NullPointerException           if any of the parameters is null
-     * @throws IllegalArgumentException      if this movement is not allowed
      */
-    public void moveStudent(PieceColor color, StudentMoveSource source, StudentMoveDestination destination) throws OperationNotSupportedException, NullPointerException, IllegalArgumentException {
+    public void moveStudent(PieceColor color, StudentMoveSource source, StudentMoveDestination destination) throws OperationNotSupportedException, IllegalArgumentException, NullPointerException {
         throw new OperationNotSupportedException();
     }
 
@@ -162,7 +162,6 @@ abstract public class Phase {
      * This method lets the player identified by his username play a character card. The {@link Character} instance is
      * passed via parameter, along with all the needed additional information, as can be seen below:
      * <br>
-     * // TODO add specific args for all character cards
      *
      * @param username  the username of the player
      * @param character the {@link Character} instance
@@ -171,12 +170,12 @@ abstract public class Phase {
      * @throws NullPointerException           if any of the parameters is null
      * @throws InvalidPlayerException         either if the specified player username is invalid or it is not the specified
      *                                        player's turn
-     * @throws InvalidParameterException      if the additional information "args" is either missing or incorrect
+     * @throws IllegalArgumentException       if the additional information "args" is either missing or incorrect
      * @throws NotEnoughCoinsException        if the number of coins of the player is less than the amount required to play the
      *                                        character card (see game rules)
      */
 
-    public void playCharacter(String username, Character character, int... args) throws OperationNotSupportedException, NullPointerException, InvalidPlayerException, InvalidParameterException, NotEnoughCoinsException {
+    public void playCharacter(String username, Character character, int... args) throws OperationNotSupportedException, NullPointerException, InvalidPlayerException, IllegalArgumentException, NotEnoughCoinsException {
         throw new OperationNotSupportedException();
     }
 
