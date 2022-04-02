@@ -1,36 +1,51 @@
 package it.polimi.ingsw.server.model;
 
 import javax.naming.OperationNotSupportedException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class represents the game state in which a player must play an assistant card.
  * It keeps track of whether the assistant has been played by the player, and waits for this condition to evolve to a
  * new phase.
+ *
  * @author Leonardo Bianconi
  * @see Phase
  */
 public class PlanningPhase extends Phase {
 
     private final PlayerListIterator iterator;
-    private Player curPlayer;
+    private final Player curPlayer;
     private boolean playedAssistant;
+    private final Set<Integer> playedThisTurn;
 
     /**
-     * The default constructor.
+     * The default constructor. Used for the first player's PlanningPhase
+     *
      * @param g a reference to the {@link Game} instance
      */
     protected PlanningPhase(Game g) {
+
         super(g);
+        iterator = game.getPlayers().clockWiseIterator(0);  //TODO
+        curPlayer = iterator.next();
+        playedAssistant = false;
+        playedThisTurn = new HashSet<>();
     }
 
     /**
      * This constructor allows specifying which player is the first to choose an assistant.
-     * @param g a reference to the {@link Game} instance
-     * @param startingPlayer the first player to choose an assistant
+     *
+     * @param g              a reference to the {@link Game} instance
+     * @param iterator       a {@link PlayerListIterator} starting from the player to choose the assistant
+     * @param playedThisTurn a Set containing the values of all the assistants played in this turn
      */
-    public PlanningPhase(Game g, int startingPlayer) {
+    public PlanningPhase(Game g, PlayerListIterator iterator, Set<Integer> playedThisTurn) {
         super(g);
-        // TODO
+        this.iterator = iterator;
+        curPlayer = this.iterator.next();
+        playedAssistant = false;
+        this.playedThisTurn = playedThisTurn;
     }
 
     /**
@@ -38,7 +53,17 @@ public class PlanningPhase extends Phase {
      */
     @Override
     public Phase doPhase() {
-        return null;
+        while (!playedAssistant) {
+            try {
+                game.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        if (iterator.hasNext()) {
+            return new PlanningPhase(game, iterator);
+        }
+        return new StudentMovePhase(game);
     }
 
     /**
@@ -46,6 +71,27 @@ public class PlanningPhase extends Phase {
      */
     @Override
     public void playAssistant(String username, int id) throws OperationNotSupportedException, NullPointerException, InvalidPlayerException, AssistantAlreadyPlayedException, AssistantNotInDeckException, IndexOutOfBoundsException {
-        super.playAssistant(username, id);
+        if (username == null)
+            throw new NullPointerException("username must not be null");
+
+        if (id <= 0 || id > 10)
+            throw new IndexOutOfBoundsException("assistant value out of bounds");
+
+
+        synchronized (game) {
+            if (!username.equals(curPlayer.getUsername()))
+                throw new InvalidPlayerException();
+
+            if (playedThisTurn.contains(id) && curPlayer.getAssistants().size() != 1)
+                throw new AssistantAlreadyPlayedException();
+
+            if (!curPlayer.getAssistants().containsInt(id)) //TODO
+                throw new AssistantNotInDeckException();
+
+            curPlayer.playAssistant(id);
+            playedThisTurn.add(id);
+            playedAssistant = true;
+        }
+        game.notifyAll();
     }
 }

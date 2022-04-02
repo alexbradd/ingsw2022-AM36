@@ -1,6 +1,8 @@
 package it.polimi.ingsw.server.model;
 
 import javax.naming.OperationNotSupportedException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -24,9 +26,9 @@ public class PreparePhase extends Phase {
      */
     private Player curPlayer;
     /**
-     * Whether the mage has been chosen by all players.
+     * The number of chosen mages.
      */
-    private boolean chosenMage;
+    private int nChosenMages;
     /**
      * A set containing all already chosen mages.
      */
@@ -39,6 +41,10 @@ public class PreparePhase extends Phase {
      */
     protected PreparePhase(Game game) {
         super(game);
+        iterator = game.getPlayers().clockwiseiterator(0);
+        curPlayer = iterator.next();
+        nChosenMages = 0;
+        chosenMages = new HashSet<>();  //TODO
     }
 
     /**
@@ -46,29 +52,58 @@ public class PreparePhase extends Phase {
      */
     @Override
     public Phase doPhase() {
-        return null;
+        while (nChosenMages < game.getnPlayers()) {
+            try {
+                game.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        setupGame();
+        return new PlanningPhase(game);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void chooseMageDeck(String username, int id) throws OperationNotSupportedException, IndexOutOfBoundsException, MageAlreadyChosenException, NullPointerException, PlayerNotInGameException {
-        super.chooseMageDeck(username, id);
+    public void chooseMageDeck(String username, String mage) throws OperationNotSupportedException, IndexOutOfBoundsException, MageAlreadyChosenException, NullPointerException, InvalidPlayerException {
+        if (username == null)
+            throw new NullPointerException("username must not be null");
+        if (mage == null)
+            throw new NullPointerException("mage must not be null");
+
+        Mage mageObject = Mage.valueOf(mage);
+
+        synchronized (game) {
+            if (username != curPlayer.getUsername())
+                throw new InvalidPlayerException();
+            for (Mage m : chosenMages) {
+                if (m.equals(mageObject))
+                    throw new MageAlreadyChosenException();
+            }
+            chosenMages.add(mageObject);
+            nChosenMages++;
+        }
+        assignDeckToPlayer(game.getPlayers().get(username), mageObject);
+        notifyAll();
     }
 
     /**
      * It returns a randomly chosen student from the sack.
+     *
      * @return a {@link Student} instance
      */
     private Student getStudentFromSack() {
-        return null;
+
     }
 
     /**
      * It puts two students of each color in the sack (see game rules - preparation).
      */
     private void putTwoOfEachInSack() {
+
     }
 
     /**
@@ -88,6 +123,80 @@ public class PreparePhase extends Phase {
      * It distributes all the needed initial game resources to all the connected players.
      */
     private void distributeResources() {
+        for (int i = 0; i < game.getPlayers().size(); i++) {
+            game.getPlayers().get(i).
+        }
     }
 
+    private void assignDeckToPlayer(Player player, Mage mage) {
+        List<Assistant> deck = new ArrayList();
+        for (int i = 1; i < 11; i++)
+            deck.add(new Assistant(i, mage));
+        player.receiveDeck(deck);
+    }
+
+    /**
+     * Helper method that sets up all game entities with the correct values for a game.
+     */
+    // TODO replace hardcoded ints with constants
+    private void setupGame() {
+
+        //send mn on island 0
+        Island firstIsland = game.getIslands().get(0);
+        game.getMotherNature().assignStartingIsland(firstIsland);
+
+        // place professors on the table
+        for (int i = 0; i < PieceColor.values().length; i++) {
+            professor = new Professor(PieceColor.values()[i]);
+        }
+
+        // populate sack 1
+        for (int i = 0; i < game.getProfessors().length; i++) {
+            for (int j = 0; j < 2; j++) {
+                Student student = new Student(game.getProfessors()[i]);
+                game.getSack().receiveStudent(student);
+            }
+        }
+
+        //send students on islands
+        for (int i = 0; i < 12; i++) {
+            if (i != 0 || i != 6) {
+                Student randomStudent = game.getSack().sendStudent();
+                game.getIslands().get(i).receiveStudent(randomStudent);
+            }
+        }
+
+        //populate sack 2
+        for (int i = 0; i < game.getProfessors().length; i++) {
+            for (int j = 0; j < 24; j++) {
+                Student student = new Student(game.getProfessors()[i]);
+                game.getSack().receiveStudent(student);
+            }
+        }
+
+        // place clouds
+        int cloudSize = 3;
+        if (game.getnPlayers() == 3) cloudSize = 4;
+
+        for (int i = 0; i < game.getnPlayers(); i++) {
+            Cloud cloud = new Cloud(cloudSize);
+            game.getClouds().add(cloud);
+        }
+
+
+        for (PlayerListIterator iterator = game.getPlayers().clockWiseIterator(0); iterator.hasNext(); ) {
+            Player p = iterator.next();
+
+            // place towers
+            for (int j = 0; j < game.getnTowers(); j++)
+                p.receiveTower(Player.getTowerColor());
+
+            // place students in Hall
+            for (int j = 0; j < game.getnStudentsEntrance()) {
+                p.getHall().receiveStudent(game.getSack().sendStudent());
+            }
+        }
+    }
 }
+
+

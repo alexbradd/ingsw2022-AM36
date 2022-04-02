@@ -1,8 +1,6 @@
 package it.polimi.ingsw.server.model;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Objects.*;
 
 /**
  * The main class of the game model, it represents a single game instance, takes track of all the game parameters,
@@ -167,22 +165,120 @@ public class Game extends Thread {
     /**
      * Returns the number of maximum players of the game.
      */
-    public int getnPlayers() {
+    protected int getnPlayers() {
         return nPlayers;
+    }
+
+    /**
+     * Returns the initial number of towers of each player.
+     */
+    protected int getnTowers() {
+        return nTowers;
+    }
+
+    /**
+     * Returns the number of movable students during a player's {@link StudentMovePhase}.
+     */
+    protected int getnStudentsMovable() {
+        return nStudentsMovable;
+    }
+
+    /**
+     * Returns the initial number of students in the entrance of each player's school.
+     */
+    protected int getnStudentsEntrance() {
+        return nStudentsEntrance;
+    }
+
+    /**
+     * Returns the number of students for every color.
+     */
+    protected static int getnStudentsOfColor() {
+        return nStudentsOfColor;
+    }
+
+    /**
+     * Returns the number of professors of the game.
+     */
+    protected static int getnProfessors() {
+        return nProfessors;
+    }
+
+    /**
+     * Returns the number of characters of the game.
+     */
+    protected static int getnOfCharacters() {
+        return nOfCharacters;
     }
 
     /**
      * Returns whether the game has expert rules or not (see game rules).
      */
-    public boolean isExpertMode() {
+    protected boolean isExpertMode() {
         return expertMode;
+    }
+
+    /**
+     * Returns the {@link Sack} instance.
+     */
+    protected Sack getSack() {
+        return sack;
+    }
+
+    /**
+     * Returns the list of clouds.
+     */
+    protected List<Cloud> getClouds() {
+        return clouds;
+    }
+
+    /**
+     * Returns the list of islands.
+     */
+    protected IslandList getIslands() {
+        return islands;
+    }
+
+    /**
+     * Returns the {@link MotherNature} instance for this game.
+     */
+    protected MotherNature getMotherNature() {
+        return motherNature;
+    }
+
+    /**
+     * Returns an array containing all the professors.
+    * */
+    protected Professor[] getProfessors() {
+        return professors;
+    }
+
+    /**
+     * Returns an array containing all the characters of the game.
+     */
+    protected Character[] getCharacters() {
+        return characters;
+    }
+
+    /**
+     * Returns the list of connected players.
+     */
+    protected PlayerList getPlayers() {
+        return players;
     }
 
     /**
      * Returns whether the game has a winner or not.
      */
-    public boolean isEnded() {
+    protected boolean isEnded() {
         return ended;
+    }
+
+    /**
+     * Sets the game state to "ended".
+     */
+    protected void setEnded() {
+        ended = true;
     }
 
     /**

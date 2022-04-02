@@ -1,7 +1,6 @@
 package it.polimi.ingsw.server.model;
 
 import javax.naming.OperationNotSupportedException;
-import java.security.InvalidParameterException;
 
 /**
  * The Phase class represents a single state of the game, it is linked to the Game instance, and it is a facade facing
@@ -21,7 +20,7 @@ abstract public class Phase {
     /**
      * A reference to the {@link Game} instance.
      */
-    private Game game;
+    protected final Game game;
 
     /**
      * The default constructor.
@@ -68,7 +67,7 @@ abstract public class Phase {
      * This method lets the player identified by the given username choose the mage deck corresponding to the given id.
      *
      * @param username the username of the player
-     * @param id       the id associated with the mage
+     * @param mage     the name of the mage
      * @throws OperationNotSupportedException if this operation is not supported by the current phase of the game
      * @throws IndexOutOfBoundsException      if the given id is out of bounds
      * @throws NullPointerException           if the given username is null
@@ -77,7 +76,7 @@ abstract public class Phase {
      * @throws MageAlreadyChosenException     if the mage has already been chosen by another player
      */
 
-    public void chooseMageDeck(String username, int id) throws OperationNotSupportedException, IndexOutOfBoundsException, NullPointerException, InvalidPlayerException, MageAlreadyChosenException {
+    public void chooseMageDeck(String username, String mage) throws OperationNotSupportedException, IndexOutOfBoundsException, NullPointerException, InvalidPlayerException, MageAlreadyChosenException {
         throw new OperationNotSupportedException();
     }
 
@@ -204,8 +203,9 @@ abstract public class Phase {
      * @throws OperationNotSupportedException if this operation is not supported by the current phase of the game
      * @throws NullPointerException           if the given username is null
      * @throws PlayerAlreadyInGameException   if a player with the same username is already taking part in this game
+     * @throws GameIsFullException            if the maximum number of players has already joined the game
      */
-    public void addPlayer(String username) throws OperationNotSupportedException, NullPointerException, PlayerAlreadyInGameException {
+    public void addPlayer(String username) throws OperationNotSupportedException, NullPointerException, PlayerAlreadyInGameException, GameIsFullException {
         throw new OperationNotSupportedException();
     }
 

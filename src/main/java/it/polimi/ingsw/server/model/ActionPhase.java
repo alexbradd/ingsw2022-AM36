@@ -2,7 +2,6 @@ package it.polimi.ingsw.server.model;
 
 import javax.naming.OperationNotSupportedException;
 import java.security.InvalidParameterException;
-import java.util.concurrent.ExecutionException;
 
 /**
  * This phase represents a state of the game in which a player is currently playing. Its subclasses represent the
@@ -22,26 +21,26 @@ abstract class ActionPhase extends Phase {
     /**
      * An iterator that specifies the order of next players to play.
      */
-    private PlayerListIterator iterator;
+    protected PlayerListIterator iterator;
     /**
      * The player currently playing.
      */
-    private Player curPlayer;
+    protected Player curPlayer;
     /**
      * Whether influence needs to be calculated on another island besides the one Mother Nature steps on (character effect
      * - see game rules).
      */
-    private boolean extraInfluenceCalculation;
+    protected boolean extraInfluenceCalculation;
     /**
      * The {@link MaxExtractor} instance for the calculations of professor acquisition during the round (may vary based on a
      * character effect - see game rules).
      */
-    private MaxExtractor maximumExtractor;
+    protected MaxExtractor maximumExtractor;
     /**
      * The extra number of steps that Mother Nature can take during this round (the default value is 0, may vary based on
      * a character effect - see game rules).
      */
-    private int extraMNMoves;
+    protected int extraMNMoves;
 
 
     /**
@@ -51,6 +50,9 @@ abstract class ActionPhase extends Phase {
      */
     protected ActionPhase(Game game) {
         super(game);
+        extraInfluenceCalculation = false;
+        maximumExtractor = new EqualityExclusiveMaxExtractor();
+        extraMNMoves = 0;
     }
 
     /**
@@ -166,7 +168,7 @@ abstract class ActionPhase extends Phase {
      */
     @Override
     public void moveStudent(PieceColor color, StudentMoveSource source, StudentMoveDestination destination) throws OperationNotSupportedException, NullPointerException, IllegalArgumentException {
-        super.moveStudent(color, source, destination);
+
     }
 
     /**

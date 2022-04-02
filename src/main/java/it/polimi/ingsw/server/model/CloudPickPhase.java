@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server.model;
 
 import javax.naming.OperationNotSupportedException;
+import java.util.Set;
 
 /**
  * This phase represents the last action a player must perform during his turn: picking a cloud full of students from the
@@ -26,6 +27,9 @@ public class CloudPickPhase extends ActionPhase {
      */
     protected CloudPickPhase(Game g, PlayerListIterator iterator, Player currentPlayer) {
         super(g);
+        this.iterator = iterator;
+        this.curPlayer = currentPlayer;
+        cloudPicked = false;
     }
 
     /**
@@ -33,7 +37,19 @@ public class CloudPickPhase extends ActionPhase {
      */
     @Override
     public Phase doPhase() {
-        return null;
+        while(!cloudPicked) {
+            try {
+                game.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        if (checkWin())
+            return new EndgamePhase(game, getWinners());
+        else if (iterator.hasNext())
+            return new StudentMovePhase(game, iterator);
+
+        return new PlanningPhase(game);
     }
 
     /**
@@ -41,7 +57,26 @@ public class CloudPickPhase extends ActionPhase {
      */
     @Override
     public void pickCloud(String username, int id) throws OperationNotSupportedException, NullPointerException, InvalidPlayerException, IndexOutOfBoundsException, CloudAlreadyChosenException {
-        super.pickCloud(username, id);
+        if (username == null)
+            throw new NullPointerException("username must not be null");
+        if (!username.equals(curPlayer.getUsername()))
+            throw new InvalidPlayerException();
+        if (id < 0 || id >= game.getnPlayers())
+            throw new IndexOutOfBoundsException("not a valid id for a cloud");
+
+        Cloud cloud = game.getClouds().get(id);
+        Set<Student> studentsOnCloud = cloud.getStudents();
+
+        if (studentsOnCloud.isEmpty()) {
+            throw new CloudAlreadyChosenException();
+        } else {
+            for (Student s : cloud.drainCloud()) {
+                curPlayer.getEntrance().receiveStudent(s);
+            }
+        }
+        synchronized (game) {
+            cloudPicked = true;
+        }
     }
 
     /**

@@ -8,7 +8,7 @@ package it.polimi.ingsw.server.model;
  * @author Leonardo Bianconi
  * @see Phase
  */
-public class EndgamePhase extends Phase{
+public class EndgamePhase extends Phase {
     /**
      * An array containing the winning {@link Player}(s).
      */
@@ -16,7 +16,8 @@ public class EndgamePhase extends Phase{
 
     /**
      * The base constructor.
-     * @param game the {@link Game} instance
+     *
+     * @param game    the {@link Game} instance
      * @param winners the array of winning {@link Player}(s)
      */
     protected EndgamePhase(Game game, Player[] winners) {
@@ -28,6 +29,16 @@ public class EndgamePhase extends Phase{
      */
     @Override
     public Phase doPhase() {
+        game.setEnded();
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //TODO
+        for (Player p : winners)
+            System.out.println(p);
+
         return null;
     }
 }

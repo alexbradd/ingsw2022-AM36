@@ -1,7 +1,5 @@
 package it.polimi.ingsw.server.model;
 
-import static java.time.Duration.ofMillis;
-import static java.time.Duration.ofMinutes;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
@@ -12,11 +10,11 @@ import org.junit.jupiter.api.Test;
  * @author Leonardo Bianconi
  * @see Game
  */
-public class GameTest {
+public class LobbyPhaseTest {
 
     /**
      * Test 1: a new 3 player game is created and many players connect to the lobby. It then checks the number of
-     * players Commented to illustrate the process of creation and run of new games.
+     * players after each connection/disconnection. Commented to illustrate the process of creation and run of new games.
      */
     @Test
     public void gameLobbyTest() {
@@ -36,8 +34,7 @@ public class GameTest {
                 PlayerJoinEvent e = new PlayerJoinEvent("earl");
 
                 // the game is now started as a new thread by the main thread
-                Thread gameThread = g;
-                gameThread.start();
+                g.start();
 
                 /* join/leave commands
                    expected:    anna joins

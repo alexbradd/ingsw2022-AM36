@@ -16,15 +16,18 @@ import javax.naming.OperationNotSupportedException;
 public class MNMovePhase extends ActionPhase {
     private boolean mnMoved;
 
+
     /**
      * This constructor creates the ActionPhase of a specific player and a specific order of next players to play.
      *
      * @param g             the {@link Game} instance
      * @param iterator      the {@link PlayerListIterator} instance, corresponding to next players to play
-     * @param currentPlayer the {@link Player} instance, corresponding to the current player
      */
-    protected MNMovePhase(Game g, PlayerListIterator iterator, Player currentPlayer) {
+    protected MNMovePhase(Game g, PlayerListIterator iterator, Player player) {
         super(g);
+        this.iterator = iterator;
+        this.curPlayer = player;
+        mnMoved = false;
     }
 
     /**
@@ -32,7 +35,17 @@ public class MNMovePhase extends ActionPhase {
      */
     @Override
     public Phase doPhase() {
-        return null;
+        while (!mnMoved) {
+            try {
+                game.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        if (checkWin())
+            return new EndgamePhase(game, getWinners());
+
+        return new CloudPickPhase(game, iterator, curPlayer);
     }
 
     /**
@@ -40,7 +53,20 @@ public class MNMovePhase extends ActionPhase {
      */
     @Override
     public void moveMN(String username, int steps) throws OperationNotSupportedException, NullPointerException, InvalidPlayerException, IllegalArgumentException {
-        super.moveMN(username, steps);
+        if (username == null)
+            throw new NullPointerException("username must not be null");
+        if (!username.equals(curPlayer.getUsername()))
+            throw new InvalidPlayerException();
+        //if (steps < 1)
+        //    throw new IllegalArgumentException("steps cannot be less than 1");
+        if (steps > curPlayer.getLastPlayedAssistant().getOrderValue()) {
+            throw new IllegalArgumentException("steps cannot be more than assistant value");
+        }
+
+        game.getMotherNature().move(steps);
+        synchronized (game) {
+            mnMoved = true;
+        }
     }
 
     /**
