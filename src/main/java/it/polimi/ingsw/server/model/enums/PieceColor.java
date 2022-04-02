@@ -1,4 +1,7 @@
-package it.polimi.ingsw.server.model;
+package it.polimi.ingsw.server.model.enums;
+
+import it.polimi.ingsw.server.model.Professor;
+import it.polimi.ingsw.server.model.Student;
 
 /**
  * Enumeration for the {@link Student} and {@link Professor} colors.

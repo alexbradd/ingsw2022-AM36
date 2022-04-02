@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.PieceColor;
+
 import java.util.Optional;
 
 /**
@@ -7,7 +9,7 @@ import java.util.Optional;
  *
  * @author Mattia Busso
  */
-class Professor {
+public class Professor {
 
     /**
      * The professor's piece color.

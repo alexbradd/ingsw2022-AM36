@@ -1,4 +1,6 @@
-package it.polimi.ingsw.server.model;
+package it.polimi.ingsw.server.model.enums;
+
+import it.polimi.ingsw.server.model.Tower;
 
 /**
  * Enumeration for the {@link Tower} colors.
@@ -6,6 +8,6 @@ package it.polimi.ingsw.server.model;
  * @author Mattia Busso
  * @see Tower
  */
-enum TowerColor {
+public enum TowerColor {
     WHITE, BLACK, GRAY
 }

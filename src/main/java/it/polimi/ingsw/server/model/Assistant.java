@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.Mage;
+
 /**
  * This class models the game's assistant cards.
  *
