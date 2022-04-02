@@ -9,7 +9,7 @@ import java.util.*;
  *
  * @author Mattia Busso
  */
-public class Entrance implements StudentMoveSource, StudentMoveDestination {
+public class Entrance implements BidirectionalStudentMove {
 
     /**
      * The player who owns the entrance.

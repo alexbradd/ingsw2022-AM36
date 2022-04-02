@@ -48,7 +48,7 @@ public class Student {
      *
      * @return color
      */
-    PieceColor getColor() {
+    public PieceColor getColor() {
         return this.color;
     }
 

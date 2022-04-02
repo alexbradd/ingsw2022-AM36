@@ -9,7 +9,7 @@ import java.util.*;
  *
  * @author Mattia Busso
  */
-public class Hall implements StudentMoveSource, StudentMoveDestination {
+public class Hall implements BidirectionalStudentMove {
 
     /**
      * The player who owns the hall.
