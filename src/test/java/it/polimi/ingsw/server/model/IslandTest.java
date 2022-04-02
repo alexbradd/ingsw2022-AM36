@@ -22,7 +22,7 @@ class IslandTest {
     @BeforeEach
     void setUp() {
         island = new Island(0);
-        blocker = new Herbalist();
+        blocker = new Herbalist(true);
         player = new Player("Napoleon");
     }
 
