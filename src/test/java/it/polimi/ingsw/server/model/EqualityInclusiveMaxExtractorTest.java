@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.TowerColor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +24,7 @@ public class EqualityInclusiveMaxExtractorTest extends MaxExtractorTest {
     @BeforeAll
     static void setUp() {
         playerSet = genPlayerSet();
-        favourite = new Player("Neo");
+        favourite = new Player("Neo", 1, 1, TowerColor.WHITE);
         extractor = new EqualityInclusiveMaxExtractor(favourite);
     }
 
