@@ -1,4 +1,4 @@
-package it.polimi.ingsw.server.model;
+package it.polimi.ingsw.server.model.exceptions;
 
 public class MageAlreadyChosenException extends Exception {
 }

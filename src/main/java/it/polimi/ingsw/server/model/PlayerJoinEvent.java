@@ -1,4 +1,6 @@
 package it.polimi.ingsw.server.model;
+import it.polimi.ingsw.server.model.exceptions.PlayerAlreadyInGameException;
+
 import javax.naming.OperationNotSupportedException;
 
 public class PlayerJoinEvent implements UserEvent {

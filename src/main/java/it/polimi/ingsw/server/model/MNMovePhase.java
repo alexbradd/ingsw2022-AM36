@@ -1,6 +1,10 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
+
 import javax.naming.OperationNotSupportedException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -20,8 +24,8 @@ public class MNMovePhase extends ActionPhase {
     /**
      * This constructor creates the ActionPhase of a specific player and a specific order of next players to play.
      *
-     * @param g             the {@link Game} instance
-     * @param iterator      the {@link PlayerListIterator} instance, corresponding to next players to play
+     * @param g        the {@link Game} instance
+     * @param iterator the {@link PlayerListIterator} instance, corresponding to next players to play
      */
     protected MNMovePhase(Game g, PlayerListIterator iterator, Player player) {
         super(g);
@@ -57,8 +61,6 @@ public class MNMovePhase extends ActionPhase {
             throw new NullPointerException("username must not be null");
         if (!username.equals(curPlayer.getUsername()))
             throw new InvalidPlayerException();
-        //if (steps < 1)
-        //    throw new IllegalArgumentException("steps cannot be less than 1");
         if (steps > curPlayer.getLastPlayedAssistant().getOrderValue()) {
             throw new IllegalArgumentException("steps cannot be more than assistant value");
         }
@@ -74,15 +76,51 @@ public class MNMovePhase extends ActionPhase {
      */
     @Override
     public boolean checkWin() {
-        return super.checkWin();
+        return (lessThanThreeIslands() || playerHasNoTowers());
+    }
+
+    /**
+     * Helper method that calculates the number of islands on the table and checks whether it less than or equal to 3.
+     *
+     * @return whether there are 3 or less islands
+     */
+    private boolean lessThanThreeIslands() {
+        int nIslands = game.getIslands().getNumOfGroups();
+        return nIslands <= 3;
+    }
+
+    /**
+     * Helper method that calculates whether a player in the game has no remaining towers in his school board.
+     *
+     * @return whether a player has no towers in his school board
+     */
+    private boolean playerHasNoTowers() {
+        for (Player p : game.getPlayers()) {
+            if (p.getNumOfTowers() == 0)
+                return true;
+        }
+        return false;
     }
 
     /**
      * It returns an array of {@link Player} instances corresponding to the winners of the game.
      *
-     * @return an array containing the winning player(s). It is empty if there isn't a winner yet.
+     * @return an array containing the winning player(s)
      */
-    public Player[] getWinners() {
-        return null;
+    public List<Player> getWinners() {
+        List<Player> winners = new ArrayList<>();
+        for (Player p : game.getPlayers()) {
+            if (p.getNumOfTowers() == 0) {
+                winners.add(p);
+                return winners;
+            }
+        }
+
+        if (game.getIslands().getNumOfIslands() <= 3) {
+            Player winner = game.getPlayers().stream()
+                            .min((x, y) -> x.getNumOfTowers() < y.getNumOfTowers());
+            winners.add(winner);
+        }
+        return winners;
     }
 }

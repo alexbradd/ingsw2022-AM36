@@ -1,5 +1,9 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.PieceColor;
+import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
+import it.polimi.ingsw.server.model.exceptions.NotEnoughCoinsException;
+
 import javax.naming.OperationNotSupportedException;
 import java.security.InvalidParameterException;
 
@@ -175,7 +179,9 @@ abstract class ActionPhase extends Phase {
      * {@inheritDoc}
      */
     @Override
-    public void playCharacter(String username, Character character, int... args) throws OperationNotSupportedException, NullPointerException, InvalidPlayerException, InvalidParameterException, NotEnoughCoinsException {
-        super.playCharacter(username, character, args);
+    public void playCharacter(String username, Character character, CharacterStep[] args) throws OperationNotSupportedException, NullPointerException, InvalidPlayerException, InvalidParameterException, NotEnoughCoinsException {
+
+
+        //catch InvalidCharacterParameterException
     }
 }

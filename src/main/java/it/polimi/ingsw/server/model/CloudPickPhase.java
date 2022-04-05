@@ -1,6 +1,11 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.exceptions.CloudAlreadyChosenException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
+
 import javax.naming.OperationNotSupportedException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -44,10 +49,11 @@ public class CloudPickPhase extends ActionPhase {
                 e.printStackTrace();
             }
         }
-        if (checkWin())
-            return new EndgamePhase(game, getWinners());
-        else if (iterator.hasNext())
+        if (iterator.hasNext()) {
             return new StudentMovePhase(game, iterator);
+        }
+        else if (checkWin())
+            return new EndgamePhase(game, getWinners());
 
         return new PlanningPhase(game);
     }
@@ -84,7 +90,27 @@ public class CloudPickPhase extends ActionPhase {
      */
     @Override
     public boolean checkWin() {
-        return super.checkWin();
+        return isSackEmpty() || aPlayerHasNoAssistants();
+    }
+
+    /**
+     * Helper method that checks whether the sack has no more students in it.
+     * @return whether the sack is empty or not
+     */
+    private boolean isSackEmpty() {
+        return game.getSack().size() == 0;
+    }
+
+    /**
+     * Helper method that checks whether a player has no remaining assistants in his deck.
+     * @return whether a player has no assistants remaining
+     */
+    private boolean aPlayerHasNoAssistants() {
+        for (Player p : game.getPlayers()) {
+            if (p.getAssistants().size() == 0)
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -92,7 +118,22 @@ public class CloudPickPhase extends ActionPhase {
      *
      * @return an array containing the winning player(s). It is empty if there isn't a winner yet.
      */
-    public Player[] getWinners() {
-        return null;
+    public List<Player> getWinners() {
+        List<Player> winners = new ArrayList<>();
+
+        int minNumTowers = game.getnTowers();
+        int maxNumProfessors = 0;
+        for (Player p : game.getPlayers()) {
+            if (p.getNumOfTowers() <= minNumTowers && getNumOfProfessors(p) > maxNumProfessors) {
+                minNumTowers = p.getNumOfTowers();
+                maxNumProfessors = getNumOfProfessors(p);
+            }
+        }
+
+        for (Player p : game.getPlayers()) {
+            if (p.getNumOfTowers() == minNumTowers && getNumProfessors(p))
+                winners.add(player);
+        }
+
     }
 }

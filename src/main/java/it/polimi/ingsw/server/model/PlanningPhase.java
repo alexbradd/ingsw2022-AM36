@@ -1,5 +1,9 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.exceptions.AssistantAlreadyPlayedException;
+import it.polimi.ingsw.server.model.exceptions.AssistantNotInDeckException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
+
 import javax.naming.OperationNotSupportedException;
 import java.util.HashSet;
 import java.util.Set;
@@ -61,7 +65,7 @@ public class PlanningPhase extends Phase {
             }
         }
         if (iterator.hasNext()) {
-            return new PlanningPhase(game, iterator);
+            return new PlanningPhase(game, iterator, playedThisTurn);
         }
         return new StudentMovePhase(game);
     }
@@ -70,6 +74,7 @@ public class PlanningPhase extends Phase {
      * {@inheritDoc}
      */
     @Override
+    // TODO
     public void playAssistant(String username, int id) throws OperationNotSupportedException, NullPointerException, InvalidPlayerException, AssistantAlreadyPlayedException, AssistantNotInDeckException, IndexOutOfBoundsException {
         if (username == null)
             throw new NullPointerException("username must not be null");
@@ -77,21 +82,35 @@ public class PlanningPhase extends Phase {
         if (id <= 0 || id > 10)
             throw new IndexOutOfBoundsException("assistant value out of bounds");
 
-
         synchronized (game) {
             if (!username.equals(curPlayer.getUsername()))
                 throw new InvalidPlayerException();
 
-            if (playedThisTurn.contains(id) && curPlayer.getAssistants().size() != 1)
+            if (playedThisTurn.contains(id) && !forcedToPlayAssistant(curPlayer, id))
                 throw new AssistantAlreadyPlayedException();
 
-            if (!curPlayer.getAssistants().containsInt(id)) //TODO
-                throw new AssistantNotInDeckException();
+            //if (!curPlayer.getAssistants().containsInt(id))
+            //    throw new AssistantNotInDeckException();
 
-            curPlayer.playAssistant(id);
+            try {
+                curPlayer.playAssistant(id);
+            } catch (IndexOutOfBoundsException e) {
+                throw new AssistantAlreadyPlayedException();
+            }
+
             playedThisTurn.add(id);
             playedAssistant = true;
+
+            game.notifyAll();
         }
-        game.notifyAll();
     }
+
+    private boolean forcedToPlayAssistant(Player player, int id) {
+        for (Assistant a : player.getAssistants()) {
+            if (!playedThisTurn.contains(a.getOrderValue()))
+                return false;
+        }
+        return true;
+    }
+
 }

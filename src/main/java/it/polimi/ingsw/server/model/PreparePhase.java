@@ -1,5 +1,10 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.Mage;
+import it.polimi.ingsw.server.model.enums.PieceColor;
+import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
+import it.polimi.ingsw.server.model.exceptions.MageAlreadyChosenException;
+
 import javax.naming.OperationNotSupportedException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -77,7 +82,7 @@ public class PreparePhase extends Phase {
         Mage mageObject = Mage.valueOf(mage);
 
         synchronized (game) {
-            if (username != curPlayer.getUsername())
+            if (!username.equals(curPlayer.getUsername()))
                 throw new InvalidPlayerException();
             for (Mage m : chosenMages) {
                 if (m.equals(mageObject))
@@ -123,11 +128,13 @@ public class PreparePhase extends Phase {
      * It distributes all the needed initial game resources to all the connected players.
      */
     private void distributeResources() {
-        for (int i = 0; i < game.getPlayers().size(); i++) {
-            game.getPlayers().get(i).
-        }
     }
 
+    /**
+     * Helper method that creates a deck of assistant cards of the specified mage and assigns it to the specified player.
+     * @param player the player that will receive the deck
+     * @param mage the mage on the back of the assistant cards
+     */
     private void assignDeckToPlayer(Player player, Mage mage) {
         List<Assistant> deck = new ArrayList();
         for (int i = 1; i < 11; i++)

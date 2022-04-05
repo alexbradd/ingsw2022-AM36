@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server.model;
 
+import java.util.List;
+
 /**
  * This phase represents the very last state of a game: the one in which a winner has been found and the game has ended.
  * This phase has no particular operations: the server sends a message telling all clients the winner for this game, and
@@ -10,9 +12,9 @@ package it.polimi.ingsw.server.model;
  */
 public class EndgamePhase extends Phase {
     /**
-     * An array containing the winning {@link Player}(s).
+     * A list containing the winning {@link Player}(s).
      */
-    private Player[] winners;
+    private List<Player> winners;
 
     /**
      * The base constructor.
@@ -20,8 +22,9 @@ public class EndgamePhase extends Phase {
      * @param game    the {@link Game} instance
      * @param winners the array of winning {@link Player}(s)
      */
-    protected EndgamePhase(Game game, Player[] winners) {
+    protected EndgamePhase(Game game, List<Player> winners) {
         super(game);
+        this.winners = winners;
     }
 
     /**
@@ -37,7 +40,7 @@ public class EndgamePhase extends Phase {
         }
         //TODO
         for (Player p : winners)
-            System.out.println(p);
+            System.out.println(p + "has won the game.");
 
         return null;
     }

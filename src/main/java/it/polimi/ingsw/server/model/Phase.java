@@ -1,5 +1,8 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.PieceColor;
+import it.polimi.ingsw.server.model.exceptions.*;
+
 import javax.naming.OperationNotSupportedException;
 
 /**
