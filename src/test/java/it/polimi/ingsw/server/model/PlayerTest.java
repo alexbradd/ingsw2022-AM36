@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.Mage;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import org.junit.jupiter.api.BeforeAll;
@@ -99,7 +100,17 @@ public class PlayerTest {
      */
     private void initDeck() {
         deck = new ArrayList<>();
-        for(int i = 0; i < 10; i++) deck.add(new Assistant(1, 1, Mage.FAIRY));
+
+        deck.add(new Assistant(AssistantType.CHEETAH, Mage.FAIRY));
+        deck.add(new Assistant(AssistantType.OSTRICH, Mage.FAIRY));
+        deck.add(new Assistant(AssistantType.CAT, Mage.FAIRY));
+        deck.add(new Assistant(AssistantType.EAGLE, Mage.FAIRY));
+        deck.add(new Assistant(AssistantType.FOX, Mage.FAIRY));
+        deck.add(new Assistant(AssistantType.SNAKE, Mage.FAIRY));
+        deck.add(new Assistant(AssistantType.OCTOPUS, Mage.FAIRY));
+        deck.add(new Assistant(AssistantType.DOG, Mage.FAIRY));
+        deck.add(new Assistant(AssistantType.ELEPHANT, Mage.FAIRY));
+        deck.add(new Assistant(AssistantType.TURTLE, Mage.FAIRY));
     }
 
     /**
