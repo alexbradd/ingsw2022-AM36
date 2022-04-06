@@ -1,6 +1,6 @@
-//STUB
 package it.polimi.ingsw.server.model.enums;
 
+//STUB
 public enum CharacterType {
     HERBALIST(2);
 

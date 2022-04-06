@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import org.junit.jupiter.api.BeforeAll;
@@ -77,7 +78,7 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void blockedIslandNoMap() {
-        island = island.pushBlock(new BlockCard(new Herbalist()));
+        island = island.pushBlock(new BlockCard(CharacterType.HERBALIST));
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isEmpty());

@@ -1,0 +1,56 @@
+--- # create and join
+gameId: 0
+username: "Ann"
+type: "CREATE"
+arguments: []
+
+--- # join and leave
+gameId: 123456789
+username: "Ann"
+type: "JOIN" # "LEAVE"
+arguments: []
+
+--- # choose mage
+gameId: 123456789
+username: "Ann"
+type: "CHOOSE_MAGE"
+arguments: ["Mage"]
+
+--- # play assistant
+gameId: 123456789
+username: "Ann"
+type: "PLAY_ASSISTANT"
+arguments: ["AssistantType"]
+
+--- # move from entrance to island/hall
+gameId: 123456789
+username: "Ann"
+type: "MOVE_STUDENT"
+arguments:
+  - "ISLAND" # HALL
+  - "PieceColor"
+  - 0
+
+--- # play character
+gameId: 123456789
+username: "Ann"
+type: "PLAY_CHARACTER"
+arguments: ["Key1", "Value1"]
+
+--- # move MN
+gameId: 123456789
+username: "Ann"
+type: "MOVE_MN"
+arguments: ["1"]
+
+--- # move MN
+gameId: 123456789
+username: "Ann"
+type: "MOVE_MN"
+arguments: ["1"]
+
+--- # Pick cloud
+gameId: 123456789
+username: "Ann"
+type: "PICK_CLOUD"
+arguments: ["1"]

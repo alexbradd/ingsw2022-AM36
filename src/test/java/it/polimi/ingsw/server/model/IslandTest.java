@@ -1,6 +1,6 @@
-// STUB from functionalize-islands
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import org.junit.jupiter.api.BeforeEach;
@@ -258,11 +258,11 @@ public class IslandTest {
     @Test
     void testMergeBlock() {
         i = i.updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))))
-                .pushBlock(new BlockCard(new Herbalist()))
-                .pushBlock(new BlockCard(new Herbalist()));
+                .pushBlock(new BlockCard(CharacterType.HERBALIST))
+                .pushBlock(new BlockCard(CharacterType.HERBALIST));
         Island other = new Island(1)
                 .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))))
-                .pushBlock(new BlockCard(new Herbalist()));
+                .pushBlock(new BlockCard(CharacterType.HERBALIST));
         Island another = new Island(2)
                 .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))));
 
@@ -283,9 +283,9 @@ public class IslandTest {
      */
     @Test
     void testPushBlock() {
-        i = i.pushBlock(new BlockCard(new Herbalist()))
-                .pushBlock(new BlockCard(new Herbalist()))
-                .pushBlock(new BlockCard(new Herbalist()));
+        i = i.pushBlock(new BlockCard(CharacterType.HERBALIST))
+                .pushBlock(new BlockCard(CharacterType.HERBALIST))
+                .pushBlock(new BlockCard(CharacterType.HERBALIST));
         assertEquals(3, i.getNumOfBlocks());
     }
 
@@ -294,7 +294,7 @@ public class IslandTest {
      */
     @Test
     void testPopBlock() {
-        i = i.pushBlock(new BlockCard(new Herbalist()))
+        i = i.pushBlock(new BlockCard(CharacterType.HERBALIST))
                 .popBlock()
                 .getFirst();
         assertEquals(0, i.getNumOfBlocks());
