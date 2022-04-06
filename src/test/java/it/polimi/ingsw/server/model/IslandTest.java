@@ -94,8 +94,8 @@ class IslandTest {
     @Test
     void sameNumberOfBlocksAndUnblocks() {
         assertDoesNotThrow(() -> {
-            island.pushBlock(blocker.popBlock());
-            island.pushBlock(blocker.popBlock());
+            island.pushBlock(blocker.popBlock().getSecond());
+            island.pushBlock(blocker.popBlock().getSecond());
             island.popBlock();
             island.popBlock();
         });
@@ -109,13 +109,11 @@ class IslandTest {
     void leafBlockingUnblocking() {
         assertFalse(island.isBlocked());
 
-        island.pushBlock(blocker.popBlock());
-        int blockerBlocks = blocker.getNumOfBlocks();
+        island.pushBlock(blocker.popBlock().getSecond());
         assertTrue(island.isBlocked());
 
         island.popBlock();
         assertFalse(island.isBlocked());
-        assertEquals(blocker.getNumOfBlocks(), blockerBlocks + 1);
     }
 
     /**
@@ -270,7 +268,7 @@ class IslandTest {
         island.conquer(player);
         child.conquer(player);
 
-        BlockCard b = blocker.popBlock();
+        BlockCard b = blocker.popBlock().getSecond();
         int blocks = blocker.getNumOfBlocks();
         child.pushBlock(b);
 
@@ -289,8 +287,8 @@ class IslandTest {
         island.conquer(player);
         child.conquer(player);
 
-        BlockCard b1 = blocker.popBlock();
-        BlockCard b2 = blocker.popBlock();
+        BlockCard b1 = blocker.popBlock().getSecond();
+        BlockCard b2 = blocker.popBlock().getSecond();
         int blocks = blocker.getNumOfBlocks();
         island.pushBlock(b1);
         child.pushBlock(b2);
@@ -333,17 +331,15 @@ class IslandTest {
         child.conquer(player);
         island.merge(child);
 
-        BlockCard b = blocker.popBlock();
+        BlockCard b = blocker.popBlock().getSecond();
         island.pushBlock(b);
         assertTrue(island.isBlocked());
         assertTrue(child.isBlocked());
 
-        int blockerBlocks = blocker.getNumOfBlocks();
         island.popBlock();
         assertFalse(island.isBlocked());
         assertFalse(child.isBlocked());
         assertThrows(IllegalStateException.class, child::popBlock);
-        assertEquals(blocker.getNumOfBlocks(), blockerBlocks + 1);
     }
 
     /**

@@ -317,14 +317,15 @@ class Island implements StudentMoveDestination {
     }
 
     /**
-     * Pop one block from the island, and return it to its owner.
+     * Pop one block from the island.
      *
+     * @return a BlockCard
      * @throws IllegalStateException if the entity isn't blocked
      */
-    void popBlock() {
+    BlockCard popBlock() {
         Island toUnblock = getParent().orElse(this);
         if (!toUnblock.isBlocked()) throw new IllegalStateException("cannot unblock an already unblocked island");
-        toUnblock.blockCards.pop().returnToOwner();
+        return toUnblock.blockCards.pop();
     }
 
     /**

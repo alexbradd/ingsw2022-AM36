@@ -65,7 +65,7 @@ class StandardInfluenceCalculatorTest {
     @Test
     void blockedIslandNoMap() {
         Herbalist blocker = new Herbalist();
-        island.pushBlock(blocker.popBlock());
+        island.pushBlock(blocker.popBlock().getSecond());
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
         assertTrue(inf.isEmpty());
