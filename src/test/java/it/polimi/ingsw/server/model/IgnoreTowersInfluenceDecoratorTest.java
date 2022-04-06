@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -50,14 +51,14 @@ class IgnoreTowersInfluenceDecoratorTest {
     @Test
     void removesTowerInfluence() {
         Professor p = new Professor(PieceColor.RED);
-        Island child = new Island(1);
-
         p.assign(player1);
 
-        island.conquer(player1);
-        child.conquer(player1);
-        island.merge(child);
-        island.receiveStudent(new Student(p));
+        Island child = new Island(1)
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)));
+        island = island
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)))
+                .merge(child)
+                .updateStudents(c -> c.add(new Student(p)));
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
 
@@ -71,11 +72,11 @@ class IgnoreTowersInfluenceDecoratorTest {
      */
     @Test
     void playerWithNoInfluenceIsRemoved() {
-        Island child = new Island(1);
-
-        island.conquer(player1);
-        child.conquer(player1);
-        island.merge(child);
+        Island child = new Island(1)
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)));
+        island = island
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)))
+                .merge(child);
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
         assertTrue(inf.isPresent());

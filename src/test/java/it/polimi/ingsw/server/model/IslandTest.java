@@ -1,389 +1,330 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.enums.TowerColor;
+import it.polimi.ingsw.server.model.exceptions.EmptyStudentContainerException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test class for Island
+ * Test class for {@link Island}
  */
-class IslandTest {
-    private Island island;
-    private Herbalist blocker;
-    private Player player;
+public class IslandTest {
+    List<Player> players;
+    Island i;
 
     /**
-     * Creates a fresh island, blocker and player for each test
+     * Setup fresh environment before each test
      */
     @BeforeEach
     void setUp() {
-        island = new Island(0);
-        blocker = new Herbalist();
-        player = new Player("Napoleon", 1, 10, TowerColor.WHITE);
+        players = List.of(
+                new Player("Napoleon", 1, 10, TowerColor.BLACK),
+                new Player("Cesar", 1, 10, TowerColor.WHITE));
+        i = new Island(0);
     }
 
     /**
-     * Tests that all methods correctly complain when called with null
+     * Bound check.
      */
     @Test
     void withNull() {
-        assertThrows(IllegalArgumentException.class, () -> island.receiveStudent(null));
-        assertThrows(IllegalArgumentException.class, () -> island.conquer(null));
-        assertThrows(IllegalArgumentException.class, () -> island.merge(null));
-        assertThrows(IllegalArgumentException.class, () -> island.canBeMergedWith(null));
-        assertThrows(IllegalArgumentException.class, () -> island.isRelatedTo(null));
-        assertThrows(IllegalArgumentException.class, () -> island.pushBlock(null));
+        assertThrows(IllegalArgumentException.class, () -> new Island(null));
+        assertThrows(IllegalArgumentException.class, () -> i.updateStudents(null));
+        assertThrows(IllegalArgumentException.class, () -> i.updateTowers(null));
+        assertThrows(IllegalArgumentException.class, () -> i.merge(null));
+        assertThrows(IllegalArgumentException.class, () -> i.canBeMergedWith(null));
+        assertThrows(IllegalArgumentException.class, () -> i.pushBlock(null));
     }
 
     /**
-     * Tests adding students to a leaf island
+     * Check that a student update that returns null is ignored.
      */
     @Test
-    void leafReceiveStudent() {
-        assertTrue(island.getStudents().isEmpty());
-
-        Student s1 = new Student(new Professor(PieceColor.BLUE));
-        Student s2 = new Student(new Professor(PieceColor.RED));
-
-        island.receiveStudent(s1);
-        island.receiveStudent(s2);
-
-        assertEquals(island.getStudents().size(), 2);
-        assertTrue(island.getStudents().contains(s1));
-        assertTrue(island.getStudents().contains(s2));
-    }
-
-    /**
-     * Tests conquering a leaf island
-     */
-    @Test
-    void leafConquer() {
-        int playerTowers = player.getNumOfTowers();
-        assertTrue(island.getControllingPlayer().isEmpty());
-        island.conquer(player);
-        assertTrue(island.getControllingPlayer().isPresent());
-        assertEquals(island.getControllingPlayer().get(), player);
-        assertEquals(player.getNumOfTowers(), playerTowers - 1);
-
-        Player player2 = new Player("Cesar", 1, 10, TowerColor.BLACK);
-        playerTowers = player.getNumOfTowers();
-        int player2Towers = player2.getNumOfTowers();
-        island.conquer(player2);
-        assertTrue(island.getControllingPlayer().isPresent());
-        assertEquals(island.getControllingPlayer().get(), player2);
-        assertEquals(player2.getNumOfTowers(), player2Towers - 1);
-        assertEquals(player.getNumOfTowers(), playerTowers + 1);
-    }
-
-    /**
-     * Check for unlocking an unlocked island
-     */
-    @Test
-    void blockingBoundCheck() {
-        assertThrows(IllegalStateException.class, () -> island.popBlock());
-    }
-
-    /**
-     * Tests stack invariant for blocks
-     */
-    @Test
-    void sameNumberOfBlocksAndUnblocks() {
-        assertDoesNotThrow(() -> {
-            island.pushBlock(blocker.popBlock().getSecond());
-            island.pushBlock(blocker.popBlock().getSecond());
-            island.popBlock();
-            island.popBlock();
+    void testNullContainer() {
+        i = i.updateStudents(c -> null);
+        i.updateStudents(c -> {
+            assertNotNull(c);
+            return c;
         });
-        assertFalse(island.isBlocked());
     }
 
     /**
-     * Tests blocking and unblocking a leaf island
+     * Check that instances of containers are not persisted through updates. Maybe forcing this behaviour prevents
+     * memory optimization, but resource utilization is not our priority.
      */
     @Test
-    void leafBlockingUnblocking() {
-        assertFalse(island.isBlocked());
-
-        island.pushBlock(blocker.popBlock().getSecond());
-        assertTrue(island.isBlocked());
-
-        island.popBlock();
-        assertFalse(island.isBlocked());
+    void testContainerChange() {
+        StudentContainer c = new StudentContainer();
+        i = i.updateStudents(container -> c);
+        i = i.updateStudents(container -> c);
+        i.updateStudents(container -> {
+            assertNotSame(container, c);
+            assertTrue(container.getStudents().isEmpty());
+            assertTrue(c.getStudents().isEmpty());
+            return container;
+        });
     }
 
     /**
-     * Tests if merging complains when it is supposed to
+     * Check that a student update has been applied correctly
      */
     @Test
-    void mergeBoundCheck() {
-        Island child = new Island(1);
-        Player player2 = new Player("Cesar", 1, 10, TowerColor.BLACK);
+    void testUpdateStudents() {
+        Professor p = new Professor(PieceColor.RED);
+        List<Student> l = new ArrayList<>();
+        for (int i = 0; i < 10; i++) l.add(new Student(p));
 
-        assertThrows(IllegalArgumentException.class, () -> island.merge(child));
-
-        island.conquer(player);
-        island.merge(island);
-        assertTrue(island.getParent().isEmpty());
-        assertThrows(IllegalArgumentException.class, () -> island.merge(child));
-
-        child.conquer(player2);
-        assertThrows(IllegalArgumentException.class, () -> island.merge(child));
+        i = i.updateStudents(c -> {
+            assertTrue(c.getStudents().isEmpty());
+            for (Student s : l) c = c.add(s);
+            return c;
+        });
+        i.updateStudents(c -> {
+            assertFalse(c.getStudents().isEmpty());
+            c.getStudents().forEach(s -> assertTrue(l.contains(s)));
+            return c;
+        });
+        i = i.updateStudents(c -> {
+            for (Student s : l) {
+                try {
+                    c = c.remove(s.getColor(), s1 -> assertTrue(l.contains(s1)));
+                } catch (EmptyStudentContainerException e) {
+                    assertFalse(false);
+                }
+            }
+            return c;
+        });
+        i.updateStudents(c -> {
+            assertTrue(c.getStudents().isEmpty());
+            return c;
+        });
     }
 
     /**
-     * Tests merging two leafs
+     * Check that a tower update that returns null is ignored.
      */
     @Test
-    void mergeLeafs() {
-        Island child = new Island(1);
-        island.conquer(player);
-        child.conquer(player);
-
-        assertTrue(child.getParent().isEmpty());
-        island.merge(child);
-        assertTrue(island.isRelatedTo(child));
-        assertTrue(child.isRelatedTo(island));
+    void testNullTowers() {
+        i = i.updateTowers(t -> null);
+        i.updateTowers(t -> {
+            assertNotNull(t);
+            return t;
+        });
     }
 
     /**
-     * Tests merging a group into a leaf
+     * Check that instances of tower lists are not persisted through updates. Maybe forcing this behaviour prevents
+     * memory optimization, but resource utilization is not our priority.
      */
     @Test
-    void mergeGroupIntoLeaf() {
-        Island child1 = new Island(1);
-        Island child2 = new Island(2);
-
-        island.conquer(player);
-        child1.conquer(player);
-        child2.conquer(player);
-        child1.merge(child2);
-
-        assertTrue(child1.isRelatedTo(child2));
-        assertTrue(island.getParent().isEmpty());
-        island.merge(child2);
-        assertEquals(child1.getParent(), child2.getParent());
-        assertTrue(island.getParent().isEmpty());
-        assertEquals(Optional.of(island), child1.getParent());
+    void testTowersChange() {
+        List<Tower> l = new ArrayList<>();
+        i = i.updateTowers(towers -> l);
+        i = i.updateTowers(towers -> l);
+        i.updateTowers(towers -> {
+            assertNotSame(towers, l);
+            assertTrue(towers.isEmpty());
+            assertTrue(l.isEmpty());
+            return towers;
+        });
     }
 
     /**
-     * Tests merging a leaf into a group
+     * Check whether you can put more towers than the island can hold
      */
     @Test
-    void mergeLeafIntoGroup() {
-        Island child1 = new Island(1);
-        Island child2 = new Island(2);
+    void boundCheckUpdateTowers() {
+        List<Tower> l1 = new ArrayList<>();
+        for (int i = 0; i < 10; i++) l1.add(new Tower(TowerColor.BLACK, players.get(0)));
 
-        island.conquer(player);
-        child1.conquer(player);
-        child2.conquer(player);
-
-        child1.merge(child2);
-
-        assertTrue(child1.isRelatedTo(child2));
-        assertTrue(island.getParent().isEmpty());
-        child1.merge(island);
-        assertTrue(child1.getParent().isEmpty());
-        assertEquals(island.getParent(), child2.getParent());
-        assertEquals(island.getParent(), Optional.of(child1));
+        assertThrows(IllegalArgumentException.class, () -> i.updateTowers(old -> l1));
     }
 
     /**
-     * Tests merging two groups
+     * Check that a tower update has been applied correctly
      */
     @Test
-    void mergeGroups() {
-        Island child1 = new Island(1);
-        Island child2 = new Island(2);
-        Island child3 = new Island(3);
+    void testUpdateTowers() {
+        List<Tower> l1 = List.of(new Tower(TowerColor.BLACK, players.get(0)));
+        List<Tower> l2 = List.of(new Tower(TowerColor.WHITE, players.get(1)));
 
-        island.conquer(player);
-        child1.conquer(player);
-        child2.conquer(player);
-        child3.conquer(player);
-
-        island.merge(child1);
-        child2.merge(child3);
-
-        assertTrue(island.isRelatedTo(child1));
-        assertTrue(child2.isRelatedTo(child3));
-        assertTrue(island.getParent().isEmpty());
-        assertTrue(child2.getParent().isEmpty());
-
-        island.merge(child2);
-
-        assertTrue(island.getParent().isEmpty());
-
-        assertEquals(child1.getParent(), child2.getParent());
-        assertEquals(child2.getParent(), child3.getParent());
-        assertEquals(child1.getParent(), Optional.of(island));
+        i = i.updateTowers(old -> {
+            assertTrue(old.isEmpty());
+            return l1;
+        });
+        i = i.updateTowers(old -> {
+            assertFalse(old.isEmpty());
+            assertEquals(old, l1);
+            return l2;
+        });
+        i = i.updateTowers(old -> {
+            assertFalse(old.isEmpty());
+            assertEquals(old, l2);
+            return old;
+        });
     }
 
     /**
-     * Tests that merging two island doesn't pull more towers from players
+     * Check that adding mismatched towers makes everything explode
      */
     @Test
-    void mergingDoesntRequireTowers() {
-        Island child = new Island(1);
-        island.conquer(player);
-        child.conquer(player);
-
-        int playerTowers = player.getNumOfTowers();
-        island.merge(child);
-        assertEquals(player.getNumOfTowers(), playerTowers);
+    void testMismatchedTowers() {
+        assertThrows(IllegalArgumentException.class, () -> i.updateTowers(l ->
+                List.of(new Tower(TowerColor.BLACK, players.get(0)), new Tower(TowerColor.WHITE, players.get(1)))));
     }
 
     /**
-     * Tests if students are transferred to parent upon merging
+     * Check that two islands result mergeable in the correct cases
      */
     @Test
-    void studentTransfer() {
-        Island child = new Island(1);
-        island.conquer(player);
-        child.conquer(player);
+    void testCanBeMerged() {
+        Island other = new Island(1);
+        assertFalse(i.canBeMergedWith(other));
+        assertFalse(other.canBeMergedWith(i));
 
-        Student s1 = new Student(new Professor(PieceColor.BLUE));
-        Student s2 = new Student(new Professor(PieceColor.RED));
+        other = other.updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))));
+        assertFalse(i.canBeMergedWith(other));
+        assertFalse(other.canBeMergedWith(i));
 
-        child.receiveStudent(s1);
-        child.receiveStudent(s2);
-        island.merge(child);
-        assertTrue(island.getStudents().contains(s1));
-        assertTrue(island.getStudents().contains(s2));
-        assertTrue(child.getStudents().contains(s1));
-        assertTrue(child.getStudents().contains(s2));
+        i = i.updateTowers(t -> List.of(new Tower(TowerColor.WHITE, players.get(1))));
+        assertFalse(i.canBeMergedWith(other));
+        assertFalse(other.canBeMergedWith(i));
+
+        i = i.updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))));
+        assertTrue(i.canBeMergedWith(other));
+        assertTrue(other.canBeMergedWith(i));
     }
 
     /**
-     * Tests lock propagation
+     * Check that a merge between islands creates a new island with the correct id order
      */
     @Test
-    void mergeBlockedIntoUnblocked() {
-        Island child = new Island(1);
-        island.conquer(player);
-        child.conquer(player);
+    void testMergeSingleIds() {
+        Island other = new Island(1).updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))));
+        i = i.updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))));
 
-        BlockCard b = blocker.popBlock().getSecond();
-        int blocks = blocker.getNumOfBlocks();
-        child.pushBlock(b);
-
-        island.merge(child);
-        assertTrue(island.isBlocked());
-        assertTrue(child.isBlocked());
-        assertEquals(blocker.getNumOfBlocks(), blocks);
+        Island merge = i.merge(other);
+        assertEquals(merge.getIds(), List.of(0, 1));
     }
 
     /**
-     * Tests lock propagation
+     * Check that a merge between islands with multiple ids creates a new island that the correct id order
      */
     @Test
-    void mergeBlockedIntoBlocked() {
-        Island child = new Island(1);
-        island.conquer(player);
-        child.conquer(player);
+    void testMergeMultipleIds() {
+        Island one = new Island(1).updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))));
+        Island two = new Island(2).updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))));
+        Island three = new Island(3).updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))));
+        i = i.updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))));
 
-        BlockCard b1 = blocker.popBlock().getSecond();
-        BlockCard b2 = blocker.popBlock().getSecond();
-        int blocks = blocker.getNumOfBlocks();
-        island.pushBlock(b1);
-        child.pushBlock(b2);
+        Island zeroOne = i.merge(one);
+        Island twoThree = two.merge(three);
 
-        island.merge(child);
-        assertTrue(island.isBlocked());
-        assertTrue(child.isBlocked());
-        assertEquals(blocker.getNumOfBlocks(), blocks);
+        Island zeroOneTwoThree = zeroOne.merge(twoThree);
+        assertEquals(zeroOneTwoThree.getIds(), List.of(0, 1, 2, 3));
     }
 
     /**
-     * Tests sending students to an island group
+     * Check that a merge between islands creates a new island that with a merged container
      */
     @Test
-    void groupReceiveStudent() {
-        Island child = new Island(1);
-        island.conquer(player);
-        child.conquer(player);
-        island.merge(child);
+    void testMergeContainers() {
+        Professor p1 = new Professor(PieceColor.RED),
+                p2 = new Professor(PieceColor.BLUE);
+        i = i.updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))))
+                .updateStudents(c -> {
+                    for (int i = 0; i < 10; i++) c = c.add(new Student(p1));
+                    return c;
+                });
+        Island other = new Island(1)
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))))
+                .updateStudents(c -> {
+                    for (int i = 0; i < 10; i++) c = c.add(new Student(p2));
+                    return c;
+                });
 
-        Student s1 = new Student(new Professor(PieceColor.BLUE));
-        Student s2 = new Student(new Professor(PieceColor.RED));
-
-        island.receiveStudent(s1);
-        child.receiveStudent(s2);
-
-        assertTrue(island.getStudents().contains(s1));
-        assertTrue(island.getStudents().contains(s2));
-        assertTrue(child.getStudents().contains(s1));
-        assertTrue(child.getStudents().contains(s2));
+        Island merge = i.merge(other);
+        merge.updateStudents(mergeContainer -> {
+            i.updateStudents(c1 -> {
+                other.updateStudents(c2 -> {
+                    mergeContainer.getStudents().forEach(s ->
+                            assertTrue(c1.getStudents().contains(s) || c2.getStudents().contains(s)));
+                    return c2;
+                });
+                return c1;
+            });
+            return mergeContainer;
+        });
     }
 
     /**
-     * Tests blocking an island group
+     * Check that a merge between islands creates a new island that with a merged list of towers
      */
     @Test
-    void groupBlock() {
-        Island child = new Island(1);
-        island.conquer(player);
-        child.conquer(player);
-        island.merge(child);
+    void testMergeTowers() {
+        Island other = new Island(1).updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))));
+        i = i.updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))));
 
-        BlockCard b = blocker.popBlock().getSecond();
-        island.pushBlock(b);
-        assertTrue(island.isBlocked());
-        assertTrue(child.isBlocked());
-
-        island.popBlock();
-        assertFalse(island.isBlocked());
-        assertFalse(child.isBlocked());
-        assertThrows(IllegalStateException.class, child::popBlock);
+        Island merge = i.merge(other);
+        merge.updateTowers(towers -> {
+            assertEquals(2, towers.size());
+            towers.forEach(t -> assertEquals(t.getColor(), TowerColor.BLACK));
+            return towers;
+        });
     }
 
     /**
-     * Tests conquering an island group
+     * Check that a merge between islands creates a new island that with the sum of blocks
      */
     @Test
-    void groupConquer() {
-        Island child = new Island(1);
-        island.conquer(player);
-        child.conquer(player);
-        island.merge(child);
+    void testMergeBlock() {
+        i = i.updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))))
+                .pushBlock(new BlockCard(CharacterType.HERBALIST))
+                .pushBlock(new BlockCard(CharacterType.HERBALIST));
+        Island other = new Island(1)
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))))
+                .pushBlock(new BlockCard(CharacterType.HERBALIST));
+        Island another = new Island(2)
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, players.get(0))));
 
-        int playerTowers = player.getNumOfTowers();
-        assertEquals(island.getControllingPlayer(), child.getControllingPlayer());
-
-        island.conquer(player);
-        assertTrue(island.getControllingPlayer().isPresent());
-        assertEquals(island.getControllingPlayer().get(), player);
-        assertEquals(island.getControllingPlayer(), child.getControllingPlayer());
-        assertEquals(player.getNumOfTowers(), playerTowers);
-
-        Player player2 = new Player("Cesar", 1, 10, TowerColor.BLACK);
-        playerTowers = player.getNumOfTowers();
-        int player2Towers = player2.getNumOfTowers();
-        island.conquer(player2);
-        assertTrue(island.getControllingPlayer().isPresent());
-        assertEquals(island.getControllingPlayer().get(), player2);
-        assertEquals(island.getControllingPlayer(), child.getControllingPlayer());
-        assertEquals(player2.getNumOfTowers(), player2Towers - 2);
-        assertEquals(player.getNumOfTowers(), playerTowers + 2);
+        Island merge = i.merge(other).merge(another);
+        assert (merge.getNumOfBlocks() == 3);
     }
 
     /**
-     * Tests if the number of towers is computed correctly
+     * Check that {@code popBlock()} complains if called on an unblocked island
      */
     @Test
-    void numOfTowers() {
-        Island child = new Island(1);
+    void boundCheckUnblocking() {
+        assertThrows(IllegalStateException.class, () -> i.popBlock());
+    }
 
-        island.conquer(player);
-        child.conquer(player);
-        island.merge(child);
+    /**
+     * Check that {@code pushBlock()} adds one block from the Island
+     */
+    @Test
+    void testPushBlock() {
+        i = i.pushBlock(new BlockCard(CharacterType.HERBALIST))
+                .pushBlock(new BlockCard(CharacterType.HERBALIST))
+                .pushBlock(new BlockCard(CharacterType.HERBALIST));
+        assertEquals(3, i.getNumOfBlocks());
+    }
 
-        assertEquals(island.getNumOfTowers(), 2);
-        assertEquals(child.getNumOfTowers(), 2);
+    /**
+     * Check that {@code popBlock()} removes one block from the Island
+     */
+    @Test
+    void testPopBlock() {
+        i = i.pushBlock(new BlockCard(CharacterType.HERBALIST))
+                .popBlock()
+                .getFirst();
+        assertEquals(0, i.getNumOfBlocks());
     }
 }

@@ -36,10 +36,6 @@ class IslandListIteratorTest {
                 new Island(9),
                 new Island(10),
                 new Island(11));
-        list.get(0).conquer(player1);
-        list.get(1).conquer(player1);
-        list.get(2).conquer(player2);
-        list.get(3).conquer(player2);
     }
 
     /**

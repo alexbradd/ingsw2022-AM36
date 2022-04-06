@@ -1,11 +1,13 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -64,8 +66,7 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void blockedIslandNoMap() {
-        Herbalist blocker = new Herbalist();
-        island.pushBlock(blocker.popBlock().getSecond());
+        island = island.pushBlock(new BlockCard(CharacterType.HERBALIST));
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
         assertTrue(inf.isEmpty());
@@ -76,8 +77,12 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void correctStudentInfluence() {
-        for (int i = 0; i < 10; i++)
-            island.receiveStudent(new Student(professor1));
+        island = island.updateStudents(c -> {
+            for (int i = 0; i < 10; i++) {
+                c = c.add(new Student(professor1));
+            }
+            return c;
+        });
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
 
         assertTrue(inf.isPresent());
@@ -91,10 +96,11 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void correctTowerInfluence() {
-        Island child = new Island(1);
-
-        island.conquer(player1);
-        child.conquer(player1);
+        Island child = new Island(1)
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)));
+        island = island
+                .updateTowers((t) -> List.of(new Tower(TowerColor.BLACK, player1)))
+                .merge(child);
         island.merge(child);
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);

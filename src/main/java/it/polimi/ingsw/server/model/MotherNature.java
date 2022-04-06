@@ -33,11 +33,12 @@ class MotherNature {
     }
 
     /**
-     * Return the id of the {@link Island} Mother Nature is standing on
+     * Return the first id of the {@link Island} Mother Nature is standing on
+     *
      * @return the id of the {@link Island} Mother Nature is standing on
      */
     int getCurrentIslandId() {
-        return current.getId();
+        return current.getIds().get(0);
     }
 
     /**

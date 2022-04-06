@@ -4,8 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A class for iterating in cyclical fashion over the groups in a list of {@link Island}. Ungrouped tiles are treated as
- * groups of only one island.
+ * A class for iterating in cyclical fashion over a list of {@link Island}.
  *
  * @author Alexandru Gabriel Bradatan
  */
@@ -21,11 +20,6 @@ class IslandListIterator implements Iterator<Island> {
     private int currentIndex;
 
     /**
-     * Group at which iteration is at.
-     */
-    private Island currentGroup;
-
-    /**
      * Create a new iterator on the given list.
      *
      * @param list the list to iterate on
@@ -35,7 +29,6 @@ class IslandListIterator implements Iterator<Island> {
         if (list == null) throw new IllegalArgumentException("list shouldn't be null");
         this.list = list;
         currentIndex = 0;
-        currentGroup = null;
     }
 
     /**
@@ -53,7 +46,6 @@ class IslandListIterator implements Iterator<Island> {
             throw new IllegalArgumentException("startingPosition " + startingPosition + "out of bounds");
         this.list = list;
         currentIndex = startingPosition + 1;
-        currentGroup = null;
     }
 
     /**
@@ -72,7 +64,6 @@ class IslandListIterator implements Iterator<Island> {
             throw new IllegalArgumentException("cannot start from an island that is not in the list");
         this.list = list;
         currentIndex = list.indexOf(start) + 1;
-        currentGroup = start;
     }
 
     /**
@@ -100,9 +91,6 @@ class IslandListIterator implements Iterator<Island> {
         currentIndex++;
         if (currentIndex >= list.size())
             currentIndex = 0;
-        if (currentGroup != null && current.isRelatedTo(currentGroup))
-            return next();
-        currentGroup = current;
         return current;
     }
 

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -48,7 +49,8 @@ class ExtraPointsInfluenceDecoratorTest {
      */
     @Test
     void addsExtraInfluence() {
-        island.conquer(player1);
+        island = island
+                .updateTowers((t) -> List.of(new Tower(TowerColor.BLACK, player1)));
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
 

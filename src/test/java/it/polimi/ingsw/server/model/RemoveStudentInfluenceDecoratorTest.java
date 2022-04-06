@@ -56,10 +56,13 @@ class RemoveStudentInfluenceDecoratorTest {
      */
     @Test
     void removesStudentInfluence() {
-        for (int i = 0; i < 10; i++)
-            island.receiveStudent(new Student(professor1));
-        for (int i = 0; i < 15; i++)
-            island.receiveStudent(new Student(professor2));
+        island = island.updateStudents(c -> {
+            for (int i = 0; i < 10; i++)
+                c = c.add(new Student(professor1));
+            for (int i = 0; i < 15; i++)
+                c = c.add(new Student(professor2));
+            return c;
+        });
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
         assertTrue(inf.isPresent());
@@ -72,8 +75,11 @@ class RemoveStudentInfluenceDecoratorTest {
      */
     @Test
     void playerWithNoInfluenceIsRemoved() {
-        for (int i = 0; i < 10; i++)
-            island.receiveStudent(new Student(professor1));
+        island = island.updateStudents(c -> {
+            for (int i = 0; i < 10; i++)
+                c = c.add(new Student(professor1));
+            return c;
+        });
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
         assertTrue(inf.isPresent());
