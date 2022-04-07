@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.Mage;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import org.junit.jupiter.api.*;
@@ -60,7 +61,11 @@ public class AssistantValueIteratorTest {
     @BeforeAll
     void createDeck() {
         deck = new ArrayList<>();
-        for(int i = 0; i < 4; i++) deck.add(new Assistant(i+1, 1, Mage.FAIRY));
+
+        deck.add(new Assistant(AssistantType.CHEETAH, Mage.FAIRY));
+        deck.add(new Assistant(AssistantType.OSTRICH, Mage.FAIRY));
+        deck.add(new Assistant(AssistantType.CAT, Mage.FAIRY));
+        deck.add(new Assistant(AssistantType.EAGLE, Mage.FAIRY));
     }
 
     /**

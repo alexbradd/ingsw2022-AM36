@@ -1,64 +1,61 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.Mage;
 
 /**
  * This class models the game's assistant cards.
+ * It holds an {@link AssistantType} enumeration to store the card value
+ * in order to deny an incorrect initialization of the assistant's values.
  *
  * @author Mattia Busso
+ * @see AssistantType
  */
-class Assistant {
+public class Assistant {
 
     /**
-     * Value associated with the assistant card.
+     * Assistant's type represented by its {@code AssistantType}
      */
-    private final int orderValue;
+    private final AssistantType assistantType;
 
     /**
-     * The card's correspondent maximum number of steps mother nature can perform.
-     */
-    private final int mNSteps;
-
-    /**
-     * Mage associated with the assistant.
+     * {@link Mage} associated with the assistant.
      */
     private final Mage mage;
 
     /**
-     * Assistant card constructor.
+     * Basic constructor.
      *
-     * @param orderValue
-     * @param mNSteps
-     * @param mage
+     * @param assistantType the given {@link AssistantType}
+     * @param mage the given {@link Mage} of the card
      */
-    Assistant(int orderValue, int mNSteps, Mage mage) {
-        this.orderValue = orderValue;
-        this.mNSteps = mNSteps;
+    Assistant(AssistantType assistantType, Mage mage) {
+        this.assistantType = assistantType;
         this.mage = mage;
     }
 
     /**
-     * orderValue getter.
+     * {@code orderValue} getter.
      *
-     * @return orderValue
+     * @return the card's value
      */
     int getOrderValue() {
-        return orderValue;
+        return assistantType.getValue();
     }
 
     /**
-     * mNSteps getter.
+     * {@code mNSteps} getter.
      *
-     * @return mNSteps
+     * @return the card's mNSteps
      */
-    int getMnSteps() {
-        return mNSteps;
+    int getMNSteps() {
+        return assistantType.getMNSteps();
     }
 
     /**
-     * Mage getter.
+     * {@code mage} getter.
      *
-     * @return mage
+     * @return the card's mage
      */
     Mage getMage() {
         return mage;
