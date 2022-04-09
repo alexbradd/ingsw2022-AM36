@@ -4,10 +4,7 @@ import java.util.List;
 
 /**
  * Represents the Mother Nature (MN) piece. MN iterates cyclically on groups of a list of {@link Island} using a
- * {@link IslandListIterator}. Everytime MN arrives at an {@link Island}, it calculates the influence of players and
- * assigns the island to the player with the maximum. To modify the influence calculation and maximum extraction,
- * setters for the {@link InfluenceCalculator} and {@link MaxExtractor} are provided. Both calculators are reset
- * after each movement.
+ * {@link IslandListIterator}.
  */
 class MotherNature {
     /**
@@ -19,16 +16,6 @@ class MotherNature {
      * The {@link Island} on which Mother Nature is currently on.
      */
     private Island current;
-
-    /**
-     * The {@link InfluenceCalculator} to use for influence calculation.
-     */
-    private InfluenceCalculator calculator;
-
-    /**
-     * The {@link MaxExtractor} to use for maximum extraction.
-     */
-    private MaxExtractor extractor;
 
     /**
      * Creates a new Mother Nature that will move on the given list
@@ -43,39 +30,14 @@ class MotherNature {
             throw new IllegalArgumentException("starting position out of bounds");
         iterator = null;
         current = list.get(startingPosition);
-        calculator = new StandardInfluenceCalculator();
-        extractor = new EqualityExclusiveMaxExtractor();
     }
 
     /**
-     * Getter for the {@link InfluenceCalculator} currently in use.
-     *
-     * @return the {@link InfluenceCalculator} currently in use
+     * Return the id of the {@link Island} Mother Nature is standing on
+     * @return the id of the {@link Island} Mother Nature is standing on
      */
-    InfluenceCalculator getCalculator() {
-        return calculator;
-    }
-
-    /**
-     * Sets the given InfluenceCalculator for use in the next movement.
-     *
-     * @param calculator the InfluenceCalculator to use in the next movement
-     * @throws IllegalArgumentException if {@code calculator} is null
-     */
-    void setCalculator(InfluenceCalculator calculator) {
-        if (calculator == null) throw new IllegalArgumentException("calculator shouldn't be null");
-        this.calculator = calculator;
-    }
-
-    /**
-     * Sets the given MaxExtractor for use in the next movement.
-     *
-     * @param extractor the InfluenceCalculator to use in the next movement
-     * @throws IllegalArgumentException if {@code extractor} is null
-     */
-    void setExtractor(MaxExtractor extractor) {
-        if (extractor == null) throw new IllegalArgumentException("extractor shouldn't be null");
-        this.extractor = extractor;
+    int getCurrentIslandId() {
+        return current.getId();
     }
 
     /**
@@ -91,27 +53,5 @@ class MotherNature {
         if (steps < 1) throw new IllegalArgumentException("Mother nature moves at least one step");
         iterator = new IslandListIterator(list, current);
         for (int i = 0; i < steps; i++) current = iterator.next();
-        assignTower();
-        if (current.isBlocked()) current.popBlock();
-        calculator = new StandardInfluenceCalculator();
-        extractor = new EqualityExclusiveMaxExtractor();
-    }
-
-    /**
-     * Assigns the current island to the {@link Player} that has the highest influence.
-     */
-    private void assignTower() {
-        assignTower(current);
-    }
-
-    /**
-     * Assigns the given {@link Island} to the {@link Player} that has the highest influence.
-     *
-     * @param island {@link Island} calculate influence on
-     * @throws IllegalArgumentException if {@code island} is null
-     */
-    void assignTower(Island island) {
-        if (island == null) throw new IllegalArgumentException("island shouldn't be null");
-        calculator.calculateInfluences(island).flatMap(extractor).ifPresent(island::conquer);
     }
 }
