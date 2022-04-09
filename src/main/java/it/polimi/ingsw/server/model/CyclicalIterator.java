@@ -4,15 +4,16 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A class for iterating in cyclical fashion over a list of {@link Island}.
+ * A class for iterating in cyclical fashion over a list.
  *
+ * @param T type of the element of the list
  * @author Alexandru Gabriel Bradatan
  */
-class IslandListIterator implements Iterator<Island> {
+class CyclicalIterator<T> implements Iterator<T> {
     /**
      * List that the object iterates on.
      */
-    private final List<Island> list;
+    private final List<T> list;
 
     /**
      * Index at which iteration is at.
@@ -25,7 +26,7 @@ class IslandListIterator implements Iterator<Island> {
      * @param list the list to iterate on
      * @throws IllegalArgumentException if {@code list} is null
      */
-    IslandListIterator(List<Island> list) {
+    CyclicalIterator(List<T> list) {
         if (list == null) throw new IllegalArgumentException("list shouldn't be null");
         this.list = list;
         currentIndex = 0;
@@ -40,7 +41,7 @@ class IslandListIterator implements Iterator<Island> {
      * @throws IllegalArgumentException if {@code list} is null
      * @throws IllegalArgumentException if {@code startingPosition} is out of bounds
      */
-    IslandListIterator(List<Island> list, int startingPosition) {
+    CyclicalIterator(List<T> list, int startingPosition) {
         if (list == null) throw new IllegalArgumentException("list shouldn't be null");
         if (startingPosition < 0 || startingPosition > list.size())
             throw new IllegalArgumentException("startingPosition " + startingPosition + "out of bounds");
@@ -57,7 +58,7 @@ class IslandListIterator implements Iterator<Island> {
      * @throws IllegalArgumentException if {@code list} is null
      * @throws IllegalArgumentException if {@code start} is null or not in {@code list}
      */
-    IslandListIterator(List<Island> list, Island start) {
+    CyclicalIterator(List<T> list, T start) {
         if (list == null) throw new IllegalArgumentException("list shouldn't be null");
         if (start == null) throw new IllegalArgumentException("start shouldn't be null");
         if (!list.contains(start))
@@ -78,16 +79,16 @@ class IslandListIterator implements Iterator<Island> {
     }
 
     /**
-     * Returns the next group in the list and advances the cursor position. This method may be called repeatedly to
+     * Returns the element in the list and advances the cursor position. This method may be called repeatedly to
      * iterate through the list.
      *
-     * @return the next group in the list
+     * @return the next element in the list
      */
     @Override
-    public Island next() {
-        if (currentIndex >= list.size())
-            currentIndex = 0;
-        Island current = list.get(currentIndex);
+    public T next() {
+            if (currentIndex >= list.size())
+                currentIndex = 0;
+        T current = list.get(currentIndex);
         currentIndex++;
         if (currentIndex >= list.size())
             currentIndex = 0;
@@ -95,13 +96,13 @@ class IslandListIterator implements Iterator<Island> {
     }
 
     /**
-     * Returns a string representation of this iterator.
+     * Returns a string representation of this iterator
      *
      * @return a string representation of this iterator
      */
     @Override
     public String toString() {
-        return "IslandListIterator{" +
+        return "CyclicalIterator{" +
                 "list=" + list +
                 ", currentIndex=" + currentIndex +
                 '}';

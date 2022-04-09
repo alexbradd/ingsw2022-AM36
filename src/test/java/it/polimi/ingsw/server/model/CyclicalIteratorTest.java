@@ -10,19 +10,17 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Test class for IslandListIterator
+ * Test class for CyclicalIterator
  */
-class IslandListIteratorTest {
+class CyclicalIteratorTest {
     private static List<Island> list;
-    private IslandListIterator iterator;
+    private CyclicalIterator<Island> iterator;
 
     /**
      * Sets up the list and island control.
      */
     @BeforeAll
     static void setUpAll() {
-        Player player1 = new Player("Napoleon", 1, 10, TowerColor.WHITE);
-        Player player2 = new Player("Cesar", 1, 10, TowerColor.BLACK);
         list = List.of(
                 new Island(0),
                 new Island(1),
@@ -43,7 +41,7 @@ class IslandListIteratorTest {
      */
     @BeforeEach
     void setUp() {
-        iterator = new IslandListIterator(list);
+        iterator = new CyclicalIterator<>(list);
     }
 
     /**

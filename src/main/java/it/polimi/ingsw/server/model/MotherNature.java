@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Represents the Mother Nature (MN) piece. MN iterates cyclically on a list of {@link Island} using a
- * {@link IslandListIterator}.
+ * {@link CyclicalIterator}.
  */
 class MotherNature {
     /**
@@ -75,7 +75,7 @@ class MotherNature {
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Could not find the old current island in the list"));
         }
-        IslandListIterator iterator = new IslandListIterator(list, ret.current);
+        CyclicalIterator<Island> iterator = new CyclicalIterator<>(list, ret.current);
         for (int i = 0; i < steps; i++)
             ret.current = iterator.next();
         return ret;
