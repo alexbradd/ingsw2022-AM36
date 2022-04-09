@@ -11,7 +11,7 @@ class MotherNature {
     /**
      * The iterator on the game's {@link IslandList}.
      */
-    private final IslandListIterator iterator;
+    private IslandListIterator iterator;
 
     /**
      * The {@link Island} on which Mother Nature is currently on.
@@ -31,13 +31,16 @@ class MotherNature {
     /**
      * Creates a new Mother Nature that will move on the given {@link IslandList}.
      *
-     * @param list the {@link IslandList} to move on
+     * @param list             the list to move on
+     * @param startingPosition the starting position
      * @throws IllegalArgumentException if {@code list} is null
      */
-    MotherNature(IslandList list) {
-        if (list == null) throw new IllegalArgumentException("list shouldn't be null");
-        this.iterator = list.randomGroupIterator();
-        current = null;
+    MotherNature(IslandList list, int startingPosition) {
+        if (list == null) throw new IllegalArgumentException("list cannot be null");
+        if (startingPosition < 0 || startingPosition >= list.size())
+            throw new IllegalArgumentException("starting position out of bounds");
+        iterator = null;
+        current = list.get(startingPosition);
         calculator = new StandardInfluenceCalculator();
         extractor = new EqualityExclusiveMaxExtractor();
     }
@@ -76,11 +79,15 @@ class MotherNature {
     /**
      * Executes a movement of the given number of steps. The number of steps should be greater or equal than 1.
      *
+     * @param list the IslandList on which to move
      * @param steps the number steps to take
+     * @throws IllegalArgumentException if {@code list} is null
      * @throws IllegalArgumentException if {@code steps} is less than 1
      */
-    void move(int steps) {
+    void move(IslandList list, int steps) {
+        if (list == null) throw new IllegalArgumentException("list shouldn't be null");
         if (steps < 1) throw new IllegalArgumentException("Mother nature moves at least one step");
+        iterator = new IslandListIterator(list, current);
         for (int i = 0; i < steps; i++) current = iterator.next();
         assignTower();
         if (current.isBlocked()) current.popBlock();

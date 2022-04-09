@@ -36,7 +36,7 @@ class MotherNatureTest {
     @BeforeEach
     void setUp() {
         list = new IslandList();
-        mn = new MotherNature(list);
+        mn = new MotherNature(list, 0);
     }
 
     /**
@@ -50,12 +50,17 @@ class MotherNatureTest {
     }
 
     /**
-     * Bound check movement
+     * Bound check
      */
     @Test
-    void boundCheckMovement() {
-        assertThrows(IllegalArgumentException.class, () -> mn.move(0));
-        assertThrows(IllegalArgumentException.class, () -> mn.move(-15));
+    void boundCheck() {
+        assertThrows(IllegalArgumentException.class, () -> new MotherNature(null, 0));
+        assertThrows(IllegalArgumentException.class, () -> new MotherNature(list, -1));
+        assertThrows(IllegalArgumentException.class, () -> new MotherNature(list, 20));
+        assertThrows(IllegalArgumentException.class, () -> mn.move(null, 0));
+        assertThrows(IllegalArgumentException.class, () -> mn.move(list, 0));
+        assertThrows(IllegalArgumentException.class, () -> mn.move(null, -15));
+        assertThrows(IllegalArgumentException.class, () -> mn.move(list, -15));
     }
 
     /**
@@ -73,7 +78,7 @@ class MotherNatureTest {
         list.get(0).receiveStudent(new Student(professor2));
 
         for (int i = 0; i < list.size(); i++)
-            mn.move(1);
+            mn.move(list, 1);
 
         assertEquals(player1.getNumOfTowers(), player1NumOfTowers - 1);
         assertEquals(player2.getNumOfTowers(), player2NumOfTowers);
