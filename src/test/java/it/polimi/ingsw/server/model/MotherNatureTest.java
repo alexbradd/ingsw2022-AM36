@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.TowerColor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,6 +44,7 @@ class MotherNatureTest {
         assertThrows(IllegalArgumentException.class, () -> new MotherNature(null, 0));
         assertThrows(IllegalArgumentException.class, () -> new MotherNature(list, -1));
         assertThrows(IllegalArgumentException.class, () -> new MotherNature(list, 20));
+        assertThrows(IllegalArgumentException.class, () -> new MotherNature(null));
         assertThrows(IllegalArgumentException.class, () -> mn.move(null, 0));
         assertThrows(IllegalArgumentException.class, () -> mn.move(list, 0));
         assertThrows(IllegalArgumentException.class, () -> mn.move(null, -15));
@@ -55,7 +57,30 @@ class MotherNatureTest {
     @Test
     void movement() {
         for (int i = 0; i < list.size(); i++)
-            mn.move(list, 1);
+            mn = mn.move(list, 1);
         assertEquals(0, mn.getCurrentIslandId());
+    }
+
+    /**
+     * Check if mother nature correctly resumes iteration on island changes
+     */
+    @Test
+    void testResume() {
+        mn = new MotherNature(list, 0);
+        Island i = new Island(0)
+                .updateTowers(t -> List.of(
+                        new Tower(TowerColor.BLACK,
+                                new Player("Ann",
+                                        10,
+                                        10,
+                                        TowerColor.BLACK))))
+                .merge(new Island(1)
+                        .updateTowers(t -> List.of(new Tower(TowerColor.BLACK,
+                                new Player("Ann",
+                                        10,
+                                        10,
+                                        TowerColor.BLACK)))));
+        mn = mn.move(List.of(i, new Island(2)), 1);
+        assertEquals(2, mn.getCurrentIslandId());
     }
 }
