@@ -1,7 +1,9 @@
 package it.polimi.ingsw.server.model;
 
+import java.util.List;
+
 /**
- * Represents the Mother Nature (MN) piece. MN iterates cyclically on groups of a {@link IslandList} using a
+ * Represents the Mother Nature (MN) piece. MN iterates cyclically on groups of a list of {@link Island} using a
  * {@link IslandListIterator}. Everytime MN arrives at an {@link Island}, it calculates the influence of players and
  * assigns the island to the player with the maximum. To modify the influence calculation and maximum extraction,
  * setters for the {@link InfluenceCalculator} and {@link MaxExtractor} are provided. Both calculators are reset
@@ -9,7 +11,7 @@ package it.polimi.ingsw.server.model;
  */
 class MotherNature {
     /**
-     * The iterator on the game's {@link IslandList}.
+     * The iterator on a list of {@link Island}
      */
     private IslandListIterator iterator;
 
@@ -29,13 +31,13 @@ class MotherNature {
     private MaxExtractor extractor;
 
     /**
-     * Creates a new Mother Nature that will move on the given {@link IslandList}.
+     * Creates a new Mother Nature that will move on the given list
      *
      * @param list             the list to move on
      * @param startingPosition the starting position
      * @throws IllegalArgumentException if {@code list} is null
      */
-    MotherNature(IslandList list, int startingPosition) {
+    MotherNature(List<Island> list, int startingPosition) {
         if (list == null) throw new IllegalArgumentException("list cannot be null");
         if (startingPosition < 0 || startingPosition >= list.size())
             throw new IllegalArgumentException("starting position out of bounds");
@@ -79,12 +81,12 @@ class MotherNature {
     /**
      * Executes a movement of the given number of steps. The number of steps should be greater or equal than 1.
      *
-     * @param list the IslandList on which to move
+     * @param list  the list on which to move
      * @param steps the number steps to take
      * @throws IllegalArgumentException if {@code list} is null
      * @throws IllegalArgumentException if {@code steps} is less than 1
      */
-    void move(IslandList list, int steps) {
+    void move(List<Island> list, int steps) {
         if (list == null) throw new IllegalArgumentException("list shouldn't be null");
         if (steps < 1) throw new IllegalArgumentException("Mother nature moves at least one step");
         iterator = new IslandListIterator(list, current);

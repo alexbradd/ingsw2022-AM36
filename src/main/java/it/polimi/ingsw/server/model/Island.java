@@ -3,15 +3,13 @@ package it.polimi.ingsw.server.model;
 import java.util.*;
 
 /**
- * Represents an island. Each island has a unique, game-local id and can be bounded to an {@link IslandList}. An Island
- * can receive students, be conquered by a {@link Player} by placing {@link Tower}s, and be blocked by a
- * {@link BlockCard}. Islands, if conquered by the same player, can be "merged": one island will become the "parent" and
- * hold all the state of its children. The children will redirect all state changes to the parent. One exception to this
- * rule are towers: each island will always have its tower and conquering a "group" of islands will place a tower on
- * each island in the group.
+ * Represents an island. Each island has a unique, game-local id, An Island can receive students, be conquered by a
+ * {@link Player} by placing {@link Tower}s, and be blocked by a {@link BlockCard}. Islands, if conquered by the same
+ * player, can be "merged": one island will become the "parent" and hold all the state of its children. The children
+ * will redirect all state changes to the parent. One exception to this rule are towers: each island will always have
+ * its tower and conquering a "group" of islands will place a tower on each island in the group.
  *
  * @author Alexandru Bradatan Gabriel
- * @see IslandList
  */
 class Island implements StudentMoveDestination {
     /**
@@ -45,28 +43,14 @@ class Island implements StudentMoveDestination {
     private final Stack<BlockCard> blockCards;
 
     /**
-     * The list to which this island is bound
-     */
-    private final IslandList bound;
-
-    /**
-     * Creates a new unbound empty island with the given ID.
+     * Creates a new empty island with the given ID .
      */
     Island(int id) {
-        this(id, null);
-    }
-
-    /**
-     * Creates a new empty island with the given ID bounded to the given {@link IslandList}. Is null is passed as bound,
-     * the Island will be unbounded.
-     */
-    Island(int id, IslandList bound) {
         this.id = id;
         students = new HashSet<>();
         children = new HashSet<>();
         parent = null;
         blockCards = new Stack<>();
-        this.bound = bound;
     }
 
     /**
@@ -149,7 +133,6 @@ class Island implements StudentMoveDestination {
         Island toConquer = getParent().orElse(this);
         toConquer.receiveTowerFrom(player);
         toConquer.children.forEach(i -> i.receiveTowerFrom(player));
-        if (bound != null) bound.scrub();
     }
 
     /**

@@ -1,19 +1,19 @@
 package it.polimi.ingsw.server.model;
 
 import java.util.Iterator;
+import java.util.List;
 
 /**
- * A class for iterating in cyclical fashion over the groups in a {@link IslandList}. Ungrouped tiles are treated as
+ * A class for iterating in cyclical fashion over the groups in a list of {@link Island}. Ungrouped tiles are treated as
  * groups of only one island.
  *
  * @author Alexandru Gabriel Bradatan
- * @see IslandList
  */
 class IslandListIterator implements Iterator<Island> {
     /**
      * List that the object iterates on.
      */
-    private final IslandList list;
+    private final List<Island> list;
 
     /**
      * Index at which iteration is at.
@@ -26,12 +26,12 @@ class IslandListIterator implements Iterator<Island> {
     private Island currentGroup;
 
     /**
-     * Create a new iterator on the given {@link IslandList}.
+     * Create a new iterator on the given list.
      *
      * @param list the list to iterate on
      * @throws IllegalArgumentException if {@code list} is null
      */
-    IslandListIterator(IslandList list) {
+    IslandListIterator(List<Island> list) {
         if (list == null) throw new IllegalArgumentException("list shouldn't be null");
         this.list = list;
         currentIndex = 0;
@@ -39,14 +39,14 @@ class IslandListIterator implements Iterator<Island> {
     }
 
     /**
-     * Create a new iterator on the given {@link IslandList} that starts iteration on the given index.
+     * Create a new iterator on the given list that starts iteration on the given index.
      *
      * @param list             the list to iterate on
      * @param startingPosition the position from which to start iteration
      * @throws IllegalArgumentException if {@code list} is null
      * @throws IllegalArgumentException if {@code startingPosition} is out of bounds
      */
-    IslandListIterator(IslandList list, int startingPosition) {
+    IslandListIterator(List<Island> list, int startingPosition) {
         if (list == null) throw new IllegalArgumentException("list shouldn't be null");
         if (startingPosition < 0 || startingPosition > list.size())
             throw new IllegalArgumentException("startingPosition " + startingPosition + "out of bounds");
@@ -56,14 +56,14 @@ class IslandListIterator implements Iterator<Island> {
     }
 
     /**
-     * Create a new iterator on the given {@link IslandList} that starts iteration at the given {@link Island}.
+     * Create a new iterator on the given list that starts iteration at the given {@link Island}.
      *
      * @param list  the list to iterate on
      * @param start the {@link Island} from which to start iteration
      * @throws IllegalArgumentException if {@code list} is null
      * @throws IllegalArgumentException if {@code start} is null or not in {@code list}
      */
-    IslandListIterator(IslandList list, Island start) {
+    IslandListIterator(List<Island> list, Island start) {
         if (list == null) throw new IllegalArgumentException("list shouldn't be null");
         if (start == null) throw new IllegalArgumentException("start shouldn't be null");
         if (!list.contains(start))

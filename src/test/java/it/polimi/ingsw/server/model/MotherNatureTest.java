@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -13,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class MotherNatureTest {
     private MotherNature mn;
-    private IslandList list;
+    private List<Island> list;
     private static Player player1, player2;
     private static Professor professor1, professor2;
 
@@ -35,7 +37,19 @@ class MotherNatureTest {
      */
     @BeforeEach
     void setUp() {
-        list = new IslandList();
+        list = List.of(
+                new Island(0),
+                new Island(1),
+                new Island(2),
+                new Island(3),
+                new Island(4),
+                new Island(5),
+                new Island(6),
+                new Island(7),
+                new Island(8),
+                new Island(9),
+                new Island(10),
+                new Island(11));
         mn = new MotherNature(list, 0);
     }
 
