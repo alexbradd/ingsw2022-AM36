@@ -1,13 +1,12 @@
 package it.polimi.ingsw.server.model;
 
-import it.polimi.ingsw.server.model.enums.TowerColor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test class for CyclicalIterator
@@ -42,6 +41,23 @@ class CyclicalIteratorTest {
     @BeforeEach
     void setUp() {
         iterator = new CyclicalIterator<>(list);
+    }
+
+    /**
+     * Bound check
+     */
+    @Test
+    void boundCheck() {
+        assertThrows(IllegalArgumentException.class, () -> new CyclicalIterator<Island>(null));
+        assertThrows(IllegalArgumentException.class, () -> new CyclicalIterator<Island>(null, 0));
+        assertThrows(IllegalArgumentException.class, () -> new CyclicalIterator<Island>(list, -1));
+        assertThrows(IllegalArgumentException.class, () -> new CyclicalIterator<Island>(list, 124));
+        assertThrows(IllegalArgumentException.class, () -> new CyclicalIterator<Island>(null, null));
+        assertThrows(IllegalArgumentException.class, () -> new CyclicalIterator<Island>(list, null));
+        assertThrows(IllegalArgumentException.class, () -> new CyclicalIterator<Island>(list, new Island(0)));
+        assertThrows(IllegalArgumentException.class, () -> new CyclicalIterator<Island>(null));
+        assertThrows(IllegalArgumentException.class, () -> new CyclicalIterator<Island>(null));
+        assertThrows(IllegalArgumentException.class, () -> new CyclicalIterator<Island>(null));
     }
 
     /**
