@@ -33,7 +33,7 @@ class MotherNatureTest {
                 new Island(9),
                 new Island(10),
                 new Island(11));
-        mn = new MotherNature(list, 0);
+        mn = new MotherNature(list, 4);
     }
 
     /**
@@ -56,9 +56,10 @@ class MotherNatureTest {
      */
     @Test
     void movement() {
-        for (int i = 0; i < list.size(); i++)
-            mn = mn.move(list, 1);
-        assertEquals(0, mn.getCurrentIslandId());
+        for (int i = 0; i < list.size(); i++) {
+            MotherNature newMn = mn.move(list, 1);
+            assertEquals(mn.getCurrentIslandId() + 1, newMn.getCurrentIslandId());
+        }
     }
 
     /**
