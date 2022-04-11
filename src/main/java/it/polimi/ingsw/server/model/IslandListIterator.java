@@ -39,7 +39,8 @@ class IslandListIterator implements Iterator<Island> {
     }
 
     /**
-     * Create a new iterator on the given list that starts iteration on the given index.
+     * Create a new iterator on the given list that starts iteration on the given index. The next call to {@code next()}
+     * will return the item after the one with the given index.
      *
      * @param list             the list to iterate on
      * @param startingPosition the position from which to start iteration
@@ -51,15 +52,16 @@ class IslandListIterator implements Iterator<Island> {
         if (startingPosition < 0 || startingPosition > list.size())
             throw new IllegalArgumentException("startingPosition " + startingPosition + "out of bounds");
         this.list = list;
-        currentIndex = startingPosition;
+        currentIndex = startingPosition + 1;
         currentGroup = null;
     }
 
     /**
-     * Create a new iterator on the given list that starts iteration at the given {@link Island}.
+     * Create a new iterator on the given list that starts iteration at the given {@link Island}. The next call to
+     * {@code next()} will return the item after the given one.
      *
      * @param list  the list to iterate on
-     * @param start the {@link Island} from which to start iteration
+     * @param start the {@link T} from which to start iteration
      * @throws IllegalArgumentException if {@code list} is null
      * @throws IllegalArgumentException if {@code start} is null or not in {@code list}
      */
@@ -69,7 +71,7 @@ class IslandListIterator implements Iterator<Island> {
         if (!list.contains(start))
             throw new IllegalArgumentException("cannot start from an island that is not in the list");
         this.list = list;
-        currentIndex = list.indexOf(start);
+        currentIndex = list.indexOf(start) + 1;
         currentGroup = start;
     }
 
@@ -92,6 +94,8 @@ class IslandListIterator implements Iterator<Island> {
      */
     @Override
     public Island next() {
+        if (currentIndex >= list.size())
+            currentIndex = 0;
         Island current = list.get(currentIndex);
         currentIndex++;
         if (currentIndex >= list.size())
