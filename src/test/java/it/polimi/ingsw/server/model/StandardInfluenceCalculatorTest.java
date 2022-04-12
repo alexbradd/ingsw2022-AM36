@@ -26,11 +26,9 @@ class StandardInfluenceCalculatorTest {
     @BeforeAll
     static void staticSetUp() {
         calculator = new StandardInfluenceCalculator();
-        professor1 = new Professor(PieceColor.RED);
         player1 = new Player("Napoleon", 1, 10, TowerColor.BLACK);
         player2 = new Player("Cesar", 1, 10, TowerColor.WHITE);
-
-        professor1.assign(player1);
+        professor1 = new Professor(PieceColor.RED, player1);
     }
 
     /**

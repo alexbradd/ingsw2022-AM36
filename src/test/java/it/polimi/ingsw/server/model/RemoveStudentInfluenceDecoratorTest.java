@@ -25,14 +25,11 @@ class RemoveStudentInfluenceDecoratorTest {
      */
     @BeforeAll
     static void staticSetUp() {
-        professor1 = new Professor(PieceColor.RED);
-        professor2 = new Professor(PieceColor.GREEN);
         player1 = new Player("Napoleon", 1, 10, TowerColor.WHITE);
+        professor1 = new Professor(PieceColor.RED, player1);
+        professor2 = new Professor(PieceColor.GREEN, player1);
 
         calculator = new RemoveStudentInfluenceDecorator(new StandardInfluenceCalculator(), professor1.getColor());
-
-        professor1.assign(player1);
-        professor2.assign(player1);
     }
 
     /**

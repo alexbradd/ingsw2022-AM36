@@ -49,10 +49,8 @@ class IgnoreTowersInfluenceDecoratorTest {
      */
     @Test
     void removesTowerInfluence() {
-        Professor p = new Professor(PieceColor.RED);
+        Professor p = new Professor(PieceColor.RED, player1);
         Island child = new Island(1);
-
-        p.assign(player1);
 
         island.conquer(player1);
         child.conquer(player1);

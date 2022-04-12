@@ -24,10 +24,8 @@ class MotherNatureTest {
     static void staticSetUp() {
         player1 = new Player("Napoleon", 1, 10, TowerColor.WHITE);
         player2 = new Player("Cesar", 1, 10, TowerColor.BLACK);
-        professor1 = new Professor(PieceColor.RED);
-        professor2 = new Professor(PieceColor.BLUE);
-        professor1.assign(player1);
-        professor2.assign(player2);
+        professor1 = new Professor(PieceColor.RED, player1);
+        professor2 = new Professor(PieceColor.BLUE, player2);
     }
 
     /**
