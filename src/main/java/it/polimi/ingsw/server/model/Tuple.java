@@ -59,5 +59,4 @@ class Tuple<T, V> {
     <U> U map(Function<Tuple<T, V>, U> mapper) {
         return mapper.apply(this);
     }
-
 }
