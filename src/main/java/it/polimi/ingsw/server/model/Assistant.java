@@ -39,7 +39,7 @@ public class Assistant {
      *
      * @return the card's value
      */
-    int getOrderValue() {
+    public int getOrderValue() {
         return assistantType.getValue();
     }
 

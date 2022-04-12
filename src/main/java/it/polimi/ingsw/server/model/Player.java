@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 
 import java.util.*;
@@ -15,7 +16,9 @@ import java.util.*;
  * @see Hall
  * @see Tower
  */
-class Player {
+public class Player {
+
+    //TODO - Just a placeholder
 
     /**
      * The username of the player.
@@ -25,7 +28,7 @@ class Player {
     /**
      * The deck of {@link Assistant} of the player.
      */
-    private final List<Assistant> assistants;
+    private List<Assistant> assistants;
 
     /**
      * The {@link Assistant} last-played by the player.
@@ -94,24 +97,35 @@ class Player {
         }
     }
 
+    Player(String name, int entranceSize, TowerColor color) throws IllegalArgumentException {
+        username = name;
+        assistants = new ArrayList<>();
+        entrance = new Entrance(this, entranceSize);
+        hall = new Hall(this);
+        towers = new Stack<>();
+        maxNumTowers = 5;
+        towersColor = color;
+        for(int i = 0; i < 5; i++) {
+            towers.add(new Tower(color, this));
+        }
+    }
+
+    Player(Player player) {
+        username = player.getUsername();
+        assistants = player.getAssistants();
+        lastPlayed = player.getLastPlayed();
+        entrance = new Entrance(this, 10);
+        hall = new Hall(this);
+        towers = new Stack<>();
+        maxNumTowers = 10;
+        towersColor = TowerColor.WHITE;
+    }
+
     // Assistant's deck management
 
-    /**
-     * {@code assistants} deck setter.
-     *
-     * @param assistants the given deck of assistants
-     * @throws IllegalStateException if {@code deckAdded == true} (can't add a new deck if one is already present)
-     * @throws IllegalArgumentException if {@code assistants == null}
-     */
-    void receiveDeck(List<Assistant> assistants) throws IllegalStateException, IllegalArgumentException {
-        if(assistants == null) {
-            throw new IllegalArgumentException("assistants should not be null");
-        }
-        if(deckAdded) {
-            throw new IllegalStateException("can't add a new deck if one is already present");
-        }
-        this.assistants.addAll(assistants);
-        deckAdded = true;
+    Player receiveDeck(List<Assistant> assistants) {
+        this.assistants = assistants;
+        return new Player(this);
     }
 
     /**
@@ -130,12 +144,22 @@ class Player {
         }
     }
 
+    Player playAssistant(AssistantType type) {
+        for(Assistant assistant: assistants) {
+            if(assistant.getOrderValue() == type.getValue()) {
+                lastPlayed = assistant;
+                assistants.remove(assistant);
+            }
+        }
+        return new Player(this);
+    }
+
     /**
      * {@code lastPlayedAssistant} getter.
      *
      * @return an {@code Optional of Assistant} (because initially {@code lastPlayedAssistant} could be {@code null})
      */
-    Optional<Assistant> getLastPlayedAssistant() {
+    public Optional<Assistant> getLastPlayedAssistant() {
         return Optional.ofNullable(lastPlayed);
     }
 
@@ -275,4 +299,9 @@ class Player {
     public String toString() {
         return username;
     }
+
+    Assistant getLastPlayed() {
+        return this.lastPlayed;
+    }
+
 }
