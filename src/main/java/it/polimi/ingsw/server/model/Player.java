@@ -15,7 +15,7 @@ import java.util.*;
  * @see Hall
  * @see Tower
  */
-class Player {
+public class Player {
 
     /**
      * The username of the player.
