@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -18,6 +20,7 @@ class StandardInfluenceCalculatorTest {
     private static InfluenceCalculator calculator;
     private static Professor professor1;
     private static Player player1, player2;
+    private static List<Professor> professorList;
     private Island island;
 
     /**
@@ -31,6 +34,9 @@ class StandardInfluenceCalculatorTest {
         player2 = new Player("Cesar", 1, 10, TowerColor.WHITE);
 
         professor1.assign(player1);
+
+        professorList = new ArrayList<>();
+        professorList.add(professor1);
     }
 
     /**
@@ -46,7 +52,7 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void withNull() {
-        assertThrows(IllegalArgumentException.class, () -> calculator.calculateInfluences(null));
+        assertThrows(IllegalArgumentException.class, () -> calculator.calculateInfluences(null, professorList));
     }
 
     /**
@@ -54,7 +60,7 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void emptyIslandEmptyMap() {
-        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isPresent());
         assertTrue(inf.get().isEmpty());
     }
@@ -67,7 +73,7 @@ class StandardInfluenceCalculatorTest {
         Herbalist blocker = new Herbalist();
         island.pushBlock(blocker.popBlock());
 
-        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isEmpty());
     }
 
@@ -77,12 +83,14 @@ class StandardInfluenceCalculatorTest {
     @Test
     void correctStudentInfluence() {
         for (int i = 0; i < 10; i++)
-            island.receiveStudent(new Student(professor1));
-        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
+            island.receiveStudent(new Student(professor1.getColor()
+            ));
+
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
 
         assertTrue(inf.isPresent());
         Map<Player, Integer> map = inf.get();
-        assertEquals(map.get(player1), 10);
+        assertEquals(10, map.get(player1));
         assertNull(map.get(player2));
     }
 
@@ -97,11 +105,11 @@ class StandardInfluenceCalculatorTest {
         child.conquer(player1);
         island.merge(child);
 
-        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
 
         assertTrue(inf.isPresent());
         Map<Player, Integer> map = inf.get();
-        assertEquals(map.get(player1), 2);
+        assertEquals(2, map.get(player1));
         assertNull(map.get(player2));
     }
 }

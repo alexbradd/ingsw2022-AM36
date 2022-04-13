@@ -15,19 +15,21 @@ public final class Tower {
     /**
      * The color of the tower, representing the player to which it belongs.
      */
-    private TowerColor color;
+    private final TowerColor color;
+
+    /**
+     * The {@link Player} that owns the tower.
+     */
+    private final Player owner;
 
     /**
      * The tower constructor
-     * <<<<<<< Updated upstream
-     * <p>
-     * =======
-     * >>>>>>> Stashed changes
      *
      * @param color the color of the tower ({@link TowerColor})
      */
-    Tower(TowerColor color) {
+    Tower(TowerColor color, Player owner) {
         this.color = color;
+        this.owner = owner;
     }
 
     /**
@@ -37,5 +39,14 @@ public final class Tower {
      */
     TowerColor getColor() {
         return this.color;
+    }
+
+    /**
+     * The tower's owner getter ({@link Player} object).
+     *
+     * @return the owner of the tower
+     */
+    Player getOwner() {
+        return owner;
     }
 }

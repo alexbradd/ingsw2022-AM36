@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server.model;
 
+import java.util.List;
+
 /**
  * Represents the Mother Nature (MN) piece. MN iterates cyclically on groups of a {@link IslandList} using a
  * {@link IslandListIterator}. Everytime MN arrives at an {@link Island}, it calculates the influence of players and
@@ -79,10 +81,10 @@ class MotherNature {
      * @param steps the number steps to take
      * @throws IllegalArgumentException if {@code steps} is less than 1
      */
-    void move(int steps) {
+    void move(int steps, List<Professor> professors) {
         if (steps < 1) throw new IllegalArgumentException("Mother nature moves at least one step");
         for (int i = 0; i < steps; i++) current = iterator.next();
-        assignTower();
+        assignTower(professors);
         if (current.isBlocked()) current.popBlock();
         calculator = new StandardInfluenceCalculator();
         extractor = new EqualityExclusiveMaxExtractor();
@@ -91,8 +93,8 @@ class MotherNature {
     /**
      * Assigns the current island to the {@link Player} that has the highest influence.
      */
-    private void assignTower() {
-        assignTower(current);
+    private void assignTower(List<Professor> professors) {
+        assignTower(current, professors);
     }
 
     /**
@@ -101,8 +103,8 @@ class MotherNature {
      * @param island {@link Island} calculate influence on
      * @throws IllegalArgumentException if {@code island} is null
      */
-    void assignTower(Island island) {
+    void assignTower(Island island, List<Professor> professors) {
         if (island == null) throw new IllegalArgumentException("island shouldn't be null");
-        calculator.calculateInfluences(island).flatMap(extractor).ifPresent(island::conquer);
+        calculator.calculateInfluences(island, professors).flatMap(extractor).ifPresent(island::conquer);
     }
 }

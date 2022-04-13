@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,10 +31,10 @@ class IgnoreTowersInfluenceDecorator extends InfluenceCalculatorDecorator {
      * @throws IllegalArgumentException if {@code island} is null
      */
     @Override
-    public Optional<Map<Player, Integer>> calculateInfluences(Island island) {
+    public Optional<Map<Player, Integer>> calculateInfluences(Island island, List<Professor> professors) {
         if (island == null) throw new IllegalArgumentException("island shouldn't be null");
         InfluenceCalculator decorated = getCalculator();
-        return decorated.calculateInfluences(island)
+        return decorated.calculateInfluences(island, professors)
                 .map(inf -> {
                     island.getControllingPlayer()
                             .ifPresent(p -> inf.computeIfPresent(p, (k, i) -> {
@@ -43,5 +44,6 @@ class IgnoreTowersInfluenceDecorator extends InfluenceCalculatorDecorator {
                             }));
                     return inf;
                 });
+
     }
 }

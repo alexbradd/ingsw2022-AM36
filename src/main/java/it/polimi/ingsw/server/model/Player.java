@@ -6,7 +6,6 @@ import java.util.function.Function;
 
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import it.polimi.ingsw.server.model.enums.AssistantType;
-import it.polimi.ingsw.server.model.exceptions.NotEnoughCoinsException;
 
 /**
  * Represents the game's {@code Player} entity.
@@ -15,7 +14,7 @@ import it.polimi.ingsw.server.model.exceptions.NotEnoughCoinsException;
  *
  * @author Mattia Busso, Leonardo Bianconi
  * @see Assistant
- * @see BoundedContainer
+ * @see BoundedStudentContainer
  * @see Hall
  * @see Tower
  */
@@ -39,7 +38,7 @@ class Player {
     /**
      * Player's {@code Entrance}.
      */
-    private BoundedContainer entrance;
+    private BoundedStudentContainer entrance;
 
     /**
      * Player's {@link Hall}.
@@ -90,16 +89,23 @@ class Player {
         assistants = new ArrayList<>();
         lastPlayed = null;
         deckAdded = false;
-        entrance = new BoundedContainer(entranceSize);
+        entrance = new BoundedStudentContainer(entranceSize);
         hall = new Hall();
         towers = new Stack<>();
         maxNumTowers = numTowers;
         towersColor = color;
         for (int i = 0; i < numTowers; i++) {
-            towers.add(new Tower(color));
+            towers.add(new Tower(color, this));
         }
     }
 
+
+    /**
+     * Constructor that creates a copy a Player instance passed.
+     *
+     * @param oldPlayer the old Player instance to copy
+     * @throws IllegalArgumentException if the old Player is null
+     */
     Player(Player oldPlayer) throws IllegalArgumentException {
         if (oldPlayer == null)
             throw new IllegalArgumentException("Old player must not be null.");
@@ -194,7 +200,6 @@ class Player {
         return p;
     }
 
-
     /**
      * The player receives one {@link Tower}. The method then returns another Player instance, containing that
      * tower.
@@ -225,10 +230,16 @@ class Player {
         return towers.size();
     }
 
+    // Hall and entrance updates
+
     /**
-     * @param update
-     * @return
-     * @throws IllegalArgumentException
+     * This method applies an update to the player's hall, which is expressed via a
+     * {@code Function<Hall, Hall>}, passed via parameter. This method then returns a copy
+     * of the original Player instance, with the applied update.
+     *
+     * @param update the function to apply
+     * @return the new Player instance
+     * @throws IllegalArgumentException if the function passed is null
      */
     Player updateHall(Function<Hall, Hall> update) throws IllegalArgumentException {
         if (update == null)
@@ -240,11 +251,15 @@ class Player {
     }
 
     /**
-     * @param update
-     * @return
-     * @throws IllegalArgumentException
+     * This method applies an update to the player's entrance, which is expressed via a
+     * {@code Function<BoundedContainer, BoundedContainer>}, passed via parameter. This method then returns a copy
+     * of the original Player instance, with the applied update.
+     *
+     * @param update the function to apply
+     * @return the new Player instance
+     * @throws IllegalArgumentException if the function passed is null
      */
-    Player updateEntrance(Function<BoundedContainer, BoundedContainer> update) throws IllegalArgumentException {
+    Player updateEntrance(Function<BoundedStudentContainer, BoundedStudentContainer> update) throws IllegalArgumentException {
         if (update == null)
             throw new IllegalArgumentException("Update must not be null.");
 
@@ -321,9 +336,17 @@ class Player {
         return username;
     }
 
+    /**
+     * Helper method that gets the assistant corresponding to a certain {@link AssistantType} passed via parameter,
+     * if present in the player's deck. If not, it returns an exception.
+     *
+     * @param type the {@code AssistantType} of the assistant
+     * @return the corresponding {@code Assistant} of the player's deck, if present
+     * @throws NoSuchElementException if the player does not have the specified {@code Assistant}
+     */
     private Assistant getAssistant(AssistantType type) throws NoSuchElementException {
         return assistants.stream()
-                .filter(e -> e.getOrderValue() == (type.getValue()))
+                .filter(e -> e.getAssistantType().equals(type))
                 .findFirst()
                 .orElseThrow();
     }

@@ -6,6 +6,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -16,6 +19,7 @@ class MotherNatureTest {
     private IslandList list;
     private static Player player1, player2;
     private static Professor professor1, professor2;
+    private static List<Professor> professorList;
 
     /**
      * Sets up static fields
@@ -28,6 +32,13 @@ class MotherNatureTest {
         professor2 = new Professor(PieceColor.BLUE);
         professor1.assign(player1);
         professor2.assign(player2);
+
+        professorList = new ArrayList<>();
+        professorList.add(professor1);
+        professorList.add(professor2);
+        professorList.add(new Professor(PieceColor.YELLOW));
+        professorList.add(new Professor(PieceColor.PINK));
+        professorList.add(new Professor(PieceColor.GREEN));
     }
 
     /**
@@ -46,7 +57,7 @@ class MotherNatureTest {
     void withNull() {
         assertThrows(IllegalArgumentException.class, () -> mn.setCalculator(null));
         assertThrows(IllegalArgumentException.class, () -> mn.setExtractor(null));
-        assertThrows(IllegalArgumentException.class, () -> mn.assignTower(null));
+        assertThrows(IllegalArgumentException.class, () -> mn.assignTower(null, null));
     }
 
     /**
@@ -54,8 +65,8 @@ class MotherNatureTest {
      */
     @Test
     void boundCheckMovement() {
-        assertThrows(IllegalArgumentException.class, () -> mn.move(0));
-        assertThrows(IllegalArgumentException.class, () -> mn.move(-15));
+        assertThrows(IllegalArgumentException.class, () -> mn.move(0, professorList));
+        assertThrows(IllegalArgumentException.class, () -> mn.move(-15, professorList));
     }
 
     /**
@@ -66,14 +77,14 @@ class MotherNatureTest {
         int player1NumOfTowers = player1.getNumOfTowers();
         int player2NumOfTowers = player2.getNumOfTowers();
 
-        list.get(0).receiveStudent(new Student(professor1));
-        list.get(0).receiveStudent(new Student(professor1));
-        list.get(0).receiveStudent(new Student(professor1));
-        list.get(0).receiveStudent(new Student(professor2));
-        list.get(0).receiveStudent(new Student(professor2));
+        list.get(0).receiveStudent(new Student(professor1.getColor()));
+        list.get(0).receiveStudent(new Student(professor1.getColor()));
+        list.get(0).receiveStudent(new Student(professor1.getColor()));
+        list.get(0).receiveStudent(new Student(professor2.getColor()));
+        list.get(0).receiveStudent(new Student(professor2.getColor()));
 
         for (int i = 0; i < list.size(); i++)
-            mn.move(1);
+            mn.move(1, professorList);
 
         assertEquals(player1.getNumOfTowers(), player1NumOfTowers - 1);
         assertEquals(player2.getNumOfTowers(), player2NumOfTowers);
@@ -87,13 +98,13 @@ class MotherNatureTest {
         int player1NumOfTowers = player1.getNumOfTowers();
         int player2NumOfTowers = player2.getNumOfTowers();
 
-        list.get(0).receiveStudent(new Student(professor1));
-        list.get(0).receiveStudent(new Student(professor1));
-        list.get(0).receiveStudent(new Student(professor1));
-        list.get(0).receiveStudent(new Student(professor2));
-        list.get(0).receiveStudent(new Student(professor2));
+        list.get(0).receiveStudent(new Student(professor1.getColor()));
+        list.get(0).receiveStudent(new Student(professor1.getColor()));
+        list.get(0).receiveStudent(new Student(professor1.getColor()));
+        list.get(0).receiveStudent(new Student(professor2.getColor()));
+        list.get(0).receiveStudent(new Student(professor2.getColor()));
 
-        mn.assignTower(list.get(2));
+        mn.assignTower(list.get(2), professorList);
 
         assertEquals(player1.getNumOfTowers(), player1NumOfTowers);
         assertEquals(player2.getNumOfTowers(), player2NumOfTowers);

@@ -2,19 +2,17 @@ package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.Mage;
+import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.enums.TowerColor;
+import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test for {@link Player} class.
@@ -57,7 +55,7 @@ public class PlayerTest {
         player = new Player(playerUsername, entranceSize, numTowers, towerColor);
 
         initDeck();
-        player.receiveDeck(deck);
+        player = player.receiveDeck(new ArrayList<>(deck));
 
         assertThrows(IllegalArgumentException.class,
                 () -> new Player(playerUsername, -1, -1, towerColor)
@@ -82,17 +80,16 @@ public class PlayerTest {
     void playAssistantTest() {
         Random r = new Random();
 
-        assertThrows(IndexOutOfBoundsException.class, () -> player.playAssistant(-1));
-        assertThrows(IndexOutOfBoundsException.class, () -> player.playAssistant(deck.size()));
+        assertThrows(IllegalArgumentException.class, () -> player.playAssistant(null));
 
         while(deck.size() > 0) {
-            int i = r.nextInt(deck.size());
-            player.playAssistant(i);
+            int i = r.nextInt(0, deck.size());
+            player = player.playAssistant(deck.get(i).getAssistantType());
             assertEquals(Optional.of(deck.get(i)), player.getLastPlayedAssistant());
             deck.remove(i);
         }
 
-        assertThrows(IndexOutOfBoundsException.class, () -> player.playAssistant(0));
+        assertThrows(NoSuchElementException.class, () -> player.playAssistant(AssistantType.CAT));
     }
 
     /**
@@ -125,11 +122,11 @@ public class PlayerTest {
 
         int lastNumTowers = player.getNumOfTowers();
         while(lastNumTowers != 0) {
-            player.sendTower();
+            player = player.sendTower(t -> assertTrue(true));
             assertEquals(lastNumTowers - 1, player.getNumOfTowers());
             lastNumTowers--;
         }
-        assertThrows(IllegalStateException.class, () -> player.sendTower());
+        assertThrows(IllegalStateException.class, () -> player.sendTower(t -> assertAll()));
     }
 
     /**
@@ -141,6 +138,20 @@ public class PlayerTest {
         assertThrows(IllegalStateException.class, () -> player.spendCoins(1));
         assertThrows(IllegalArgumentException.class, () -> player.spendCoins(0));
         assertThrows(IllegalArgumentException.class, () -> player.spendCoins(-1));
+    }
+
+    /**
+     * Tests that the methods for hall and entrance updating throw exceptions when the update consumer is null
+     * (see {@link HallTest} and {@link BoundedStudentContainerTest} for more testing on these entities).
+     */
+    @Test
+    @DisplayName("Entrance and hall updating tests")
+    void updateTest() {
+        assertThrows(IllegalArgumentException.class,
+                () -> player = player.updateEntrance(null));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> player = player.updateHall(null));
     }
 
 }

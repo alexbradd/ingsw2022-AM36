@@ -3,6 +3,8 @@ package it.polimi.ingsw.server.model;
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.Mage;
 
+import java.util.Objects;
+
 /**
  * This class models the game's assistant cards.
  * It holds an {@link AssistantType} enumeration to store the card value
@@ -27,7 +29,7 @@ public class Assistant {
      * Basic constructor.
      *
      * @param assistantType the given {@link AssistantType}
-     * @param mage the given {@link Mage} of the card
+     * @param mage          the given {@link Mage} of the card
      */
     Assistant(AssistantType assistantType, Mage mage) {
         this.assistantType = assistantType;
@@ -61,4 +63,31 @@ public class Assistant {
         return mage;
     }
 
+    /**
+     * {@code AssistantType} getter.
+     *
+     * @return the card's assistant type
+     */
+    AssistantType getAssistantType() {
+        return assistantType;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "Assistant{" +
+                "assistantType=" + assistantType +
+                ", mage=" + mage +
+                '}';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(assistantType, mage);
+    }
 }

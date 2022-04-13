@@ -177,4 +177,8 @@ class PlayerList extends AbstractList<Player> {
         throw new IllegalArgumentException("can't find Player with username: \"" + username + "\" in the list");
     }
 
+    @Override
+    public Player set(int index, Player element) {
+        return list.set(index, element);
+    }
 }

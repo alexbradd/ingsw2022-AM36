@@ -1,99 +1,142 @@
 package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.server.model.enums.PieceColor;
+import it.polimi.ingsw.server.model.exceptions.ColorIsFullException;
+import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
+import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class models the game's hall.
  *
- * @author Mattia Busso
+ * @author Mattia Busso, Leonardo Bianconi
  */
-public class Hall implements StudentMoveSource, StudentMoveDestination {
+public class Hall implements StudentContainerInterface {
 
     /**
-     * The player who owns the hall.
+     * The maximum size of every single color row of the Hall
      */
-    private final Player owner;
+    public final static int maxColorSize = 10;
 
     /**
-     * Data structure that contains the students present in the hall.
+     * The maximum total size of the hall, calculated as {@code maxColorSize} times the number of colors
      */
-    private final EnumMap<PieceColor, Stack<Student>> hall;
+    public final static int maxSize = maxColorSize * PieceColor.values().length;
+
+    /**
+     * An EnumMap mapping every {@link PieceColor} to a Stack containing all the students of that color in the Container.
+     */
+    private final EnumMap<PieceColor, Stack<Student>> students;
 
     /**
      * Hall constructor.
-     *
-     * @param owner
-     * @throws IllegalArgumentException owner should not be null
      */
-    Hall(Player owner) throws IllegalArgumentException {
-        if (owner == null) {
-            throw new NullPointerException("owner should not be null");
+    Hall() {
+        students = new EnumMap<>(PieceColor.class);
+        for (PieceColor color : PieceColor.values()) {
+            students.put(color, new Stack<>());
         }
-        this.owner = owner;
-        hall = new EnumMap<>(PieceColor.class);
     }
 
     /**
-     * Adds a given student to the hall.
+     * A Hall constructor that creates a shallow copy of the one passed via parameter.
      *
-     * @param student
-     * @throws IllegalArgumentException student should not be null
-     * @see StudentMoveDestination
+     * @param oldHall the Hall to copy
+     * @throws IllegalArgumentException if the hall passed is null
+     */
+    Hall(Hall oldHall) throws IllegalArgumentException {
+        if (oldHall == null) throw new IllegalArgumentException("The old hall must not be null.");
+        students = oldHall.students.clone();
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
-    public void receiveStudent(Student student) throws IllegalArgumentException {
-        if (student == null) {
-            throw new NullPointerException("student should not be null");
-        }
-        hall.computeIfAbsent(student.getColor(), k -> new Stack<>());
-        hall.get(student.getColor()).add(student);
+    public int size() {
+        return students.values()
+                .stream()
+                .mapToInt(Vector::size)
+                .sum();
     }
 
     /**
-     * Pops a student of a given color from the hall and returns it.
-     *
-     * @param color
-     * @return student
-     * @throws IllegalStateException can't use this method if the hall of the given color is currently empty.
-     * @see StudentMoveSource
+     * {@inheritDoc}
      */
     @Override
-    public Student sendStudent(PieceColor color) throws IllegalStateException {
-        if (sizeOfColor(color) == 0) {
-            throw new IllegalStateException("can't get student from empty hall collection");
-        }
-        return hall.get(color).pop();
+    public int size(PieceColor color) {
+        return students.get(color).size();
     }
 
     /**
-     * @return boolean
-     * @see StudentMoveSource
-     * @see StudentMoveDestination
+     * {@inheritDoc}
      */
     @Override
-    public boolean requiresProfessorAssignment() {
-        return true;
+    public Set<Student> getStudents() {
+        return students.values()
+                .stream()
+                .flatMap(s -> s.stream())
+                .collect(Collectors.toSet());
     }
 
     /**
-     * Returns the size of the hall of the given color.
-     *
-     * @param color
-     * @return size
+     * {@inheritDoc}
      */
-    int sizeOfColor(PieceColor color) {
-        return (hall.get(color) == null ? 0 : hall.get(color).size());
+    @Override
+    public Hall add(Student s) throws IllegalArgumentException, ContainerIsFullException, ColorIsFullException {
+        if (s == null) throw new IllegalArgumentException("Student to add must not be null.");
+        if (size() == maxSize) throw new ContainerIsFullException();
+        if (size(s.getColor()) == maxColorSize) throw new ColorIsFullException();
+
+        Hall h = new Hall(this);
+        h.students.get(s.getColor()).add(s);
+        return h;
     }
 
     /**
-     * Owner getter.
-     *
-     * @return owner
+     * {@inheritDoc}
      */
-    Player getOwner() {
-        return owner;
+    @Override
+    public Tuple<Hall, Student> remove() throws EmptyContainerException {
+        Hall h = new Hall(this);
+        Student removedStudent = h.students.get(pickRandomColor()).pop();
+
+        return new Tuple<>(h, removedStudent);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Tuple<Hall, Student> remove(PieceColor color) throws EmptyStackException , IllegalArgumentException {
+        if (color == null) throw new IllegalArgumentException("Color must not be null");
+
+        Hall h = new Hall(this);
+        Student removedStudent = h.students.get(color).pop();
+
+        return new Tuple<>(h, removedStudent);
+    }
+
+    /**
+     * Helper method that returns the PieceColor of a random student inside the Hall.
+     *
+     * @return the student's PieceColor
+     * @throws EmptyContainerException if the Hall is empty
+     */
+    private PieceColor pickRandomColor() throws EmptyContainerException {
+
+        if (size() == 0)
+            throw new EmptyContainerException();
+
+        Random r = new Random();
+        List<PieceColor> colors = students.values().stream()
+                .flatMap(Collection::stream)
+                .map(Student::getColor)
+                .collect(Collectors.toList());
+
+        return colors.get(r.nextInt(colors.size()));
     }
 
 }

@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -18,6 +20,7 @@ class RemoveStudentInfluenceDecoratorTest {
     private static InfluenceCalculator calculator;
     private static Professor professor1, professor2;
     private static Player player1;
+    private static List<Professor> professorList;
     private Island island;
 
     /**
@@ -33,6 +36,15 @@ class RemoveStudentInfluenceDecoratorTest {
 
         professor1.assign(player1);
         professor2.assign(player1);
+
+        professorList = new ArrayList<>();
+        professorList.add(professor1);
+        professorList.add(professor2);
+        professorList.add(new Professor(PieceColor.BLUE));
+        professorList.add(new Professor(PieceColor.YELLOW));
+        professorList.add(new Professor(PieceColor.PINK));
+
+
     }
 
     /**
@@ -48,7 +60,7 @@ class RemoveStudentInfluenceDecoratorTest {
      */
     @Test
     void withNull() {
-        assertThrows(IllegalArgumentException.class, () -> calculator.calculateInfluences(null));
+        assertThrows(IllegalArgumentException.class, () -> calculator.calculateInfluences(null, professorList));
     }
 
     /**
@@ -57,11 +69,11 @@ class RemoveStudentInfluenceDecoratorTest {
     @Test
     void removesStudentInfluence() {
         for (int i = 0; i < 10; i++)
-            island.receiveStudent(new Student(professor1));
+            island.receiveStudent(new Student(professor1.getColor()));
         for (int i = 0; i < 15; i++)
-            island.receiveStudent(new Student(professor2));
+            island.receiveStudent(new Student(professor2.getColor()));
 
-        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isPresent());
         Map<Player, Integer> map = inf.get();
         assertEquals(map.get(player1), 15);
@@ -73,9 +85,9 @@ class RemoveStudentInfluenceDecoratorTest {
     @Test
     void playerWithNoInfluenceIsRemoved() {
         for (int i = 0; i < 10; i++)
-            island.receiveStudent(new Student(professor1));
+            island.receiveStudent(new Student(professor1.getColor()));
 
-        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isPresent());
         Map<Player, Integer> map = inf.get();
         assertNull(map.get(player1));

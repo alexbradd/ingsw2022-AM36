@@ -25,16 +25,17 @@ public class Professor {
      * Professor constructor.
      * Initially no player owns the professor, so the reference is left set to null.
      *
-     * @param color
+     * @param color the color of the professor
      */
     Professor(PieceColor color) {
         this.color = color;
+        this.owner = null;
     }
 
     /**
      * Assigns new owner to professor.
      *
-     * @param owner
+     * @param owner the player that owns the professor
      * @throws IllegalArgumentException newly assigned owner should not be null
      */
     void assign(Player owner) throws IllegalArgumentException {

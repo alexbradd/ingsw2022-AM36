@@ -160,9 +160,9 @@ class Island implements StudentMoveDestination {
      */
     private void receiveTowerFrom(Player player) {
         if (player == null) throw new IllegalArgumentException("player shouldn't be null");
-        if (tower != null) tower.returnToOwner();
+        if (tower != null) tower.getOwner().receiveTower(tower);
         try {
-            tower = player.sendTower();
+            player.sendTower((t) -> this.tower = t);
         } catch (IllegalStateException ignored) {
             // It is safe to ignore this exception since a group that has only some towers of some player is a valid
             // game state.

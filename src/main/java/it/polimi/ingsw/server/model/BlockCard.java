@@ -1,7 +1,7 @@
 package it.polimi.ingsw.server.model;
 
 /**
- * Stub class
+ * STUB
  */
 class BlockCard {
     private final Herbalist owner;

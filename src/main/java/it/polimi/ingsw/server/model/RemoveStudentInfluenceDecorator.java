@@ -2,6 +2,7 @@ package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.server.model.enums.PieceColor;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -38,23 +39,27 @@ class RemoveStudentInfluenceDecorator extends InfluenceCalculatorDecorator {
      * @throws IllegalArgumentException if {@code island} is null
      */
     @Override
-    public Optional<Map<Player, Integer>> calculateInfluences(Island island) {
+    public Optional<Map<Player, Integer>> calculateInfluences(Island island, List<Professor> professors) {
         if (island == null) throw new IllegalArgumentException("island shouldn't be null");
         InfluenceCalculator decorated = getCalculator();
-        return decorated.calculateInfluences(island)
+        return decorated.calculateInfluences(island, professors)
                 .map(inf -> {
                     int correction = (int) island.getStudents().stream()
                             .filter(s -> s.getColor().equals(colorToIgnore))
                             .count();
-                    island.getStudents().stream()
-                            .filter(s -> s.getColor().equals(colorToIgnore))
-                            .findAny()
-                            .flatMap(s -> s.getProfessor().getOwner())
-                            .ifPresent(p -> inf.computeIfPresent(p, (k, v) -> {
-                                int corrected = v - correction;
-                                if (corrected > 0) return corrected;
-                                return null;
-                            }));
+
+                    Professor professor = professors.stream()
+                            .filter(p -> p.getColor().equals(colorToIgnore))
+                            .findFirst()
+                            .orElseThrow();
+
+                    Optional<Player> owner = professor.getOwner();
+
+                    if (owner.isPresent()) {
+                        inf.put(owner.get(), inf.get(owner.get()) - correction);
+                        if (inf.get(owner.get()) <= 0)
+                            inf.put(owner.get(), null);
+                    }
                     return inf;
                 });
     }

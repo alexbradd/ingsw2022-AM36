@@ -47,8 +47,8 @@ class IslandTest {
     void leafReceiveStudent() {
         assertTrue(island.getStudents().isEmpty());
 
-        Student s1 = new Student(new Professor(PieceColor.BLUE));
-        Student s2 = new Student(new Professor(PieceColor.RED));
+        Student s1 = new Student(PieceColor.BLUE);
+        Student s2 = new Student(PieceColor.RED);
 
         island.receiveStudent(s1);
         island.receiveStudent(s2);
@@ -249,8 +249,8 @@ class IslandTest {
         island.conquer(player);
         child.conquer(player);
 
-        Student s1 = new Student(new Professor(PieceColor.BLUE));
-        Student s2 = new Student(new Professor(PieceColor.RED));
+        Student s1 = new Student(PieceColor.BLUE);
+        Student s2 = new Student(PieceColor.RED);
 
         child.receiveStudent(s1);
         child.receiveStudent(s2);
@@ -311,8 +311,8 @@ class IslandTest {
         child.conquer(player);
         island.merge(child);
 
-        Student s1 = new Student(new Professor(PieceColor.BLUE));
-        Student s2 = new Student(new Professor(PieceColor.RED));
+        Student s1 = new Student(PieceColor.BLUE);
+        Student s2 = new Student(PieceColor.RED);
 
         island.receiveStudent(s1);
         child.receiveStudent(s2);
