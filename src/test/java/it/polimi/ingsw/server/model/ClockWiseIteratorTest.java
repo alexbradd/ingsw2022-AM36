@@ -38,7 +38,7 @@ public class ClockWiseIteratorTest {
     void createAndPopulateList() {
         list = new ArrayList<>();
         for(int i = 0; i < 4; i++) {
-            list.add(new Player("p" + i, 10, TowerColor.WHITE));
+            list.add(new Player("p" + i, 10, 10, TowerColor.WHITE));
         }
     }
 
