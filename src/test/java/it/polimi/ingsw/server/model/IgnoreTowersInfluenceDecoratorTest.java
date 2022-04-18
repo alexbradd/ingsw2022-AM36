@@ -28,12 +28,9 @@ class IgnoreTowersInfluenceDecoratorTest {
     @BeforeAll
     static void staticSetUp() {
         calculator = new IgnoreTowersInfluenceDecorator(new StandardInfluenceCalculator());
-        player1 = new Player("Napoleon", 1, 10, TowerColor.WHITE);
+        player1 = new Player("Napoleon");
 
         professorList = new ArrayList<>();
-        for (PieceColor p : PieceColor.values())
-            if (!p.equals(PieceColor.RED))
-                professorList.add(new Professor(p));
     }
 
     /**
@@ -59,20 +56,20 @@ class IgnoreTowersInfluenceDecoratorTest {
     void removesTowerInfluence() {
         Professor p = new Professor(PieceColor.RED);
         professorList.add(p);
-        Island child = new Island(1);
-
         p.assign(player1);
 
-        island.conquer(player1);
-        child.conquer(player1);
-        island.merge(child);
-        island.receiveStudent(new Student(p.getColor()));
+        Island child = new Island(1)
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)));
+        island = island
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)))
+                .merge(child)
+                .updateStudents(c -> c.add(new Student(p.getColor())));
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
 
         assertTrue(inf.isPresent());
         Map<Player, Integer> map = inf.get();
-        assertEquals(map.get(player1), 1);
+        assertEquals(1, map.get(player1));
     }
 
     /**
@@ -80,11 +77,11 @@ class IgnoreTowersInfluenceDecoratorTest {
      */
     @Test
     void playerWithNoInfluenceIsRemoved() {
-        Island child = new Island(1);
-
-        island.conquer(player1);
-        child.conquer(player1);
-        island.merge(child);
+        Island child = new Island(1)
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)));
+        island = island
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)))
+                .merge(child);
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isPresent());

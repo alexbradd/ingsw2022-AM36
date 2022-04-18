@@ -30,13 +30,20 @@ class StandardInfluenceCalculatorTest {
     static void staticSetUp() {
         calculator = new StandardInfluenceCalculator();
         professor1 = new Professor(PieceColor.RED);
-        player1 = new Player("Napoleon", 1, 10, TowerColor.BLACK);
-        player2 = new Player("Cesar", 1, 10, TowerColor.WHITE);
+        player1 = new Player("Napoleon");
+        player2 = new Player("Cesar");
 
         professor1.assign(player1);
 
+
         professorList = new ArrayList<>();
         professorList.add(professor1);
+        professorList.add(new Professor(PieceColor.YELLOW));
+        professorList.add(new Professor(PieceColor.GREEN));
+        professorList.add(new Professor(PieceColor.BLUE));
+        professorList.add(new Professor(PieceColor.PINK));
+
+
     }
 
     /**
@@ -70,8 +77,7 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void blockedIslandNoMap() {
-        Herbalist blocker = new Herbalist();
-        island.pushBlock(blocker.popBlock());
+        island = island.pushBlock(new BlockCard(new Herbalist()));
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isEmpty());
@@ -82,9 +88,12 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void correctStudentInfluence() {
-        for (int i = 0; i < 10; i++)
-            island.receiveStudent(new Student(professor1.getColor()
-            ));
+        island = island.updateStudents(c -> {
+            for (int i = 0; i < 10; i++) {
+                c = c.add(new Student(professor1.getColor()));
+            }
+            return c;
+        });
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
 
@@ -99,17 +108,18 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void correctTowerInfluence() {
-        Island child = new Island(1);
-
-        island.conquer(player1);
-        child.conquer(player1);
+        Island child = new Island(1)
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)));
+        island = island
+                .updateTowers((t) -> List.of(new Tower(TowerColor.BLACK, player1)))
+                .merge(child);
         island.merge(child);
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
 
         assertTrue(inf.isPresent());
         Map<Player, Integer> map = inf.get();
-        assertEquals(2, map.get(player1));
+        assertEquals(map.get(player1), 2);
         assertNull(map.get(player2));
     }
 }

@@ -1,7 +1,6 @@
 package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.server.model.enums.PieceColor;
-import it.polimi.ingsw.server.model.enums.TowerColor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +29,7 @@ class RemoveStudentInfluenceDecoratorTest {
     static void staticSetUp() {
         professor1 = new Professor(PieceColor.RED);
         professor2 = new Professor(PieceColor.GREEN);
-        player1 = new Player("Napoleon", 1, 10, TowerColor.WHITE);
+        player1 = new Player("Napoleon");
 
         calculator = new RemoveStudentInfluenceDecorator(new StandardInfluenceCalculator(), professor1.getColor());
 
@@ -69,9 +68,9 @@ class RemoveStudentInfluenceDecoratorTest {
     @Test
     void removesStudentInfluence() {
         for (int i = 0; i < 10; i++)
-            island.receiveStudent(new Student(professor1.getColor()));
+            island.updateStudents(c -> c.add(new Student(professor1.getColor())));
         for (int i = 0; i < 15; i++)
-            island.receiveStudent(new Student(professor2.getColor()));
+            island.updateStudents(c -> c.add(new Student(professor2.getColor())));
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isPresent());
@@ -85,7 +84,7 @@ class RemoveStudentInfluenceDecoratorTest {
     @Test
     void playerWithNoInfluenceIsRemoved() {
         for (int i = 0; i < 10; i++)
-            island.receiveStudent(new Student(professor1.getColor()));
+            island.updateStudents(c -> c.add(new Student(professor1.getColor())));
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isPresent());

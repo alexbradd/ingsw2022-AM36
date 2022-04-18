@@ -142,4 +142,34 @@ final class BoundedStudentContainer implements StudentContainerInterface {
 
         return colors.get(r.nextInt(colors.size()));
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "BoundedStudentContainer{" +
+                "maxSize=" + maxSize +
+                ", students=" + students +
+                '}';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BoundedStudentContainer that = (BoundedStudentContainer) o;
+        return maxSize == that.maxSize && Objects.equals(students, that.students);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(maxSize, students);
+    }
 }

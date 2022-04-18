@@ -1,19 +1,19 @@
 package it.polimi.ingsw.server.model;
 
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 /**
- * This class provides a concrete implementation of the {@link PlayerListIterator} abstract class.
+ * This class is an implementation of the Iterator<{@link Board}> interface.
  * This implementation iterates on the list by ascending order of the mapped list's {@link Player} -
  * last played {@link Assistant} {@code orderValue} attribute.
  * For more information about the mapped values consult the {@link Player} and {@link Assistant} documentations.
  *
  * @author Mattia Busso
- * @see PlayerListIterator
+ * @see Board
  */
-class AssistantValueIterator extends PlayerListIterator {
+class AssistantValueIterator implements Iterator<Board> {
+
+    private final List<Board> list;
 
     /**
      * The starting index used to break ties in case of same-value assistants
@@ -21,24 +21,24 @@ class AssistantValueIterator extends PlayerListIterator {
     private final int startIndex;
 
     /**
-     * The index of the current {@code Player} pointed by the iterator.
+     * The index of the current {@code Board} pointed by the iterator.
      */
     private int currentIndex;
 
     /**
-     * The value of the {@code lastPlayedAssistant} of the current {@code Player} pointed by the iterator.
+     * The value of the {@code lastPlayed} of the current {@code Board} pointed by the iterator.
      */
     private int currMin;
 
     /**
-     * The index of the first {@link Player} to be returned by the iterator.
+     * The index of the first {@link Board} to be returned by the iterator.
      */
     private int firstPlayedIndex;
 
     /**
-     * A set of players the iterator hasn't returned yet.
+     * A set of boards the iterator hasn't returned yet.
      */
-    private final Set<Player> unReturned;
+    private final Set<Board> unReturned;
 
     /**
      * Flag that indicates if we are currently performing the first iteration.
@@ -52,17 +52,18 @@ class AssistantValueIterator extends PlayerListIterator {
 
     /**
      * Custom {@code startIndex} constructor.
-     * Calls the constructor of the parent class {@link PlayerListIterator} and sets the custom {@code startIndex},
+     * Sets the {@link #list} attribute and sets the custom {@code startIndex},
      * used to break ties in case of {@code Players} with the same {@code lastPlayedAssistant} value.
      *
      * @param list       the list to iterate on
      * @param startIndex the custom {@code startIndex} for the iteration
      * @throws IllegalArgumentException  if {@code list == null} or {@code list.size() == 0} (list is empty)
      * @throws IndexOutOfBoundsException if {@code startIndex} is out of range
-     * @throws IllegalStateException     if a {@code Player} inside the {@code PlayerList} has no {@code lastPlayedAssistant}
+     * @throws IllegalStateException     if a {@code Board} inside the {@code List<Board>} has no {@code lastPlayedAssistant}
      */
-    AssistantValueIterator(PlayerList list, int startIndex) throws IllegalArgumentException, IllegalStateException, IndexOutOfBoundsException {
-        super(list);
+    AssistantValueIterator(List<Board> list, int startIndex) throws IllegalArgumentException, IllegalStateException, IndexOutOfBoundsException {
+        if (list == null) throw new IllegalArgumentException("list must not be null.");
+        this.list = list;
         this.startIndex = startIndex;
         this.firstPlayedIndex = -1;
         unReturned = new HashSet<>();
@@ -77,7 +78,7 @@ class AssistantValueIterator extends PlayerListIterator {
 
         unReturned.addAll(list);
         updateCurrentValues();
-        unReturned.remove(getList().get(currentIndex));
+        unReturned.remove(list.get(currentIndex));
 
     }
 
@@ -86,10 +87,10 @@ class AssistantValueIterator extends PlayerListIterator {
      *
      * @return the next element in the iteration
      * @throws NoSuchElementException if the iteration has no more elements or if the list is empty
-     * @throws IllegalStateException  if a {@code Player} inside the {@code PlayerList} has no {@code lastPlayedAssistant}
+     * @throws IllegalStateException  if a {@code Board} inside the {@code List<Board>} has no {@code lastPlayedAssistant}
      */
-    public Player next() throws NoSuchElementException, IllegalStateException {
-        Player nextPlayer = getList().get(currentIndex);
+    public Board next() throws NoSuchElementException, IllegalStateException {
+        Board nextBoard = list.get(currentIndex);
 
         if (start) {
             firstPlayedIndex = currentIndex;
@@ -103,10 +104,10 @@ class AssistantValueIterator extends PlayerListIterator {
         updateCurrentValues();
 
         if (currMin != MIN_UPPER_BOUND) {
-            unReturned.remove(getList().get(currentIndex));
+            unReturned.remove(list.get(currentIndex));
         }
 
-        return nextPlayer;
+        return nextBoard;
 
     }
 
@@ -121,10 +122,10 @@ class AssistantValueIterator extends PlayerListIterator {
     }
 
     /**
-     * Returns the index of the first {@link Player} to be returned by the iterator.
+     * Returns the index of the first {@link Board} to be returned by the iterator.
      *
-     * @return the index of the first player returned by {@code next()}
-     * @throws IllegalStateException if no player has been returned yet
+     * @return the index of the first board returned by {@code next()}
+     * @throws IllegalStateException if no board has been returned yet
      */
     int getFirstPlayedIndex() {
         if (firstPlayedIndex == -1) {
@@ -134,10 +135,10 @@ class AssistantValueIterator extends PlayerListIterator {
     }
 
     /**
-     * Returns {@code true} if {@code i} is the index of a {@code Player} inside the list that comes before
-     * the {@code Player} index by {@code currentIndex}.
+     * Returns {@code true} if {@code i} is the index of a {@code Board} inside the list that comes before
+     * the {@code Board} index by {@code currentIndex}.
      *
-     * @param i the index of the {@code Player} to check the order of
+     * @param i the index of the {@code Board} to check the order of
      * @return {@code true} if {@code i} indexes a player that comes before the player indexed by currentIndex, {@code false} otherwise
      */
     private boolean isBeforeCurrent(int i) {
@@ -147,13 +148,13 @@ class AssistantValueIterator extends PlayerListIterator {
     /**
      * Private method that updates {@code currentIndex} and {@code currMin} after one iteration.
      *
-     * @throws IllegalStateException if a {@code Player} inside the {@code PlayerList} has no {@code lastPlayedAssistant}
+     * @throws IllegalStateException if a {@code Board} inside the {@code List<Board>} has no {@code lastPlayedAssistant}
      */
     private void updateCurrentValues() throws IllegalStateException {
         currMin = MIN_UPPER_BOUND;
-        for (int i = 0; i < getList().size(); i++) {
-            if (unReturned.contains(getList().get(i))) {
-                int currAssistantValue = getList().get(i).getLastPlayedAssistant()
+        for (int i = 0; i < list.size(); i++) {
+            if (unReturned.contains(list.get(i))) {
+                int currAssistantValue = list.get(i).getLastPlayedAssistant()
                         .orElseThrow(() -> new IllegalStateException("last played assistant is not present"))
                         .getOrderValue();
                 if (currAssistantValue == currMin) {

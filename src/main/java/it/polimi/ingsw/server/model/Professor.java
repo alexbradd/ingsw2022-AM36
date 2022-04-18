@@ -63,5 +63,4 @@ public class Professor {
     PieceColor getColor() {
         return color;
     }
-
 }

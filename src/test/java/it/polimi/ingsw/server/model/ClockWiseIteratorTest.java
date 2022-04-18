@@ -4,12 +4,15 @@ import it.polimi.ingsw.server.model.enums.TowerColor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test for the {@link ClockWiseIterator} class.
- * This test takes into consideration {@link PlayerList} with {@code size} ranging from 0 to 4.
- * For each {@code size} of the {@code PlayerList} every particular case of iteration is tested.
+ * This test takes into consideration a List<{@link Player}>.
+ * For each {@code size} of the {@code List<Player>} every particular case of iteration is tested.
  *
  * @author Mattia Busso
  * @see ClockWiseIterator
@@ -17,14 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ClockWiseIteratorTest {
 
     /**
-     * The {@link PlayerList} to iterate on.
+     * The List<{@link Player}> to iterate on.
      */
-    private PlayerList list;
-
-    /**
-     * The maximum size of the list.
-     */
-    private final int maxListSize = 4;
+    private List<Board> list;
 
     /**
      * Initializes the list and populates it with players.
@@ -32,9 +30,9 @@ public class ClockWiseIteratorTest {
      * @param numPlayers number of players to be added to the list
      */
     private void createAndPopulateList(int numPlayers) {
-        list = new PlayerList(maxListSize);
+        list = new ArrayList<>();
         for(int i = 0; i < numPlayers; i++) {
-            list.add(new Player("p" + i, 5, 5, TowerColor.WHITE));
+            list.add(new Board(new Player("p"), 7, 7, TowerColor.WHITE));
         }
     }
 
@@ -45,8 +43,7 @@ public class ClockWiseIteratorTest {
     @DisplayName("Incorrect parameters test")
     void incorrectParameters() {
         createAndPopulateList(1);
-        assertThrows(IndexOutOfBoundsException.class, () -> list.clockWiseIterator(-1));
-        assertThrows(IndexOutOfBoundsException.class, () -> list.clockWiseIterator(2));
+        assertThrows(IndexOutOfBoundsException.class, () -> new ClockWiseIterator(list, -1));
     }
 
     /**
@@ -55,8 +52,8 @@ public class ClockWiseIteratorTest {
     @Test
     @DisplayName("Empty list test")
     void emptyListTest() {
-        list = new PlayerList(maxListSize);
-        assertThrows(IllegalArgumentException.class, () -> list.clockWiseIterator(0));
+        list = new ArrayList<>();
+        assertThrows(IllegalArgumentException.class, () -> new ClockWiseIterator(list, 0));
     }
 
     /**
@@ -67,7 +64,7 @@ public class ClockWiseIteratorTest {
     void onePlayerTest() {
         createAndPopulateList(1);
 
-        PlayerListIterator iterator = list.clockWiseIterator(0);
+        ClockWiseIterator iterator = new ClockWiseIterator(list, 0);
 
         assertTrue(iterator.hasNext());
         assertEquals(list.get(0), iterator.next());
@@ -83,7 +80,7 @@ public class ClockWiseIteratorTest {
         createAndPopulateList(2);
 
         // startIndex = 0
-        PlayerListIterator iterator = list.clockWiseIterator(0);
+        ClockWiseIterator iterator = new ClockWiseIterator(list, 0);
 
         assertTrue(iterator.hasNext());
         assertEquals(list.get(0), iterator.next());
@@ -91,7 +88,7 @@ public class ClockWiseIteratorTest {
         assertFalse(iterator.hasNext());
 
         // startIndex = 1
-        iterator = list.clockWiseIterator(1);
+        iterator = new ClockWiseIterator(list, 1);
 
         assertTrue(iterator.hasNext());
         assertEquals(list.get(1), iterator.next());
@@ -108,7 +105,7 @@ public class ClockWiseIteratorTest {
         createAndPopulateList(3);
 
         // startIndex = 0
-        PlayerListIterator iterator = list.clockWiseIterator(0);
+        ClockWiseIterator iterator = new ClockWiseIterator(list, 0);
 
         assertTrue(iterator.hasNext());
         assertEquals(list.get(0), iterator.next());
@@ -117,7 +114,7 @@ public class ClockWiseIteratorTest {
         assertFalse(iterator.hasNext());
 
         // startIndex = 1
-        iterator = list.clockWiseIterator(1);
+        iterator = new ClockWiseIterator(list, 1);
 
         assertTrue(iterator.hasNext());
         assertEquals(list.get(1), iterator.next());
@@ -126,7 +123,7 @@ public class ClockWiseIteratorTest {
         assertFalse(iterator.hasNext());
 
         // startIndex = 2
-        iterator = list.clockWiseIterator(2);
+        iterator = new ClockWiseIterator(list, 2);
 
         assertTrue(iterator.hasNext());
         assertEquals(list.get(2), iterator.next());
@@ -141,7 +138,7 @@ public class ClockWiseIteratorTest {
         createAndPopulateList(4);
 
         // startIndex = 0
-        PlayerListIterator iterator = list.clockWiseIterator(0);
+        ClockWiseIterator iterator = new ClockWiseIterator(list, 0);
 
         assertTrue(iterator.hasNext());
         assertEquals(list.get(0), iterator.next());
@@ -151,7 +148,7 @@ public class ClockWiseIteratorTest {
         assertFalse(iterator.hasNext());
 
         // startIndex = 1
-        iterator = list.clockWiseIterator(1);
+        iterator = new ClockWiseIterator(list, 1);
 
         assertTrue(iterator.hasNext());
         assertEquals(list.get(1), iterator.next());
@@ -161,7 +158,7 @@ public class ClockWiseIteratorTest {
         assertFalse(iterator.hasNext());
 
         // startIndex = 2
-        iterator = list.clockWiseIterator(2);
+        iterator = new ClockWiseIterator(list, 2);
 
         assertTrue(iterator.hasNext());
         assertEquals(list.get(2), iterator.next());
@@ -171,7 +168,7 @@ public class ClockWiseIteratorTest {
         assertFalse(iterator.hasNext());
 
         // startIndex = 3
-        iterator = list.clockWiseIterator(3);
+        iterator = new ClockWiseIterator(list, 3);
 
         assertTrue(iterator.hasNext());
         assertEquals(list.get(3), iterator.next());

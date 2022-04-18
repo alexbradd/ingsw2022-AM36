@@ -9,4 +9,8 @@ public class Tuple<T, P> {
         this.t = t;
         this.p = p;
     }
+
+    public T getFirst() { return t; }
+
+    public P getSecond() { return p; }
 }

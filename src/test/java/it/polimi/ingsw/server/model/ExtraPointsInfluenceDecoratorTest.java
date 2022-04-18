@@ -19,19 +19,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class ExtraPointsInfluenceDecoratorTest {
     private static InfluenceCalculator calculator;
     private static Player player1;
-    private static List<Professor> professorList;
     private Island island;
+    private static List<Professor> professorList;
 
     /**
      * Sets up static variables.
      */
     @BeforeAll
     static void staticSetUp() {
-        player1 = new Player("Napoleon", 1, 10, TowerColor.WHITE);
+        player1 = new Player("Napoleon");
         calculator = new ExtraPointsInfluenceDecorator(new StandardInfluenceCalculator(), player1, 2);
         professorList = new ArrayList<>();
-        for (PieceColor p : PieceColor.values())
-            professorList.add(new Professor(p));
+        for (PieceColor c : PieceColor.values()) {
+            professorList.add(new Professor(c));
+        }
     }
 
     /**
@@ -55,7 +56,8 @@ class ExtraPointsInfluenceDecoratorTest {
      */
     @Test
     void addsExtraInfluence() {
-        island.conquer(player1);
+        island = island
+                .updateTowers((t) -> List.of(new Tower(TowerColor.BLACK, player1)));
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
 

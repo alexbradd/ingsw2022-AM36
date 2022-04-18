@@ -2,9 +2,7 @@ package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.Mage;
-import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.enums.TowerColor;
-import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,18 +13,23 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test for {@link Player} class.
+ * Test for {@link Board} class.
  *
- * @author Mattia Busso
- * @see Player
+ * @author Mattia Busso, Leonardo Bianconi
+ * @see Board
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class PlayerTest {
+public class BoardTest {
 
     /**
-     * The {@link Player} to test.
+     * The {@link Player} who owns the {@link Board} to test;.
      */
     private Player player;
+
+    /**
+     * The {@link Board} to be tested.
+     */
+    private Board board;
 
     /**
      * A deck of assistants to give the {@code Player}.
@@ -52,13 +55,15 @@ public class PlayerTest {
         int numTowers = 9;
         towerColor = TowerColor.WHITE;
 
-        player = new Player(playerUsername, entranceSize, numTowers, towerColor);
+        player = new Player(playerUsername);
+        board = new Board(player, entranceSize, numTowers, towerColor);
+
 
         initDeck();
-        player = player.receiveDeck(new ArrayList<>(deck));
+        board = board.receiveDeck(new ArrayList<>(deck));
 
         assertThrows(IllegalArgumentException.class,
-                () -> new Player(playerUsername, -1, -1, towerColor)
+                () -> new Board(player, -1, -1, towerColor)
         );
     }
 
@@ -68,8 +73,8 @@ public class PlayerTest {
     @Test
     @DisplayName("receiveDeck() method test")
     void receiveDeckTest() {
-        assertThrows(IllegalArgumentException.class, () -> player.receiveDeck(null));
-        assertThrows(IllegalStateException.class, () -> player.receiveDeck(deck));
+        assertThrows(IllegalArgumentException.class, () -> board.receiveDeck(null));
+        assertThrows(IllegalStateException.class, () -> board.receiveDeck(deck));
     }
 
     /**
@@ -80,16 +85,16 @@ public class PlayerTest {
     void playAssistantTest() {
         Random r = new Random();
 
-        assertThrows(IllegalArgumentException.class, () -> player.playAssistant(null));
+        assertThrows(IllegalArgumentException.class, () -> board.playAssistant(null));
 
         while(deck.size() > 0) {
             int i = r.nextInt(0, deck.size());
-            player = player.playAssistant(deck.get(i).getAssistantType());
-            assertEquals(Optional.of(deck.get(i)), player.getLastPlayedAssistant());
+            board = board.playAssistant(deck.get(i).getAssistantType());
+            assertEquals(Optional.of(deck.get(i)), board.getLastPlayedAssistant());
             deck.remove(i);
         }
 
-        assertThrows(NoSuchElementException.class, () -> player.playAssistant(AssistantType.CAT));
+        assertThrows(NoSuchElementException.class, () -> board.playAssistant(AssistantType.CAT));
     }
 
     /**
@@ -116,17 +121,17 @@ public class PlayerTest {
     @Test
     @DisplayName("receiveTower() and sendTower() methods test")
     void towersFlowTest() {
-        assertThrows(IllegalStateException.class, () -> player.receiveTower(new Tower(towerColor, player)));
-        assertThrows(IllegalArgumentException.class, () -> player.receiveTower(new Tower(TowerColor.BLACK, player)));
-        assertThrows(IllegalArgumentException.class, () -> player.receiveTower(null));
+        assertThrows(IllegalStateException.class, () -> board.receiveTower(new Tower(towerColor, player)));
+        assertThrows(IllegalArgumentException.class, () -> board.receiveTower(new Tower(TowerColor.BLACK, player)));
+        assertThrows(IllegalArgumentException.class, () -> board.receiveTower(null));
 
-        int lastNumTowers = player.getNumOfTowers();
+        int lastNumTowers = board.getNumOfTowers();
         while(lastNumTowers != 0) {
-            player = player.sendTower(t -> assertTrue(true));
-            assertEquals(lastNumTowers - 1, player.getNumOfTowers());
+            board = board.sendTower(t -> assertTrue(true));
+            assertEquals(lastNumTowers - 1, board.getNumOfTowers());
             lastNumTowers--;
         }
-        assertThrows(IllegalStateException.class, () -> player.sendTower(t -> assertAll()));
+        assertThrows(IllegalStateException.class, () -> board.sendTower(t -> assertAll()));
     }
 
     /**
@@ -135,9 +140,9 @@ public class PlayerTest {
     @Test
     @DisplayName("spendCoins() method test")
     void spendCoinsTest() {
-        assertThrows(IllegalStateException.class, () -> player.spendCoins(1));
-        assertThrows(IllegalArgumentException.class, () -> player.spendCoins(0));
-        assertThrows(IllegalArgumentException.class, () -> player.spendCoins(-1));
+        assertThrows(IllegalStateException.class, () -> board.spendCoins(1));
+        assertThrows(IllegalArgumentException.class, () -> board.spendCoins(0));
+        assertThrows(IllegalArgumentException.class, () -> board.spendCoins(-1));
     }
 
     /**
@@ -148,10 +153,10 @@ public class PlayerTest {
     @DisplayName("Entrance and hall updating tests")
     void updateTest() {
         assertThrows(IllegalArgumentException.class,
-                () -> player = player.updateEntrance(null));
+                () -> board = board.updateEntrance(null));
 
         assertThrows(IllegalArgumentException.class,
-                () -> player = player.updateHall(null));
+                () -> board = board.updateHall(null));
     }
 
 }

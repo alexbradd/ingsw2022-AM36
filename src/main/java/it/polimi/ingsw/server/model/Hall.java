@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  *
  * @author Mattia Busso, Leonardo Bianconi
  */
-public class Hall implements StudentContainerInterface {
+class Hall implements StudentContainerInterface {
 
     /**
      * The maximum size of every single color row of the Hall
@@ -110,7 +110,7 @@ public class Hall implements StudentContainerInterface {
      * {@inheritDoc}
      */
     @Override
-    public Tuple<Hall, Student> remove(PieceColor color) throws EmptyStackException , IllegalArgumentException {
+    public Tuple<Hall, Student> remove(PieceColor color) throws EmptyStackException, IllegalArgumentException {
         if (color == null) throw new IllegalArgumentException("Color must not be null");
 
         Hall h = new Hall(this);
@@ -139,4 +139,32 @@ public class Hall implements StudentContainerInterface {
         return colors.get(r.nextInt(colors.size()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "Hall{" +
+                "students=" + students +
+                '}';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Hall hall = (Hall) o;
+        return Objects.equals(students, hall.students);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(students);
+    }
 }

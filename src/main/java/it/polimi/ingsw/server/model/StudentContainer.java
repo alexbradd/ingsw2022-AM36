@@ -133,4 +133,33 @@ final class StudentContainer implements StudentContainerInterface {
 
         return colors.get(r.nextInt(colors.size()));
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "StudentContainer{" +
+                "students=" + students +
+                '}';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StudentContainer that = (StudentContainer) o;
+        return Objects.equals(students, that.students);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(students);
+    }
 }
