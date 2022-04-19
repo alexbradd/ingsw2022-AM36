@@ -71,23 +71,4 @@ public class Assistant {
     AssistantType getAssistantType() {
         return assistantType;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return "Assistant{" +
-                "assistantType=" + assistantType +
-                ", mage=" + mage +
-                '}';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(assistantType, mage);
-    }
 }
