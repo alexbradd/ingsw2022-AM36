@@ -1,10 +1,13 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.TowerColor;
-
 import java.util.*;
+import java.util.List;
 
 /**
+ * *STUB*
+ *
  * Represents the game's {@code Player} entity.
  * The class contains (among other things):
  * a deck of {@code Assistants}, a set of {@code Towers}, the player's {@code Hall} and the player's {@code Entrance}.
@@ -15,7 +18,7 @@ import java.util.*;
  * @see Hall
  * @see Tower
  */
-class Player {
+public class Player {
 
     /**
      * The username of the player.
@@ -25,22 +28,12 @@ class Player {
     /**
      * The deck of {@link Assistant} of the player.
      */
-    private final List<Assistant> assistants;
+    private List<Assistant> assistants;
 
     /**
      * The {@link Assistant} last-played by the player.
      */
     private Assistant lastPlayed;
-
-    /**
-     * Player's {@link Entrance}.
-     */
-    private final Entrance entrance;
-
-    /**
-     * Player's {@link Hall}.
-     */
-    private final Hall hall;
 
     /**
      * Player's stack of {@link Tower}.
@@ -60,16 +53,6 @@ class Player {
     private final TowerColor towersColor;
 
     /**
-     * Number of player's coins.
-     */
-    private int coins;
-
-    /**
-     * Flag that indicates if a deck of assistants has already been received.
-     */
-    private boolean deckAdded = false;
-
-    /**
      * Player constructor.
      * Initializes all parameters and fills out the {@code towers}.
      *
@@ -82,10 +65,11 @@ class Player {
         if(numTowers <= 0) {
             throw new IllegalArgumentException("numTowers shouldn't  be <= 0");
         }
+        if(entranceSize <= 0) {
+            throw new IllegalArgumentException("entranceSize shouldn't be <= 0");
+        }
         username = name;
         assistants = new ArrayList<>();
-        entrance = new Entrance(this, entranceSize);
-        hall = new Hall(this);
         towers = new Stack<>();
         maxNumTowers = numTowers;
         towersColor = color;
@@ -94,40 +78,36 @@ class Player {
         }
     }
 
-    // Assistant's deck management
-
-    /**
-     * {@code assistants} deck setter.
-     *
-     * @param assistants the given deck of assistants
-     * @throws IllegalStateException if {@code deckAdded == true} (can't add a new deck if one is already present)
-     * @throws IllegalArgumentException if {@code assistants == null}
-     */
-    void receiveDeck(List<Assistant> assistants) throws IllegalStateException, IllegalArgumentException {
-        if(assistants == null) {
-            throw new IllegalArgumentException("assistants should not be null");
+    Player(Player oldPlayer) {
+        if(oldPlayer == null) {
+            throw new IllegalArgumentException("old Player shouldn't be null");
         }
-        if(deckAdded) {
-            throw new IllegalStateException("can't add a new deck if one is already present");
-        }
-        this.assistants.addAll(assistants);
-        deckAdded = true;
+        this.username = oldPlayer.username;
+        this.assistants = new ArrayList<>(oldPlayer.assistants);
+        this.towers = (Stack<Tower>) oldPlayer.towers.clone();
+        this.maxNumTowers = oldPlayer.maxNumTowers;
+        this.towersColor = oldPlayer.towersColor;
+        this.lastPlayed = oldPlayer.lastPlayed;
     }
 
-    /**
-     * Pops the given {@link Assistant} from the deck and plays it, placing it as {@code lastPlayedAssistant}.
-     *
-     * @param assistantIndex index of the given {@link Assistant} inside the deck
-     * @throws IndexOutOfBoundsException if {@code assistantIndex} is outside {@code assistants} boundaries
-     */
-    void playAssistant(int assistantIndex) throws IndexOutOfBoundsException {
-        try {
-            lastPlayed = assistants.get(assistantIndex);
-            assistants.remove(assistantIndex);
+    // Assistant's deck management
+
+    Player receiveDeck(List<Assistant> assistants) {
+        if(assistants == null) {
+            throw new IllegalArgumentException("assistants shouldn't be null");
         }
-        catch(IndexOutOfBoundsException e) {
-            throw new IndexOutOfBoundsException("assistant_index should be inside assistants index boundaries");
+        this.assistants = assistants;
+        return new Player(this);
+    }
+
+    Player playAssistant(AssistantType type) {
+        for(Assistant assistant: assistants) {
+            if(assistant.getOrderValue() == type.getValue()) {
+                lastPlayed = assistant;
+            }
         }
+        assistants.remove(lastPlayed);
+        return new Player(this);
     }
 
     /**
@@ -135,17 +115,8 @@ class Player {
      *
      * @return an {@code Optional of Assistant} (because initially {@code lastPlayedAssistant} could be {@code null})
      */
-    Optional<Assistant> getLastPlayedAssistant() {
+    public Optional<Assistant> getLastPlayedAssistant() {
         return Optional.ofNullable(lastPlayed);
-    }
-
-    /**
-     * Returns the deck of assistants.
-     *
-     * @return a copy of {@code assistants}
-     */
-    List<Assistant> getAssistants() {
-        return new ArrayList<>(assistants);
     }
 
     // Towers management
@@ -194,60 +165,7 @@ class Player {
         return towers.size();
     }
 
-    // Coins management
-
-    /**
-     * The player spends {@code num_coins} coins.
-     *
-     * @param numCoins the number of coins to be spent
-     * @throws IllegalStateException if {@code coins - numCoins <= 0} (the player tries to spend coins it doesn't have)
-     * @throws IllegalArgumentException if {@code numCoins <= 0}
-     */
-    void spendCoins(int numCoins) throws IllegalStateException, IllegalArgumentException {
-        if(numCoins <= 0) {
-            throw new IllegalArgumentException("num_coins can't be <= 0");
-        }
-        if(coins - numCoins < 0) {
-            throw new IllegalStateException("can't spend coins that the player doesn't have");
-        }
-        coins -= numCoins;
-    }
-
-    /**
-     * The player receives one coin.
-     */
-    void receiveCoin() {
-        coins++;
-    }
-
-    // Basic getters and setters
-
-    /**
-     * Player's username getter.
-     *
-     * @return {@code username}
-     */
-    String getUsername() {
-        return username;
-    }
-
-    /**
-     * Player's {@link Entrance} getter.
-     *
-     * @return {@code entrance}
-     */
-    Entrance getEntrance() {
-        return entrance;
-    }
-
-    /**
-     * Player's {@link Hall} getter.
-     *
-     * @return {@code hall}
-     */
-    Hall getHall() {
-        return hall;
-    }
+    // Hall and entrance updates
 
     /**
      * {@inheritDoc}
@@ -275,4 +193,5 @@ class Player {
     public String toString() {
         return username;
     }
+
 }
