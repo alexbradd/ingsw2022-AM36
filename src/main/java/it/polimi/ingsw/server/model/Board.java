@@ -1,13 +1,12 @@
 package it.polimi.ingsw.server.model;
 
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
-import it.polimi.ingsw.server.model.enums.TowerColor;
 import it.polimi.ingsw.server.model.enums.AssistantType;
+import it.polimi.ingsw.server.model.enums.TowerColor;
 import it.polimi.ingsw.server.model.exceptions.NoTowersException;
 import it.polimi.ingsw.server.model.exceptions.NotEnoughCoinsException;
+
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * Represents one player's game area. It includes the School board, the assistants deck and the coins the player has.
@@ -51,7 +50,7 @@ public class Board {
     /**
      * Player's stack of {@link Tower}.
      */
-    private final Stack<Tower> towers;
+    private Stack<Tower> towers;
 
     /**
      * The maximum number of towers allowed.
@@ -128,6 +127,7 @@ public class Board {
 
 
     // Assistant's deck management
+
     /**
      * Pops the given {@link Assistant} from the deck and plays it, placing it as {@code lastPlayedAssistant}.
      * Returns a new Board instance, which hasn't got that assistant in the deck anymore.
@@ -141,6 +141,7 @@ public class Board {
         if (type == null) throw new IllegalArgumentException("Assistant type must not be null.");
 
         Board b = new Board(this);
+        b.assistants = new ArrayList<>(b.assistants);
         Assistant a = getAssistant(type);
         b.lastPlayed = a;
         b.assistants.remove(a);
@@ -162,7 +163,7 @@ public class Board {
             throw new IllegalStateException("A deck for this player has already been added.");
 
         Board b = new Board(this);
-        b.assistants = assistantDeck;
+        b.assistants = new ArrayList<>(assistantDeck);
         b.deckAdded = true;
         return b;
     }
@@ -207,6 +208,7 @@ public class Board {
         if (towers.size() == 0) throw new NoTowersException();
 
         Board b = new Board(this);
+        b.towers = (Stack<Tower>) b.towers.clone();
         return new Tuple<>(b, b.towers.pop());
     }
 
@@ -227,6 +229,7 @@ public class Board {
             throw new IllegalStateException("This player already has the maximum number of towers in his board.");
 
         Board b = new Board(this);
+        b.towers = (Stack<Tower>) b.towers.clone();
         b.towers.add(t);
         return b;
     }

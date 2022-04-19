@@ -30,7 +30,7 @@ public class StudentContainerTest {
         island = new StudentContainer();
         s = new Student(PieceColor.BLUE);
         s1 = new Student(PieceColor.RED);
-        island.add(s).add(s1);
+        island = island.add(s).add(s1);
 
         assertEquals(2, island.size());
         assertEquals(1, island.size(PieceColor.RED));
@@ -47,7 +47,7 @@ public class StudentContainerTest {
     void addTest() {
 
         Student s2 = new Student(PieceColor.GREEN);
-        island.add(s2);
+        island = island.add(s2);
 
         assertEquals(3, island.size());
 
@@ -62,9 +62,9 @@ public class StudentContainerTest {
     @Test
     @DisplayName("Test for the removal of students")
     void removeTest() {
-        island.remove(PieceColor.GREEN);
+        island = island.remove(PieceColor.GREEN).getFirst();
 
-        island.remove(PieceColor.RED);
+        island = island.remove(PieceColor.RED).getFirst();
         assertEquals(0, island.size(PieceColor.RED));
         assertEquals(1, island.size(PieceColor.BLUE));
         assertEquals(0, island.size(PieceColor.PINK));
@@ -72,7 +72,7 @@ public class StudentContainerTest {
         assertThrows(EmptyStackException.class,
                 () -> island.remove(PieceColor.PINK));
 
-        island.remove(PieceColor.BLUE);
+        island = island.remove(PieceColor.BLUE).getFirst();
         assertEquals(0, island.size(PieceColor.RED));
         assertEquals(0, island.size(PieceColor.BLUE));
         assertEquals(0, island.size(PieceColor.PINK));

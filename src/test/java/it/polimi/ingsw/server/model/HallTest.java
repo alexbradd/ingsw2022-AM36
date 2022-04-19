@@ -39,7 +39,7 @@ class HallTest {
         assertAll(() -> {
             for (PieceColor color : PieceColor.values()) {
                 for (int i = 0; i < Hall.maxColorSize; i++) {
-                    hall.add(new Student(color));
+                    hall = hall.add(new Student(color));
                 }
             }
         });
@@ -64,7 +64,7 @@ class HallTest {
 
         assertAll(() -> {
             for (int i = 0; i < Hall.maxColorSize; i++) {
-                hall.add(new Student(PieceColor.RED));
+                hall = hall.add(new Student(PieceColor.RED));
             }
         });
 
@@ -88,7 +88,7 @@ class HallTest {
                 () -> hall.remove(null));
 
         Student student = new Student(PieceColor.RED);
-        hall.add(student);
+        hall = hall.add(student);
 
         assertThrows(EmptyStackException.class, () -> hall.remove(PieceColor.BLUE));
         assertAll(() -> hall.remove(PieceColor.RED));

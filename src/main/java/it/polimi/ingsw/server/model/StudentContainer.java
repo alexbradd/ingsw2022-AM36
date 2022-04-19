@@ -45,6 +45,9 @@ final class StudentContainer implements StudentContainerInterface {
             throw new IllegalArgumentException("oldContainer must not be null");
 
         this.students = oldContainer.students.clone();
+        for (PieceColor c : this.students.keySet()) {
+            this.students.computeIfPresent(c, (k, v) -> (Stack<Student>) v.clone());
+        }
     }
 
     /**
