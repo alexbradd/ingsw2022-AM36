@@ -44,6 +44,8 @@ class RemoveStudentInfluenceDecorator extends InfluenceCalculatorDecorator {
         InfluenceCalculator decorated = getCalculator();
         return decorated.calculateInfluences(island, professors)
                 .map(inf -> {
+                    if (inf.isEmpty())
+                        return inf;
                     int correction = (int) island.getStudents().stream()
                             .filter(s -> s.getColor().equals(colorToIgnore))
                             .count();

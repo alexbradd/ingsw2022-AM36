@@ -114,7 +114,6 @@ class StandardInfluenceCalculatorTest {
         island = island
                 .updateTowers((t) -> List.of(new Tower(TowerColor.BLACK, player1)))
                 .merge(child);
-        island.merge(child);
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
 

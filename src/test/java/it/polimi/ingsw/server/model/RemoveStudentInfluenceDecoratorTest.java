@@ -63,14 +63,24 @@ class RemoveStudentInfluenceDecoratorTest {
     }
 
     /**
+     * Checks if passing an empty island returns an empty influence map.
+     */
+    @Test
+    void emptyIslandEmptyMap() {
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
+        assertTrue(inf.isPresent());
+        assertTrue(inf.get().isEmpty());
+    }
+
+    /**
      * Checks if student influence is removed correctly
      */
     @Test
     void removesStudentInfluence() {
         for (int i = 0; i < 10; i++)
-            island.updateStudents(c -> c.add(new Student(professor1.getColor())));
+            island = island.updateStudents(c -> c.add(new Student(professor1.getColor())));
         for (int i = 0; i < 15; i++)
-            island.updateStudents(c -> c.add(new Student(professor2.getColor())));
+            island = island.updateStudents(c -> c.add(new Student(professor2.getColor())));
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isPresent());
@@ -84,7 +94,7 @@ class RemoveStudentInfluenceDecoratorTest {
     @Test
     void playerWithNoInfluenceIsRemoved() {
         for (int i = 0; i < 10; i++)
-            island.updateStudents(c -> c.add(new Student(professor1.getColor())));
+            island = island.updateStudents(c -> c.add(new Student(professor1.getColor())));
 
         Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isPresent());

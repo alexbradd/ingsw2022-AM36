@@ -50,6 +50,16 @@ class IgnoreTowersInfluenceDecoratorTest {
     }
 
     /**
+     * Checks if passing an empty island returns an empty influence map.
+     */
+    @Test
+    void emptyIslandEmptyMap() {
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
+        assertTrue(inf.isPresent());
+        assertTrue(inf.get().isEmpty());
+    }
+
+    /**
      * Check if the extra tower influence is removed
      */
     @Test
