@@ -170,9 +170,10 @@ public class Board {
 
     /**
      * Player getter.
+     *
      * @return the player who owns this board
      */
-    private Player getPlayer() {
+    Player getPlayer() {
         return player;
     }
 
