@@ -6,6 +6,8 @@ import java.util.function.Function;
 
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import it.polimi.ingsw.server.model.enums.AssistantType;
+import it.polimi.ingsw.server.model.exceptions.NoTowersException;
+import it.polimi.ingsw.server.model.exceptions.NotEnoughCoinsException;
 
 /**
  * Represents one player's game area. It includes the School board, the assistants deck and the coins the player has.
@@ -201,13 +203,11 @@ public class Board {
      * @throws IllegalStateException    if {@link Board#towers} is empty
      * @throws IllegalArgumentException if the Consumer passed is null
      */
-    Board sendTower(Consumer<Tower> consumer) throws IllegalArgumentException, IllegalStateException {
-        if (consumer == null) throw new IllegalArgumentException("Consumer must not be null.");
-        if (towers.size() == 0) throw new IllegalStateException("The player has no towers.");
+    Tuple<Board, Tower> sendTower() throws IllegalArgumentException, NoTowersException {
+        if (towers.size() == 0) throw new NoTowersException();
 
         Board b = new Board(this);
-        consumer.accept(b.towers.pop());
-        return b;
+        return new Tuple<>(b, b.towers.pop());
     }
 
     /**
@@ -245,7 +245,8 @@ public class Board {
     /**
      * This method applies an update to the player's hall, which is expressed via a
      * {@code Function<Hall, Hall>}, passed via parameter. This method then returns a copy
-     * of the original Board instance, with the applied update.
+     * of the original Board instance, with the applied update. If the update returns null,
+     * the update is aborted.
      *
      * @param update the function to apply
      * @return the new Board instance
@@ -256,14 +257,17 @@ public class Board {
             throw new IllegalArgumentException("Update must not be null.");
 
         Board b = new Board(this);
-        b.hall = update.apply(b.hall);
+        Hall newHall = update.apply(b.hall);
+        if (newHall != null)
+            b.hall = newHall;
         return b;
     }
 
     /**
      * This method applies an update to the player's entrance, which is expressed via a
      * {@code Function<BoundedContainer, BoundedContainer>}, passed via parameter. This method then returns a copy
-     * of the original Board instance, with the applied update.
+     * of the original Board instance, with the applied update. If the update returns null,
+     * the update is aborted.
      *
      * @param update the function to apply
      * @return the new Board instance
@@ -274,11 +278,31 @@ public class Board {
             throw new IllegalArgumentException("Update must not be null.");
 
         Board b = new Board(this);
-        b.entrance = update.apply(entrance);
+        BoundedStudentContainer newEntrance = update.apply(b.entrance);
+        if (newEntrance != null)
+            b.entrance = newEntrance;
         return b;
     }
 
-    // Coins management
+    /**
+     * Getter for this Board's entrance
+     *
+     * @return this Board's entrance
+     */
+    BoundedStudentContainer getEntrance() {
+        return entrance;
+    }
+
+    /**
+     * Getter for this Board's hall
+     *
+     * @return this Board's hall
+     */
+    public Hall getHall() {
+        return hall;
+    }
+
+// Coins management
 
     /**
      * The player spends {@code num_coins} coins. This method then returns a new Board instance with the updated
@@ -288,9 +312,9 @@ public class Board {
      * @throws IllegalArgumentException if {@code numCoins <= 0}
      * @throws IllegalStateException    if {@code coins - numCoins <= 0} (the player tries to spend coins it doesn't have)
      */
-    Board spendCoins(int numCoins) throws IllegalArgumentException, IllegalStateException {
+    Board spendCoins(int numCoins) throws IllegalArgumentException, NotEnoughCoinsException {
         if (numCoins <= 0) throw new IllegalArgumentException("The number of coins spent cannot be less than 1");
-        if (numCoins > coins) throw new IllegalStateException("Not enough coins.");
+        if (numCoins > coins) throw new NotEnoughCoinsException();
 
         Board b = new Board(this);
         b.coins -= numCoins;
@@ -316,7 +340,16 @@ public class Board {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Board board = (Board) o;
-        return player.equals(board.player);
+        return maxNumTowers == board.maxNumTowers &&
+                coins == board.coins &&
+                deckAdded == board.deckAdded &&
+                Objects.equals(player, board.player) &&
+                Objects.equals(assistants, board.assistants) &&
+                Objects.equals(lastPlayed, board.lastPlayed) &&
+                Objects.equals(entrance, board.entrance) &&
+                Objects.equals(hall, board.hall) &&
+                Objects.equals(towers, board.towers) &&
+                towersColor == board.towersColor;
     }
 
     /**

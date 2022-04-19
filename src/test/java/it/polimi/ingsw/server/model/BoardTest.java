@@ -3,6 +3,8 @@ package it.polimi.ingsw.server.model;
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.Mage;
 import it.polimi.ingsw.server.model.enums.TowerColor;
+import it.polimi.ingsw.server.model.exceptions.NoTowersException;
+import it.polimi.ingsw.server.model.exceptions.NotEnoughCoinsException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -127,11 +129,12 @@ public class BoardTest {
 
         int lastNumTowers = board.getNumOfTowers();
         while(lastNumTowers != 0) {
-            board = board.sendTower(t -> assertTrue(true));
+            Tuple<Board, Tower> t = board.sendTower();
+            board = t.getFirst();
             assertEquals(lastNumTowers - 1, board.getNumOfTowers());
             lastNumTowers--;
         }
-        assertThrows(IllegalStateException.class, () -> board.sendTower(t -> assertAll()));
+        assertThrows(NoTowersException.class, () -> board.sendTower());
     }
 
     /**
@@ -140,7 +143,7 @@ public class BoardTest {
     @Test
     @DisplayName("spendCoins() method test")
     void spendCoinsTest() {
-        assertThrows(IllegalStateException.class, () -> board.spendCoins(1));
+        assertThrows(NotEnoughCoinsException.class, () -> board.spendCoins(1));
         assertThrows(IllegalArgumentException.class, () -> board.spendCoins(0));
         assertThrows(IllegalArgumentException.class, () -> board.spendCoins(-1));
     }
