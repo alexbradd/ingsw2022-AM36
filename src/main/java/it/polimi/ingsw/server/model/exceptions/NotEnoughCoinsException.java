@@ -1,4 +1,4 @@
 package it.polimi.ingsw.server.model.exceptions;
 
-public class NotEnoughCoinsException extends Exception {
+public class NotEnoughCoinsException extends RuntimeException {
 }

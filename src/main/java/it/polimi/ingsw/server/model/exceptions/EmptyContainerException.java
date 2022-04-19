@@ -1,4 +1,4 @@
 package it.polimi.ingsw.server.model.exceptions;
 
-public class EmptyContainerException extends Exception {
+public class EmptyContainerException extends RuntimeException {
 }

@@ -1,4 +1,4 @@
 package it.polimi.ingsw.server.model.exceptions;
 
-public class ColorIsFullException extends Exception {
+public class ColorIsFullException extends RuntimeException {
 }
