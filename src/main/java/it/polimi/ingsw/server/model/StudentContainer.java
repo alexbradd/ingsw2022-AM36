@@ -62,6 +62,7 @@ final class StudentContainer implements StudentContainerInterface {
      */
     @Override
     public int size(PieceColor color) {
+        if (color == null) throw new IllegalArgumentException("color shouldn't be null");
         return students.get(color).size();
     }
 
@@ -77,7 +78,12 @@ final class StudentContainer implements StudentContainerInterface {
     }
 
     /**
-     * {@inheritDoc}
+     * This method allows to add a {@link Student} to the container, and returns a copy of the container containing
+     * that student.
+     *
+     * @param s the student to add
+     * @return the new container instance including the new student
+     * @throws IllegalArgumentException if the student to add is null
      */
     @Override
     public StudentContainer add(Student s) throws IllegalArgumentException {
@@ -95,6 +101,7 @@ final class StudentContainer implements StudentContainerInterface {
      */
     @Override
     public Tuple<StudentContainer, Student> remove() throws EmptyContainerException {
+        if (size() == 0) throw new EmptyContainerException();
         StudentContainer c = new StudentContainer(this);
         Student removedStudent = c.students.get(pickRandomColor()).pop();
 
@@ -105,8 +112,9 @@ final class StudentContainer implements StudentContainerInterface {
      * {@inheritDoc}
      */
     @Override
-    public Tuple<StudentContainer, Student> remove(PieceColor color) throws EmptyStackException, IllegalArgumentException {
+    public Tuple<StudentContainer, Student> remove(PieceColor color) throws EmptyContainerException, EmptyStackException, IllegalArgumentException {
         if (color == null) throw new IllegalArgumentException("Color must not be null");
+        if (size() == 0) throw new EmptyContainerException();
 
         StudentContainer c = new StudentContainer(this);
         Student removedStudent = c.students.get(color).pop();
@@ -122,14 +130,11 @@ final class StudentContainer implements StudentContainerInterface {
      */
     private PieceColor pickRandomColor() throws EmptyContainerException {
 
-        if (size() == 0)
-            throw new EmptyContainerException();
-
         Random r = new Random();
         List<PieceColor> colors = students.values().stream()
                 .flatMap(Collection::stream)
                 .map(Student::getColor)
-                .collect(Collectors.toList());
+                .toList();
 
         return colors.get(r.nextInt(colors.size()));
     }

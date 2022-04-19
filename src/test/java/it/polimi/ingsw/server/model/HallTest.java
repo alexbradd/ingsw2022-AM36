@@ -81,16 +81,16 @@ class HallTest {
         assertThrows(EmptyContainerException.class,
                 () -> hall.remove());
 
-        assertThrows(EmptyStackException.class,
+        assertThrows(EmptyContainerException.class,
                 () -> hall.remove(PieceColor.RED));
 
         assertThrows(IllegalArgumentException.class,
                 () -> hall.remove(null));
 
-        assertAll(() -> {
-            Student student = new Student(PieceColor.RED);
-            hall.add(student);
-            hall.remove(PieceColor.RED);
-        });
+        Student student = new Student(PieceColor.RED);
+        hall.add(student);
+
+        assertThrows(EmptyStackException.class, () -> hall.remove(PieceColor.BLUE));
+        assertAll(() -> hall.remove(PieceColor.RED));
     }
 }

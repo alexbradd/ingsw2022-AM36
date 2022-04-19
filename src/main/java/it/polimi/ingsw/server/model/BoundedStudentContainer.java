@@ -1,11 +1,11 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.exceptions.ColorIsFullException;
 import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * This class represents a Container of students with a fixed maximum number of Students that it can contain. This
@@ -20,9 +20,9 @@ final class BoundedStudentContainer implements StudentContainerInterface {
     private final int maxSize;
 
     /**
-     * An EnumMap mapping every {@link PieceColor} to a Stack containing all the students of that color in the Container.
+     * An internal StudentContainer used for storing students.
      */
-    private final EnumMap<PieceColor, Stack<Student>> students;
+    private StudentContainer wrapped;
 
     /**
      * A constructor that allows to create the BoundedContainer object specifying the maximum number of students.
@@ -35,10 +35,7 @@ final class BoundedStudentContainer implements StudentContainerInterface {
             throw new IllegalArgumentException("The bound of the container must be greater than zero");
 
         this.maxSize = maxSize;
-        students = new EnumMap<PieceColor, Stack<Student>>(PieceColor.class);
-        for (PieceColor color : PieceColor.values()) {
-            students.put(color, new Stack<>());
-        }
+        this.wrapped = new StudentContainer();
     }
 
     /**
@@ -51,7 +48,7 @@ final class BoundedStudentContainer implements StudentContainerInterface {
         if (oldContainer == null) throw new IllegalArgumentException("Old container must not be null.");
 
         this.maxSize = oldContainer.maxSize;
-        this.students = oldContainer.students.clone();
+        this.wrapped = oldContainer.wrapped;
     }
 
     /**
@@ -59,10 +56,7 @@ final class BoundedStudentContainer implements StudentContainerInterface {
      */
     @Override
     public int size() {
-        return students.values()
-                .stream()
-                .mapToInt(Vector::size)
-                .sum();
+        return wrapped.size();
     }
 
     /**
@@ -70,7 +64,7 @@ final class BoundedStudentContainer implements StudentContainerInterface {
      */
     @Override
     public int size(PieceColor color) {
-        return students.get(color).size();
+        return wrapped.size(color);
     }
 
     /**
@@ -78,23 +72,26 @@ final class BoundedStudentContainer implements StudentContainerInterface {
      */
     @Override
     public Set<Student> getStudents() {
-        return students.values()
-                .stream()
-                .flatMap(s -> s.stream())
-                .collect(Collectors.toSet());
+        return wrapped.getStudents();
     }
 
     /**
-     * {@inheritDoc}
+     * This method allows to add a {@link Student} to the container, and returns a copy of the container containing
+     * that student.
+     *
+     * @param s the student to add
+     * @return the new container instance including the new student
+     * @throws IllegalArgumentException if the student to add is null
+     * @throws ContainerIsFullException if the container reached the maximum size
+     * @throws ColorIsFullException     never thrown
      */
     @Override
     public BoundedStudentContainer add(Student s) throws IllegalArgumentException, ContainerIsFullException {
-
         if (s == null) throw new IllegalArgumentException("Student to add must not be null.");
         if (size() == maxSize) throw new ContainerIsFullException();
 
         BoundedStudentContainer c = new BoundedStudentContainer(this);
-        c.students.get(s.getColor()).add(s);
+        c.wrapped = c.wrapped.add(s);
         return c;
     }
 
@@ -104,43 +101,29 @@ final class BoundedStudentContainer implements StudentContainerInterface {
     @Override
     public Tuple<BoundedStudentContainer, Student> remove() throws EmptyContainerException {
         BoundedStudentContainer c = new BoundedStudentContainer(this);
-        Student removedStudent = c.students.get(pickRandomColor()).pop();
-
-        return new Tuple<>(c, removedStudent);
+        return c.wrapped
+                .remove()
+                .map(t -> {
+                    c.wrapped = t.getFirst();
+                    return new Tuple<>(c, t.getSecond());
+                });
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Tuple<BoundedStudentContainer, Student> remove(PieceColor color) throws EmptyStackException, IllegalArgumentException {
+    public Tuple<BoundedStudentContainer, Student> remove(PieceColor color) throws EmptyContainerException, EmptyStackException, IllegalArgumentException {
         if (color == null) throw new IllegalArgumentException("Color must not be null");
 
         BoundedStudentContainer c = new BoundedStudentContainer(this);
-        Student removedStudent = c.students.get(color).pop();
+        return c.wrapped
+                .remove(color)
+                .map(t -> {
+                    c.wrapped = t.getFirst();
+                    return new Tuple<>(c, t.getSecond());
+                });
 
-        return new Tuple<>(c, removedStudent);
-
-    }
-
-    /**
-     * Helper method that returns the PieceColor of a random student inside the BoundedContainer.
-     *
-     * @return the student's PieceColor
-     * @throws EmptyContainerException if the BoundedContainer is empty
-     */
-    private PieceColor pickRandomColor() throws EmptyContainerException {
-
-        if (size() == 0)
-            throw new EmptyContainerException();
-
-        Random r = new Random();
-        List<PieceColor> colors = students.values().stream()
-                .flatMap(Collection::stream)
-                .map(Student::getColor)
-                .collect(Collectors.toList());
-
-        return colors.get(r.nextInt(colors.size()));
     }
 
     /**
@@ -150,7 +133,7 @@ final class BoundedStudentContainer implements StudentContainerInterface {
     public String toString() {
         return "BoundedStudentContainer{" +
                 "maxSize=" + maxSize +
-                ", students=" + students +
+                ", wrapped=" + wrapped +
                 '}';
     }
 
@@ -162,7 +145,7 @@ final class BoundedStudentContainer implements StudentContainerInterface {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BoundedStudentContainer that = (BoundedStudentContainer) o;
-        return maxSize == that.maxSize && Objects.equals(students, that.students);
+        return maxSize == that.maxSize && Objects.equals(wrapped, that.wrapped);
     }
 
     /**
@@ -170,6 +153,6 @@ final class BoundedStudentContainer implements StudentContainerInterface {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(maxSize, students);
+        return Objects.hash(maxSize, wrapped);
     }
 }

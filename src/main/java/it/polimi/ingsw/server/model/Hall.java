@@ -5,8 +5,9 @@ import it.polimi.ingsw.server.model.exceptions.ColorIsFullException;
 import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.EmptyStackException;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * This class models the game's hall.
@@ -26,18 +27,15 @@ class Hall implements StudentContainerInterface {
     public final static int maxSize = maxColorSize * PieceColor.values().length;
 
     /**
-     * An EnumMap mapping every {@link PieceColor} to a Stack containing all the students of that color in the Container.
+     * An internal StudentContainer used for storing students.
      */
-    private final EnumMap<PieceColor, Stack<Student>> students;
+    private BoundedStudentContainer wrapped;
 
     /**
      * Hall constructor.
      */
     Hall() {
-        students = new EnumMap<>(PieceColor.class);
-        for (PieceColor color : PieceColor.values()) {
-            students.put(color, new Stack<>());
-        }
+        wrapped = new BoundedStudentContainer(maxSize);
     }
 
     /**
@@ -48,7 +46,7 @@ class Hall implements StudentContainerInterface {
      */
     Hall(Hall oldHall) throws IllegalArgumentException {
         if (oldHall == null) throw new IllegalArgumentException("The old hall must not be null.");
-        students = oldHall.students.clone();
+        wrapped = oldHall.wrapped;
     }
 
     /**
@@ -56,10 +54,7 @@ class Hall implements StudentContainerInterface {
      */
     @Override
     public int size() {
-        return students.values()
-                .stream()
-                .mapToInt(Vector::size)
-                .sum();
+        return wrapped.size();
     }
 
     /**
@@ -67,7 +62,27 @@ class Hall implements StudentContainerInterface {
      */
     @Override
     public int size(PieceColor color) {
-        return students.get(color).size();
+        return wrapped.size(color);
+    }
+
+    /**
+     * Returns true if the Hall is full
+     *
+     * @return true if the Hall is full
+     */
+    public boolean isFull() {
+        return size() == maxSize;
+    }
+
+    /**
+     * Returns true if the row of the specified color is full
+     *
+     * @return true if the row of the specified color is full
+     * @throws IllegalArgumentException if {@code color} is null
+     */
+    public boolean isFull(PieceColor color) {
+        if (color == null) throw new IllegalArgumentException("color shouldn't be null");
+        return size(color) == maxColorSize;
     }
 
     /**
@@ -75,14 +90,19 @@ class Hall implements StudentContainerInterface {
      */
     @Override
     public Set<Student> getStudents() {
-        return students.values()
-                .stream()
-                .flatMap(s -> s.stream())
-                .collect(Collectors.toSet());
+        return wrapped.getStudents();
     }
 
     /**
-     * {@inheritDoc}
+     * This method allows to add a {@link Student} to the container, and returns a copy of the container containing
+     * that student.
+     *
+     * @param s the student to add
+     * @return the new container instance including the new student
+     * @throws IllegalArgumentException if the student to add is null
+     * @throws ContainerIsFullException if the container is already full (if there is a bound to the number of students)
+     * @throws ColorIsFullException     if there are too many students of this color inside the container (if there is a
+     *                                  bound to the number of students of the same color)
      */
     @Override
     public Hall add(Student s) throws IllegalArgumentException, ContainerIsFullException, ColorIsFullException {
@@ -91,7 +111,7 @@ class Hall implements StudentContainerInterface {
         if (size(s.getColor()) == maxColorSize) throw new ColorIsFullException();
 
         Hall h = new Hall(this);
-        h.students.get(s.getColor()).add(s);
+        h.wrapped = h.wrapped.add(s);
         return h;
     }
 
@@ -101,42 +121,28 @@ class Hall implements StudentContainerInterface {
     @Override
     public Tuple<Hall, Student> remove() throws EmptyContainerException {
         Hall h = new Hall(this);
-        Student removedStudent = h.students.get(pickRandomColor()).pop();
-
-        return new Tuple<>(h, removedStudent);
+        return h.wrapped
+                .remove()
+                .map(t -> {
+                    h.wrapped = t.getFirst();
+                    return new Tuple<>(h, t.getSecond());
+                });
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Tuple<Hall, Student> remove(PieceColor color) throws EmptyStackException, IllegalArgumentException {
+    public Tuple<Hall, Student> remove(PieceColor color) throws EmptyContainerException, EmptyStackException, IllegalArgumentException {
         if (color == null) throw new IllegalArgumentException("Color must not be null");
 
         Hall h = new Hall(this);
-        Student removedStudent = h.students.get(color).pop();
-
-        return new Tuple<>(h, removedStudent);
-    }
-
-    /**
-     * Helper method that returns the PieceColor of a random student inside the Hall.
-     *
-     * @return the student's PieceColor
-     * @throws EmptyContainerException if the Hall is empty
-     */
-    private PieceColor pickRandomColor() throws EmptyContainerException {
-
-        if (size() == 0)
-            throw new EmptyContainerException();
-
-        Random r = new Random();
-        List<PieceColor> colors = students.values().stream()
-                .flatMap(Collection::stream)
-                .map(Student::getColor)
-                .collect(Collectors.toList());
-
-        return colors.get(r.nextInt(colors.size()));
+        return h.wrapped
+                .remove(color)
+                .map(t -> {
+                    h.wrapped = t.getFirst();
+                    return new Tuple<>(h, t.getSecond());
+                });
     }
 
     /**
@@ -145,7 +151,7 @@ class Hall implements StudentContainerInterface {
     @Override
     public String toString() {
         return "Hall{" +
-                "students=" + students +
+                "wrapped=" + wrapped +
                 '}';
     }
 
@@ -157,7 +163,7 @@ class Hall implements StudentContainerInterface {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Hall hall = (Hall) o;
-        return Objects.equals(students, hall.students);
+        return Objects.equals(wrapped, hall.wrapped);
     }
 
     /**
@@ -165,6 +171,6 @@ class Hall implements StudentContainerInterface {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(students);
+        return Objects.hash(wrapped);
     }
 }
