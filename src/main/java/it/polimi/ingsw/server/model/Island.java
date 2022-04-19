@@ -1,13 +1,8 @@
-// STUB - from branch functionalize-islands
-
 package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.server.model.enums.TowerColor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -283,5 +278,27 @@ public class Island {
         Island newIsland = new Island(this);
         newIsland.blocks = new ArrayList<>(this.blocks);
         return new Tuple<>(newIsland, newIsland.blocks.remove(0));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Island island = (Island) o;
+        return ids.equals(island.ids) &&
+                Objects.equals(container, island.container) &&
+                Objects.equals(blocks, island.blocks) &&
+                Objects.equals(towers, island.towers);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(ids);
     }
 }
