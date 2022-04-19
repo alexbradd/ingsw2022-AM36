@@ -30,12 +30,9 @@ class StandardInfluenceCalculatorTest {
     @BeforeAll
     static void staticSetUp() {
         calculator = new StandardInfluenceCalculator();
-        professor1 = new Professor(PieceColor.RED);
         player1 = new Player("Napoleon");
         player2 = new Player("Cesar");
-
-        professor1.assign(player1);
-
+        professor1 = new Professor(PieceColor.RED, player1);
 
         professorList = new ArrayList<>();
         professorList.add(professor1);
@@ -43,8 +40,6 @@ class StandardInfluenceCalculatorTest {
         professorList.add(new Professor(PieceColor.GREEN));
         professorList.add(new Professor(PieceColor.BLUE));
         professorList.add(new Professor(PieceColor.PINK));
-
-
     }
 
     /**

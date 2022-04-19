@@ -19,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class IgnoreTowersInfluenceDecoratorTest {
     private static InfluenceCalculator calculator;
     private static Player player1;
-    private static List<Professor> professorList;
     private Island island;
+    List<Professor> professorList;
 
     /**
      * Sets up static variables.
@@ -29,8 +29,6 @@ class IgnoreTowersInfluenceDecoratorTest {
     static void staticSetUp() {
         calculator = new IgnoreTowersInfluenceDecorator(new StandardInfluenceCalculator());
         player1 = new Player("Napoleon");
-
-        professorList = new ArrayList<>();
     }
 
     /**
@@ -64,9 +62,8 @@ class IgnoreTowersInfluenceDecoratorTest {
      */
     @Test
     void removesTowerInfluence() {
-        Professor p = new Professor(PieceColor.RED);
-        professorList.add(p);
-        p.assign(player1);
+        Professor p =new Professor(PieceColor.RED, player1);
+        professorList = List.of(p);
 
         Island child = new Island(1)
                 .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)));
