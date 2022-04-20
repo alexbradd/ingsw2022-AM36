@@ -61,6 +61,18 @@ public class AssistantValueIterator implements Iterator<Board> {
     }
 
     /**
+     * Creates a copy of the given constructor
+     *
+     * @param old the old constructor
+     * @throws IllegalArgumentException if {@code old} is null
+     */
+    public AssistantValueIterator(AssistantValueIterator old) {
+        if (old == null) throw new IllegalArgumentException("old shouldn't be null");
+        this.list = new ArrayList<>(old.list);
+        this.firstPlayedIndex = old.firstPlayedIndex;
+    }
+
+    /**
      * Returns the next element in the iteration.
      *
      * @return the next element in the iteration
