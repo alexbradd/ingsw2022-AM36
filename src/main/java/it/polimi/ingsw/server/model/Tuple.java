@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -57,6 +58,20 @@ class Tuple<T, V> {
      * @throws IllegalArgumentException if {@code mapper} is null
      */
     <U> U map(Function<Tuple<T, V>, U> mapper) {
+        if (mapper == null) throw new IllegalArgumentException("mapper shouldn't be null");
         return mapper.apply(this);
+    }
+
+    /**
+     * Equivalent to {@link #map(Function)}, only that it takes a {@link BiFunction}.
+     *
+     * @param mapper the mapping function
+     * @param <U>    return type of the mapper
+     * @return result of the mapping function
+     * @throws IllegalArgumentException if {@code mapper} is null
+     */
+    <U> U map(BiFunction<T, V, U> mapper) {
+        if (mapper == null) throw new IllegalArgumentException("mapper shouldn't be null");
+        return mapper.apply(this.getFirst(), this.getSecond());
     }
 }
