@@ -12,4 +12,19 @@ class MockCharacter extends Character {
     MockCharacter() {
         super(CharacterType.HERBALIST);
     }
+
+    MockCharacter(MockCharacter old) {
+        super(old);
+    }
+
+    /**
+     * Abstract method that returns a shallow copy of the current object.
+     *
+     * @return returns a shallow copy of the current object.
+     */
+    @Override
+    Character shallowCopy() {
+        return new MockCharacter(this);
+    }
+
 }

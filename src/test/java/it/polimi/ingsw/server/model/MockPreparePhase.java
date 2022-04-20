@@ -1,16 +1,18 @@
 package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.server.model.enums.PieceColor;
+import it.polimi.ingsw.server.model.enums.TowerColor;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * Mocks an instance of Prepare phase. Used in testing characters
  */
 public class MockPreparePhase extends PreparePhase {
     public MockPreparePhase() {
-        super(new LobbyPhase(GameParameters.twoPlayerGame(true)));
+        super(new MockPhase(new Table()
+                .addPlayer(new Player("ann"), 7, 8, TowerColor.BLACK)
+                .addPlayer(new Player("bob"), 7, 8, TowerColor.WHITE)));
     }
 
     @Override

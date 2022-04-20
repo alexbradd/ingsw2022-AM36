@@ -315,5 +315,19 @@ public class ActionPhaseTest {
         MockHerbalist() {
             super(CharacterType.HERBALIST);
         }
+
+        MockHerbalist(MockHerbalist old) {
+            super(old);
+        }
+
+        /**
+         * Abstract method that returns a shallow copy of the current object.
+         *
+         * @return returns a shallow copy of the current object.
+         */
+        @Override
+        Character shallowCopy() {
+            return new MockHerbalist(this);
+        }
     }
 }
