@@ -3,6 +3,7 @@ package it.polimi.ingsw.server.model;
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.Mage;
 import it.polimi.ingsw.server.model.enums.TowerColor;
+import it.polimi.ingsw.server.model.iterators.AssistantValueIterator;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;

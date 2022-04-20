@@ -1,4 +1,6 @@
-package it.polimi.ingsw.server.model;
+package it.polimi.ingsw.server.model.iterators;
+
+import it.polimi.ingsw.server.model.Board;
 
 import java.util.Iterator;
 import java.util.List;
@@ -14,7 +16,7 @@ import java.util.NoSuchElementException;
  * @author Mattia Busso
  * @see Board
  */
-class ClockWiseIterator implements Iterator<Board> {
+public class ClockWiseIterator implements Iterator<Board> {
 
     /**
      * The list of boards to iterate on.
@@ -45,7 +47,7 @@ class ClockWiseIterator implements Iterator<Board> {
      * @throws IllegalArgumentException if {@code list == null}
      * @throws IndexOutOfBoundsException if {@code startIndex} is out of range
      */
-    ClockWiseIterator(List<Board> list, int startIndex) throws IllegalArgumentException, IndexOutOfBoundsException {
+    public ClockWiseIterator(List<Board> list, int startIndex) throws IllegalArgumentException, IndexOutOfBoundsException {
         if (list == null) throw new IllegalArgumentException("list must not be null.");
         this.list = list;
 

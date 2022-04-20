@@ -1,4 +1,8 @@
-package it.polimi.ingsw.server.model;
+package it.polimi.ingsw.server.model.iterators;
+
+import it.polimi.ingsw.server.model.Assistant;
+import it.polimi.ingsw.server.model.Board;
+import it.polimi.ingsw.server.model.Player;
 
 import java.util.*;
 
@@ -11,7 +15,7 @@ import java.util.*;
  * @author Mattia Busso
  * @see Board
  */
-class AssistantValueIterator implements Iterator<Board> {
+public class AssistantValueIterator implements Iterator<Board> {
 
     private final List<Board> list;
 
@@ -61,7 +65,7 @@ class AssistantValueIterator implements Iterator<Board> {
      * @throws IndexOutOfBoundsException if {@code startIndex} is out of range
      * @throws IllegalStateException     if a {@code Board} inside the {@code List<Board>} has no {@code lastPlayedAssistant}
      */
-    AssistantValueIterator(List<Board> list, int startIndex) throws IllegalArgumentException, IllegalStateException, IndexOutOfBoundsException {
+    public AssistantValueIterator(List<Board> list, int startIndex) throws IllegalArgumentException, IllegalStateException, IndexOutOfBoundsException {
         if (list == null) throw new IllegalArgumentException("list must not be null.");
         this.list = list;
         this.startIndex = startIndex;
@@ -127,7 +131,7 @@ class AssistantValueIterator implements Iterator<Board> {
      * @return the index of the first board returned by {@code next()}
      * @throws IllegalStateException if no board has been returned yet
      */
-    int getFirstPlayedIndex() {
+    public int getFirstPlayedIndex() {
         if (firstPlayedIndex == -1) {
             throw new IllegalStateException("no player has been returned yet");
         }

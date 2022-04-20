@@ -1,20 +1,20 @@
-package it.polimi.ingsw.server.model;
+package it.polimi.ingsw.server.model.iterators;
 
 import java.util.Iterator;
 import java.util.List;
 
 // STUB
-class CyclicalIterator<T> implements Iterator<T> {
+public class CyclicalIterator<T> implements Iterator<T> {
     private final List<T> list;
     private int currentIndex;
 
-    CyclicalIterator(List<T> list) {
+    public CyclicalIterator(List<T> list) {
         if (list == null) throw new IllegalArgumentException("list cannot be null");
         this.list = list;
         currentIndex = 0;
     }
 
-    CyclicalIterator(List<T> list, int startingIndex) {
+    public CyclicalIterator(List<T> list, int startingIndex) {
         if (list == null) throw new IllegalArgumentException("list cannot be null");
         if (startingIndex < 0 || startingIndex > list.size())
             throw new IllegalArgumentException("startingIndex is invalid");
@@ -22,7 +22,7 @@ class CyclicalIterator<T> implements Iterator<T> {
         currentIndex = startingIndex + 1;
     }
 
-    CyclicalIterator(List<T> list, T start) {
+    public CyclicalIterator(List<T> list, T start) {
         if (list == null) throw new IllegalArgumentException("list shouldn't be null");
         if (start == null) throw new IllegalArgumentException("start shouldn't be null");
         if (!list.contains(start))

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.iterators.CyclicalIterator;
+
 import java.util.List;
 
 /**

@@ -20,7 +20,7 @@ import it.polimi.ingsw.server.model.enums.AssistantType;
  * @see Player
  */
 
-class Board {
+public class Board {
     /**
      * The {@link Player} who owns the board.
      */
@@ -178,7 +178,7 @@ class Board {
      *
      * @return an {@code Optional of Assistant} (because initially {@code lastPlayedAssistant} could be {@code null})
      */
-    Optional<Assistant> getLastPlayedAssistant() {
+    public Optional<Assistant> getLastPlayedAssistant() {
         return Optional.ofNullable(lastPlayed);
     }
 

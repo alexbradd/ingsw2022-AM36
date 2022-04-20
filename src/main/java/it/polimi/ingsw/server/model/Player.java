@@ -10,7 +10,7 @@ import java.util.Objects;
  * @author Mattia Busso, Leonardo Bianconi
  * @see Board
  */
-class Player {
+public class Player {
     /**
      * The username of the player.
      */
