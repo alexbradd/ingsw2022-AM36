@@ -19,17 +19,27 @@ public class CloudTest {
 
     private Cloud cloud;
     private Set<Student> compare_set;
-    private final int maxSize = 4;
 
     /**
      * Initializes the cloud and the compare_set.
      */
     @BeforeEach
     void initTest() {
+        int maxSize = 4;
         cloud = new Cloud(maxSize);
-        compare_set = new HashSet<Student>();
-        for(int i = 0; i < maxSize; i++) compare_set.add(new Student(PieceColor.BLUE));
-        cloud.refillCloud(compare_set);
+        compare_set = new HashSet<>();
+        for (int i = 0; i < maxSize; i++) compare_set.add(new Student(PieceColor.BLUE));
+        cloud = cloud.refillCloud(compare_set);
+    }
+
+    /**
+     * Bound check methods
+     */
+    @Test
+    void boundCheck() {
+        assertThrows(IllegalArgumentException.class, () -> new Cloud(-1));
+        assertThrows(IllegalArgumentException.class, () -> new Cloud(0));
+        assertThrows(IllegalArgumentException.class, () -> cloud.refillCloud(null));
     }
 
     /**
@@ -48,8 +58,10 @@ public class CloudTest {
     @Test
     void drainCloudTest() {
         Set<Student> compare_set = cloud.getStudents();
-        assertEquals(compare_set, cloud.drainCloud());
-        assertEquals(new HashSet<Student>(), cloud.drainCloud());
+        Tuple<Cloud, Set<Student>> firstDrain = cloud.drainCloud();
+        assertEquals(compare_set, firstDrain.getSecond());
+        Tuple<Cloud, Set<Student>> secondDrain = firstDrain.getFirst().drainCloud();
+        assertEquals(new HashSet<Student>(), secondDrain.getSecond());
     }
 
 }
