@@ -3,10 +3,13 @@ package it.polimi.ingsw.server.model;
 import it.polimi.ingsw.server.model.iterators.CyclicalIterator;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents the Mother Nature (MN) piece. MN iterates cyclically on a list of {@link Island} using a
  * {@link CyclicalIterator}.
+ *
+ * @author Alexandru Gabriel Bradatan
  */
 class MotherNature {
     /**
@@ -81,6 +84,25 @@ class MotherNature {
         for (int i = 0; i < steps; i++)
             ret.current = iterator.next();
         return ret;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MotherNature that = (MotherNature) o;
+        return current.equals(that.current);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(current);
     }
 }
 
