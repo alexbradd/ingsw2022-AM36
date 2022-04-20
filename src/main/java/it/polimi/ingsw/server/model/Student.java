@@ -5,9 +5,9 @@ import it.polimi.ingsw.server.model.enums.PieceColor;
 /**
  * This class models the game's Student pieces.
  *
- * @author Mattia Busso
+ * @author Mattia Busso, Leonardo Bianconi
  */
-public class Student {
+final class Student {
 
     /**
      * Color of the student piece.
@@ -15,32 +15,16 @@ public class Student {
     private final PieceColor color;
 
     /**
-     * The corresponding student's professor.
-     */
-    private final Professor professor;
-
-    /**
      * Student constructor.
      *
-     * @param professor
-     * @throws IllegalArgumentException professor should not be null
+     * @throws IllegalArgumentException color should not be null
      */
-    Student(Professor professor) throws IllegalArgumentException {
-        if(professor == null) {
+    Student(PieceColor color) throws IllegalArgumentException {
+        if(color == null) {
             throw new IllegalArgumentException("professor should not be null");
         }
 
-        this.professor = professor;
-        this.color = professor.getColor();
-    }
-
-    /**
-     * Professor getter.
-     *
-     * @return professor
-     */
-    Professor getProfessor() {
-        return this.professor;
+        this.color = color;
     }
 
     /**
@@ -51,5 +35,4 @@ public class Student {
     PieceColor getColor() {
         return this.color;
     }
-
 }

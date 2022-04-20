@@ -28,7 +28,7 @@ public class CloudTest {
     void initTest() {
         cloud = new Cloud(maxSize);
         compare_set = new HashSet<Student>();
-        for(int i = 0; i < maxSize; i++) compare_set.add(new Student(new Professor(PieceColor.BLUE)));
+        for(int i = 0; i < maxSize; i++) compare_set.add(new Student(PieceColor.BLUE));
         cloud.refillCloud(compare_set);
     }
 
@@ -37,7 +37,7 @@ public class CloudTest {
      */
     @Test
     void refillCloudTest() {
-        compare_set.add(new Student(new Professor(PieceColor.BLUE)));
+        compare_set.add(new Student(PieceColor.BLUE));
         assertThrows(IllegalArgumentException.class, () -> cloud.refillCloud(compare_set));
     }
 

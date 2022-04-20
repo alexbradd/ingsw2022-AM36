@@ -2,11 +2,8 @@ package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import it.polimi.ingsw.server.model.iterators.ClockWiseIterator;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test for the {@link ClockWiseIterator} class.
- * This test takes into consideration a {@code list} with fixed size and
- * tests the clock-wise property of the iterator.
+ * This test takes into consideration a List<{@link Player}>.
+ * For each {@code size} of the {@code List<Player>} every particular case of iteration is tested.
  *
  * @author Mattia Busso
  * @see ClockWiseIterator
@@ -24,57 +21,161 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ClockWiseIteratorTest {
 
     /**
-     * The list to iterate on.
+     * The List<{@link Player}> to iterate on.
      */
-    private List<Player> list;
+    private List<Board> list;
 
     /**
-     * Initial setup.
-     * The fixed size of the list is four.
-     * We populate the {@code list} with {@link Player} objects since the in-game use case of the iterator is
-     * to scan a list of players, but since the iterator works on abstract-type lists, it effectively is irrelevant.
+     * Initializes the list and populates it with players.
+     *
+     * @param numPlayers number of players to be added to the list
      */
-    @BeforeEach
-    void createAndPopulateList() {
+    private void createAndPopulateList(int numPlayers) {
         list = new ArrayList<>();
-        for(int i = 0; i < 4; i++) {
-            list.add(new Player("p" + i, 10, 10, TowerColor.WHITE));
+        for(int i = 0; i < numPlayers; i++) {
+            list.add(new Board(new Player("p"), 7, 7, TowerColor.WHITE));
         }
     }
 
     /**
-     * Tests for the constructors.
-     * Checks the behaviour of the constructors in case of incorrect parameters.
+     * Test for the case of incorrect parameters.
      */
     @Test
-    @DisplayName("Custom startIndex constructor test")
-    void customConstructorTest() {
-        assertThrows(IllegalArgumentException.class, () -> new ClockWiseIterator<Player>(null, 0));
-        assertThrows(IllegalArgumentException.class, () -> new ClockWiseIterator<>(new ArrayList<>(), 0));
-        assertThrows(IndexOutOfBoundsException.class, () -> new ClockWiseIterator<>(list, list.size()));
-        assertThrows(IndexOutOfBoundsException.class, () -> new ClockWiseIterator<>(list, -1));
+    @DisplayName("Incorrect parameters test")
+    void incorrectParameters() {
+        createAndPopulateList(1);
+        assertThrows(IndexOutOfBoundsException.class, () -> new ClockWiseIterator(list, -1));
     }
 
     /**
-     * Test for the clock-wise property of the iterator.
-     * Performs one cycle.
-     * Takes the index from which to start iterating as a parameter.
-     *
-     * @param startIndex the start index from which to start iterating
+     * Tests the iterator on an empty list.
      */
-    @ParameterizedTest
-    @ValueSource(ints = {0, 1, 2, 3})
-    @DisplayName("Test for the clock-wise property - parameter: startIndex")
-    void clockwisePropertyTest(int startIndex) {
-        int currentIndex = startIndex;
-        ClockWiseIterator<Player> iterator = new ClockWiseIterator<>(list, startIndex);
-        do {
-            assertTrue(iterator.hasNext());
-            assertEquals(list.get(currentIndex), iterator.next());
-            currentIndex++;
-            if(currentIndex == list.size()) currentIndex = 0;
-        }
-        while(startIndex != currentIndex);
+    @Test
+    @DisplayName("Empty list test")
+    void emptyListTest() {
+        list = new ArrayList<>();
+        assertThrows(IllegalArgumentException.class, () -> new ClockWiseIterator(list, 0));
+    }
+
+    /**
+     * Tests the iterator on a one-player list.
+     */
+    @Test
+    @DisplayName("One-player list test")
+    void onePlayerTest() {
+        createAndPopulateList(1);
+
+        ClockWiseIterator iterator = new ClockWiseIterator(list, 0);
+
+        assertTrue(iterator.hasNext());
+        assertEquals(list.get(0), iterator.next());
+        assertFalse(iterator.hasNext());
+    }
+
+    /**
+     * Tests the iterator on a two-players list.
+     */
+    @Test
+    @DisplayName("Two-players list test")
+    void twoPlayersTest() {
+        createAndPopulateList(2);
+
+        // startIndex = 0
+        ClockWiseIterator iterator = new ClockWiseIterator(list, 0);
+
+        assertTrue(iterator.hasNext());
+        assertEquals(list.get(0), iterator.next());
+        assertEquals(list.get(1), iterator.next());
+        assertFalse(iterator.hasNext());
+
+        // startIndex = 1
+        iterator = new ClockWiseIterator(list, 1);
+
+        assertTrue(iterator.hasNext());
+        assertEquals(list.get(1), iterator.next());
+        assertEquals(list.get(0), iterator.next());
+        assertFalse(iterator.hasNext());
+    }
+
+    /**
+     * Tests the iterator on a three-players list.
+     */
+    @Test
+    @DisplayName("Three-players list test")
+    void threePlayersTest() {
+        createAndPopulateList(3);
+
+        // startIndex = 0
+        ClockWiseIterator iterator = new ClockWiseIterator(list, 0);
+
+        assertTrue(iterator.hasNext());
+        assertEquals(list.get(0), iterator.next());
+        assertEquals(list.get(1), iterator.next());
+        assertEquals(list.get(2), iterator.next());
+        assertFalse(iterator.hasNext());
+
+        // startIndex = 1
+        iterator = new ClockWiseIterator(list, 1);
+
+        assertTrue(iterator.hasNext());
+        assertEquals(list.get(1), iterator.next());
+        assertEquals(list.get(2), iterator.next());
+        assertEquals(list.get(0), iterator.next());
+        assertFalse(iterator.hasNext());
+
+        // startIndex = 2
+        iterator = new ClockWiseIterator(list, 2);
+
+        assertTrue(iterator.hasNext());
+        assertEquals(list.get(2), iterator.next());
+        assertEquals(list.get(0), iterator.next());
+        assertEquals(list.get(1), iterator.next());
+        assertFalse(iterator.hasNext());
+    }
+
+    @Test
+    @DisplayName("Four-players list test")
+    void fourPlayersTest() {
+        createAndPopulateList(4);
+
+        // startIndex = 0
+        ClockWiseIterator iterator = new ClockWiseIterator(list, 0);
+
+        assertTrue(iterator.hasNext());
+        assertEquals(list.get(0), iterator.next());
+        assertEquals(list.get(1), iterator.next());
+        assertEquals(list.get(2), iterator.next());
+        assertEquals(list.get(3), iterator.next());
+        assertFalse(iterator.hasNext());
+
+        // startIndex = 1
+        iterator = new ClockWiseIterator(list, 1);
+
+        assertTrue(iterator.hasNext());
+        assertEquals(list.get(1), iterator.next());
+        assertEquals(list.get(2), iterator.next());
+        assertEquals(list.get(3), iterator.next());
+        assertEquals(list.get(0), iterator.next());
+        assertFalse(iterator.hasNext());
+
+        // startIndex = 2
+        iterator = new ClockWiseIterator(list, 2);
+
+        assertTrue(iterator.hasNext());
+        assertEquals(list.get(2), iterator.next());
+        assertEquals(list.get(3), iterator.next());
+        assertEquals(list.get(0), iterator.next());
+        assertEquals(list.get(1), iterator.next());
+        assertFalse(iterator.hasNext());
+
+        // startIndex = 3
+        iterator = new ClockWiseIterator(list, 3);
+
+        assertTrue(iterator.hasNext());
+        assertEquals(list.get(3), iterator.next());
+        assertEquals(list.get(0), iterator.next());
+        assertEquals(list.get(1), iterator.next());
+        assertEquals(list.get(2), iterator.next());
         assertFalse(iterator.hasNext());
     }
 

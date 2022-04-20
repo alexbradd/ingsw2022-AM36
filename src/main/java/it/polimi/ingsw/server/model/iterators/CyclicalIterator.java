@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server.model.iterators;
 
+import it.polimi.ingsw.server.model.Island;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -29,10 +31,10 @@ public class CyclicalIterator<E> implements Iterator<E> {
      * @throws IllegalArgumentException if {@code list == null} or {@code list} is empty
      */
     public CyclicalIterator(List<E> list) {
-        if(list == null) {
+        if (list == null) {
             throw new IllegalArgumentException("list shouldn't be null");
         }
-        if(list.isEmpty()) {
+        if (list.isEmpty()) {
             throw new IllegalArgumentException("list shouldn't be empty");
         }
         this.list = list;
@@ -41,17 +43,33 @@ public class CyclicalIterator<E> implements Iterator<E> {
     /**
      * Custom {@code startIndex} constructor.
      *
-     * @param list the list to iterate on
+     * @param list       the list to iterate on
      * @param startIndex the custom {@code startIndex} for the iteration
-     * @throws IllegalArgumentException if {@code list  == null} or {@code list} is empty
+     * @throws IllegalArgumentException  if {@code list  == null} or {@code list} is empty
      * @throws IndexOutOfBoundsException if {@code startIndex} is out of range
      */
     public CyclicalIterator(List<E> list, int startIndex) throws IllegalArgumentException, IndexOutOfBoundsException {
         this(list);
-        if(startIndex < 0 || startIndex >= list.size()) {
+        if (startIndex < 0 || startIndex >= list.size()) {
             throw new IndexOutOfBoundsException("invalid startIndex");
         }
         this.currentIndex = startIndex;
+    }
+
+    /**
+     * Custom constructor with a passed starting element.
+     *
+     * @param list  the list to iterate on
+     * @param start the starting element of the list
+     * @throws IllegalArgumentException if the list is null, or the starting element is null or not contained in the list
+     */
+    public CyclicalIterator(List<E> list, E start) throws IllegalArgumentException {
+        if (list == null) throw new IllegalArgumentException("list shouldn't be null");
+        if (start == null) throw new IllegalArgumentException("start shouldn't be null");
+        if (!list.contains(start))
+            throw new IllegalArgumentException("cannot start from an island that is not in the list");
+        this.list = list;
+        currentIndex = list.indexOf(start) + 1;
     }
 
     /**
@@ -62,10 +80,9 @@ public class CyclicalIterator<E> implements Iterator<E> {
     @Override
     public E next() {
         E nextEntity = list.get(currentIndex);
-        if(currentIndex + 1 == list.size()) {
+        if (currentIndex + 1 == list.size()) {
             currentIndex = 0;
-        }
-        else {
+        } else {
             currentIndex++;
         }
         return nextEntity;

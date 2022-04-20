@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server.model.iterators;
 
 import it.polimi.ingsw.server.model.Assistant;
+import it.polimi.ingsw.server.model.Board;
 import it.polimi.ingsw.server.model.Player;
 
 import java.util.*;
@@ -13,15 +14,15 @@ import java.util.*;
  *
  * @author Mattia Busso
  */
-public class AssistantValueIterator implements Iterator<Player> {
+public class AssistantValueIterator implements Iterator<Board> {
 
     /**
      * A copy of the list to iterate on (sorted using an {@link AssistantValueComparator}).
      */
-    private final List<Player> list;
+    private final List<Board> list;
 
     /**
-     * The index of the {@code Player} returned first.
+     * The index of the {@code Board} returned first.
      */
     private final int firstPlayedIndex;
 
@@ -34,9 +35,9 @@ public class AssistantValueIterator implements Iterator<Player> {
      * @param startIndex the custom {@code startIndex} for the iteration
      * @throws IllegalArgumentException  if {@code list == null} or {@code list.size() == 0} (list is empty)
      * @throws IndexOutOfBoundsException if {@code startIndex} is out of range
-     * @throws IllegalStateException     if a {@code Player} inside the {@code list} has no {@code lastPlayedAssistant}
+     * @throws IllegalStateException     if a {@code Board} inside the {@code list} has no {@code lastPlayedAssistant}
      */
-    public AssistantValueIterator(List<Player> list, int startIndex) throws IllegalArgumentException, IllegalStateException, IndexOutOfBoundsException {
+    public AssistantValueIterator(List<Board> list, int startIndex) throws IllegalArgumentException, IllegalStateException, IndexOutOfBoundsException {
         if(list == null) {
             throw new IllegalArgumentException("list shouldn't be null");
         }
@@ -64,9 +65,9 @@ public class AssistantValueIterator implements Iterator<Player> {
      *
      * @return the next element in the iteration
      * @throws NoSuchElementException if the iteration has no more elements or if the list is empty
-     * @throws IllegalStateException  if a {@code Player} inside the {@code list} has no {@code lastPlayedAssistant}
+     * @throws IllegalStateException  if a {@code Board} inside the {@code list} has no {@code lastPlayedAssistant}
      */
-    public Player next() throws NoSuchElementException, IllegalStateException {
+    public Board next() throws NoSuchElementException, IllegalStateException {
         if(list.isEmpty()) {
             throw new NoSuchElementException("no more elements to iterate on");
         }
@@ -84,10 +85,10 @@ public class AssistantValueIterator implements Iterator<Player> {
     }
 
     /**
-     * Returns the index of the first {@link Player} to be returned by the iterator.
+     * Returns the index of the first {@link Board} to be returned by the iterator.
      *
      * @return the index of the first player returned by {@code next()}
-     * @throws IllegalStateException if no player has been returned yet
+     * @throws IllegalStateException if no board has been returned yet
      */
     public int getFirstPlayedIndex() {
         return firstPlayedIndex;

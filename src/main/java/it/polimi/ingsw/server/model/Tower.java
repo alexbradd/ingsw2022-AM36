@@ -3,44 +3,33 @@ package it.polimi.ingsw.server.model;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 
 /**
- * This class models the game's towers.
+ * The class that models a tower. It has a color (an entry of the {@link TowerColor} enum) that distinguishes it from
+ * other players' towers. It is an immutable class.
  *
- * @author Mattia Busso
+ * @author Mattia Busso, Leonardo Bianconi
+ * @see TowerColor
+ * @see Player
  */
-public class Tower {
 
+public final class Tower {
     /**
-     * The tower's associated color.
+     * The color of the tower, representing the player to which it belongs.
      */
     private final TowerColor color;
 
     /**
-     * Reference to the Player owner of the tower.
+     * The {@link Player} that owns the tower.
      */
     private final Player owner;
 
     /**
-     * Tower constructor.
+     * The tower constructor
      *
-     * @param color
-     * @param owner
-     * @throws IllegalArgumentException owner should not be null
+     * @param color the color of the tower ({@link TowerColor})
      */
-    Tower(TowerColor color, Player owner) throws IllegalArgumentException {
-
-        if (owner == null) {
-            throw new IllegalArgumentException("owner should not be null");
-        }
-
+    Tower(TowerColor color, Player owner) {
         this.color = color;
         this.owner = owner;
-    }
-
-    /**
-     * This method sends the tower back to its owner.
-     */
-    void returnToOwner() {
-        owner.receiveTower(this);
     }
 
     /**
@@ -53,12 +42,11 @@ public class Tower {
     }
 
     /**
-     * Tower owner getter.
+     * The tower's owner getter ({@link Player} object).
      *
-     * @return owner
+     * @return the owner of the tower
      */
     Player getOwner() {
-        return this.owner;
+        return owner;
     }
-
 }

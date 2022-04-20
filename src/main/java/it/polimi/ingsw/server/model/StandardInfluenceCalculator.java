@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server.model;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,13 +22,18 @@ class StandardInfluenceCalculator implements InfluenceCalculator {
      * @throws IllegalArgumentException if {@code island} is null
      */
     @Override
-    public Optional<Map<Player, Integer>> calculateInfluences(Island island) {
+    public Optional<Map<Player, Integer>> calculateInfluences(Island island, List<Professor> professors) {
         if (island == null) throw new IllegalArgumentException("island shouldn't be null");
         if (island.isBlocked()) return Optional.empty();
 
         Map<Player, Integer> inf = new HashMap<>();
-        island.getStudents().forEach(
-                s -> s.getProfessor().getOwner().ifPresent((p) -> inf.merge(p, 1, Integer::sum)));
+        for (Student s : island.getStudents()) {
+                Professor professor = professors.stream()
+                        .filter(p -> p.getColor() == s.getColor())
+                        .findFirst().orElseThrow();
+
+                professor.getOwner().ifPresent(o -> inf.merge(o, 1, Integer::sum));
+        }
         island.getControllingPlayer().ifPresent(p -> inf.merge(p, island.getNumOfTowers(), Integer::sum));
         return Optional.of(inf);
     }

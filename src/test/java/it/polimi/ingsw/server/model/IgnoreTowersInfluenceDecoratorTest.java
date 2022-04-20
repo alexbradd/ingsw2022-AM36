@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class IgnoreTowersInfluenceDecoratorTest {
     private static InfluenceCalculator calculator;
     private static Player player1;
+    private static List<Professor> professorList;
     private Island island;
 
     /**
@@ -25,7 +28,9 @@ class IgnoreTowersInfluenceDecoratorTest {
     @BeforeAll
     static void staticSetUp() {
         calculator = new IgnoreTowersInfluenceDecorator(new StandardInfluenceCalculator());
-        player1 = new Player("Napoleon", 1, 10, TowerColor.WHITE);
+        player1 = new Player("Napoleon");
+
+        professorList = new ArrayList<>();
     }
 
     /**
@@ -41,7 +46,7 @@ class IgnoreTowersInfluenceDecoratorTest {
      */
     @Test
     void withNull() {
-        assertThrows(IllegalArgumentException.class, () -> calculator.calculateInfluences(null));
+        assertThrows(IllegalArgumentException.class, () -> calculator.calculateInfluences(null, professorList));
     }
 
     /**
@@ -50,20 +55,21 @@ class IgnoreTowersInfluenceDecoratorTest {
     @Test
     void removesTowerInfluence() {
         Professor p = new Professor(PieceColor.RED);
-        Island child = new Island(1);
-
+        professorList.add(p);
         p.assign(player1);
 
-        island.conquer(player1);
-        child.conquer(player1);
-        island.merge(child);
-        island.receiveStudent(new Student(p));
+        Island child = new Island(1)
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)));
+        island = island
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)))
+                .merge(child)
+                .updateStudents(c -> c.add(new Student(p.getColor())));
 
-        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
 
         assertTrue(inf.isPresent());
         Map<Player, Integer> map = inf.get();
-        assertEquals(map.get(player1), 1);
+        assertEquals(1, map.get(player1));
     }
 
     /**
@@ -71,13 +77,13 @@ class IgnoreTowersInfluenceDecoratorTest {
      */
     @Test
     void playerWithNoInfluenceIsRemoved() {
-        Island child = new Island(1);
+        Island child = new Island(1)
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)));
+        island = island
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)))
+                .merge(child);
 
-        island.conquer(player1);
-        child.conquer(player1);
-        island.merge(child);
-
-        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isPresent());
         Map<Player, Integer> map = inf.get();
         assertNull(map.get(player1));

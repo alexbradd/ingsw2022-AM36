@@ -45,7 +45,7 @@ public class SackTest {
                 default: {num_students_of_color = 5; break; }
             }
             for(int j = 0; j < num_students_of_color; j++) {
-                Student curr_student = new Student(professors[i]);
+                Student curr_student = new Student(professors[i].getColor());
                 students_set.add(curr_student);
                 sack.receiveStudent(curr_student);
             }

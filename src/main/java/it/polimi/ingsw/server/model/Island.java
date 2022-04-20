@@ -1,215 +1,227 @@
+// STUB - from branch functionalize-islands
+
 package it.polimi.ingsw.server.model;
 
-import java.util.*;
+import it.polimi.ingsw.server.model.enums.TowerColor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 
 /**
- * Represents an island. Each island has a unique, game-local id and can be bounded to an {@link IslandList}. An Island
- * can receive students, be conquered by a {@link Player} by placing {@link Tower}s, and be blocked by a
- * {@link BlockCard}. Islands, if conquered by the same player, can be "merged": one island will become the "parent" and
- * hold all the state of its children. The children will redirect all state changes to the parent. One exception to this
- * rule are towers: each island will always have its tower and conquering a "group" of islands will place a tower on
- * each island in the group.
+ * Represents an island. Each Island has a set of game-local ids (used for the graphical rendition). An Island can
+ * receive students, be conquered by a {@link Player} by placing {@link Tower}s, and be blocked by a {@link BlockCard}.
+ * Islands, if conquered by the same player, can be merged into a new Island containing all the  sum of the state of the
+ * "addends". The ids are stored in order, this means that merging [3,4] into [1,2] results into a new Island with
+ * [1,2,3,4].
+ * <p>
+ * Island is completely immutable, every state change will generate a new Island.
  *
  * @author Alexandru Bradatan Gabriel
- * @see IslandList
  */
-class Island implements StudentMoveDestination {
-    /**
-     * The island's ID.
-     */
-    private final int id;
+public class Island {
+    private List<Integer> ids;
+    private StudentContainer container;
+    private List<BlockCard> blocks;
+    private List<Tower> towers;
 
     /**
-     * The island's set of children.
-     */
-    private final Set<Island> children;
-
-    /**
-     * The island's parent.
-     */
-    private Island parent;
-
-    /**
-     * The set of Students located on the current Island
-     */
-    private final HashSet<Student> students;
-
-    /**
-     * The Tower placed on this Island
-     */
-    private Tower tower;
-
-    /**
-     * The Stack of BlockCards placed on the island
-     */
-    private final Stack<BlockCard> blockCards;
-
-    /**
-     * The list to which this island is bound
-     */
-    private final IslandList bound;
-
-    /**
-     * Creates a new unbound empty island with the given ID.
+     * Creates a new Island with the given id.
      */
     Island(int id) {
-        this(id, null);
+        ids = new ArrayList<>();
+        ids.add(id);
+        container = new StudentContainer();
+        blocks = new ArrayList<>();
+        towers = new ArrayList<>();
     }
 
     /**
-     * Creates a new empty island with the given ID bounded to the given {@link IslandList}. Is null is passed as bound,
-     * the Island will be unbounded.
-     */
-    Island(int id, IslandList bound) {
-        this.id = id;
-        students = new HashSet<>();
-        children = new HashSet<>();
-        parent = null;
-        blockCards = new Stack<>();
-        this.bound = bound;
-    }
-
-    /**
-     * Getter for the island id.
+     * Creates a new Island that is a shallow copy of the five one.
      *
-     * @return the island id
+     * @throws IllegalArgumentException if {@code old} is null
      */
-    int getId() {
-        return id;
+    Island(Island old) {
+        if (old == null) throw new IllegalArgumentException("old cannot be null");
+        ids = old.ids;
+        container = old.container;
+        blocks = old.blocks;
+        towers = old.towers;
     }
 
     /**
-     * Return an {@link Optional} containing the parent island. If there is none, an empty {@link Optional} is returned.
+     * Returns a copy of the ids of this Island
      *
-     * @return an optional containing the parent island
+     * @return a {@link List} containing this Island's ids
      */
-    Optional<Island> getParent() {
-        return Optional.ofNullable(parent);
+    public List<Integer> getIds() {
+        return new ArrayList<>(ids);
     }
 
     /**
-     * Getter for the {@link Set} of students located on the island.
+     * Returns an {@link Optional} containing the {@link Player} currently controlling this Island.
      *
-     * @return a copy of the set of students located on the island
-     * @see Student
-     */
-    HashSet<Student> getStudents() {
-        return new HashSet<>(getParent().orElse(this).students);
-    }
-
-    /**
-     * Returns a {@link Optional} containing the player that has control over this island. If there isn't such player
-     * an empty {@link Optional} is returned.
-     *
-     * @return a {@link Optional} containing the player that has control over this island, if present.
+     * @return an {@link Optional} containing the {@link Player} currently controlling this Island
      */
     Optional<Player> getControllingPlayer() {
-        if (tower == null) return Optional.empty();
-        return Optional.of(tower.getOwner());
+        if (towers.isEmpty())
+            return Optional.empty();
+        return Optional.of(towers.get(0).getOwner());
     }
 
     /**
-     * Add the given {@link Student} to the internal store.
+     * Returns an {@link Optional} containing the {@link TowerColor} of the towers currently placed on this island.
      *
-     * @param student the {@link Student} to add to the store
-     * @throws IllegalArgumentException if {@code student} is null
+     * @return an {@link Optional} containing the {@link TowerColor} of the towers currently placed on this island
      */
-    @Override
-    public void receiveStudent(Student student) {
-        if (student == null) throw new IllegalArgumentException("student shouldn't be null");
-        getParent().orElse(this).students.add(student);
+    Optional<TowerColor> getConqueringColor() {
+        if (towers.isEmpty())
+            return Optional.empty();
+        return Optional.of(towers.get(0).getColor());
     }
 
     /**
-     * Returns true if receiving a {@link Student} modifies the {@link Professor} assignments. For islands, this will
-     * always return false.
+     * Returns a copy of the set of all students placed on this island.
      *
-     * @return true if receiving a {@link Student} modifies the {@link Professor} assignments, false otherwise
-     * @see Professor
+     * @return a copy of the set of all students placed on this island
      */
-    @Override
-    public boolean requiresProfessorAssignment() {
-        return false;
+    Set<Student> getStudents() {
+        return container.getStudents();
     }
 
     /**
-     * Makes this island conquered by the given {@link Player}.
-     * <p>
-     * Small note: a conquered group of islands not always has towers on all of his members. This may happen during
-     * endgame. We preferred not to bubble-up the exception and instead check al winning conditions during the
-     * respective phases.
+     * Returns the number of currently placed towers.
      *
-     * @param player the {@link Player} that conquers this island
-     * @throws IllegalArgumentException if {@code player} is null
-     */
-    void conquer(Player player) {
-        if (player == null) throw new IllegalArgumentException("player shouldn't be null");
-        if (getControllingPlayer().equals(Optional.of(player)))
-            return;
-        Island toConquer = getParent().orElse(this);
-        toConquer.receiveTowerFrom(player);
-        toConquer.children.forEach(i -> i.receiveTowerFrom(player));
-        if (bound != null) bound.scrub();
-    }
-
-    /**
-     * Receives a {@link Tower} from the given player
-     *
-     * @param player player from whom to receive the tower
-     * @throws IllegalArgumentException if {@code player} is null
-     */
-    private void receiveTowerFrom(Player player) {
-        if (player == null) throw new IllegalArgumentException("player shouldn't be null");
-        if (tower != null) tower.returnToOwner();
-        try {
-            tower = player.sendTower();
-        } catch (IllegalStateException ignored) {
-            // It is safe to ignore this exception since a group that has only some towers of some player is a valid
-            // game state.
-        }
-    }
-
-    /**
-     * Returns the number of towers placed on this island. If the island is in a group, it returns the number of towers
-     * placed on the group.
-     *
-     * @return the number of towers placed on this island
+     * @return the number of currently placed towers.
      */
     int getNumOfTowers() {
-        Island parent = getParent().orElse(this);
-        return parent.getControllingPlayer()
-                .map(p -> (int) parent.children.stream().filter(Island::hasTower).count() + 1)
-                .orElse(0);
+        return towers.size();
     }
 
     /**
-     * Returns true if this island has an island placed on it.
+     * Returns the maximum number of towers placeable on this Island. It is equal to the number of ids this Island has.
      *
-     * @return true if this island has an island placed on it.
+     * @return the maximum number of towers placeable on this Island.
      */
-    private boolean hasTower() {
-        return tower != null;
+    int getMaxNumOfTowers() {
+        return ids.size();
     }
 
     /**
-     * Merges the given Island into this one. If the two Islands re related, nothing is done. If the two Islands
-     * aren't compatible (as returned by {@code canBeMergedWith()}) an exception is thrown.
+     * Returns a copy of the list of Tower stored on the current island
      *
-     * @param other Island to merge with
-     * @throws IllegalArgumentException if {@code other} is null
-     * @throws IllegalArgumentException if {@code other} isn't compatible
+     * @return a copy of the list of Tower stored on the current island
      */
-    void merge(Island other) {
-        if (other == null) throw new IllegalArgumentException("other shouldn't be null");
-        if (!canBeMergedWith(other)) throw new IllegalArgumentException("other cannot be merged");
-        if (isRelatedTo(other)) return;
+    List<Tower> getTowers() {
+        return new ArrayList<>(towers);
+    }
 
-        Island parent = getParent().orElse(this);
-        Island toMerge = other.getParent().orElse(other);
-        toMerge.transferBlocks(parent);
-        parent.addChildren(toMerge);
-        toMerge.transferChildren(parent);
-        toMerge.transferStudents(parent);
+    /**
+     * Applies the given update to the set of students placed on this Island. If the update returns null, nothing is
+     * done.
+     *
+     * @param update a {@link Function} transforming the old {@link StudentContainer} into the new one
+     * @return a new Island with the update applied
+     * @throws IllegalArgumentException if {@code update} is null
+     * @see StudentContainer
+     */
+    Island updateStudents(Function<StudentContainer, StudentContainer> update) {
+        if (update == null) throw new IllegalArgumentException("update shouldn't be null");
+        StudentContainer newContainer = update.apply(new StudentContainer(this.container));
+        Island newIsland = new Island(this);
+        if (newContainer != null)
+            newIsland.container = newContainer;
+        return newIsland;
+    }
+
+    /**
+     * Applies the given update to the towers placed on the current Island. The list of towers should have towers all
+     * the same color, mismatch is not allowed.
+     *
+     * @param update a {@link Function} transforming the old set of towers in the new one
+     * @return a new Island with the update applied
+     * @throws IllegalArgumentException if any argument is null
+     * @throws IllegalArgumentException if the list returned by {@code update} contains mismatched towers or too many
+     *                                  towers
+     */
+    Island updateTowers(Function<List<Tower>, List<Tower>> update) {
+        if (update == null) throw new IllegalArgumentException("update shouldn't be null");
+
+        Island newIsland = new Island(this);
+        List<Tower> newList = update.apply(new ArrayList<>(this.towers));
+        if (newList != null) {
+            if (!homogeneousList(newList))
+                throw new IllegalArgumentException("Cannot apply update with mismatch towers");
+            if (newList.size() > getMaxNumOfTowers())
+                throw new IllegalArgumentException("Cannot apply update with this amount of towers");
+            newIsland.towers = newList;
+        }
+        return newIsland;
+    }
+
+    /**
+     * Private helper that checks if a list has towers all the same color.
+     *
+     * @param list the list tho check
+     * @return true if the given list has towers all the same color
+     */
+    private boolean homogeneousList(List<Tower> list) {
+        if (list.isEmpty())
+            return true;
+        TowerColor c = list.get(0).getColor();
+        for (Tower t : list)
+            if (!t.getColor().equals(c))
+                return false;
+        return true;
+    }
+
+    /**
+     * Merge the given Island into the current Island to return a new Island with merged state.
+     *
+     * @param toMerge the Island to merge
+     * @return a new Island
+     * @throws IllegalArgumentException if {@code toMerge} is null or cannot be merged into the current island
+     */
+    Island merge(Island toMerge) {
+        if (toMerge == null) throw new IllegalArgumentException("toMerge cannot be null");
+        if (!canBeMergedWith(toMerge)) throw new IllegalArgumentException("toMerge cannot be merged");
+
+        Island newIsland = new Island(this);
+        newIsland.ids = mergeLists(newIsland.ids, toMerge.ids);
+        newIsland.towers = mergeLists(newIsland.towers, toMerge.towers);
+        newIsland.blocks = mergeLists(newIsland.blocks, toMerge.blocks);
+        newIsland.container = mergeContainers(newIsland.container, toMerge.container);
+        return newIsland;
+    }
+
+    /**
+     * Private helper that merges {@code merger} into {@code original}
+     *
+     * @param original First list
+     * @param merger   List that will be merged into {@code original}
+     * @param <T>      generic type
+     * @return a new list that is the result of the merge
+     */
+    private <T> List<T> mergeLists(List<T> original, List<T> merger) {
+        List<T> l = new ArrayList<>(original);
+        l.addAll(merger);
+        return l;
+    }
+
+    /**
+     * Private helper that merges {@code merger} into {@code original}
+     *
+     * @param original First {@link StudentContainer}
+     * @param merger   {@link StudentContainer} that will be merged into {@code original}
+     * @return a new {@link StudentContainer} that is the result of the merge
+     */
+    private StudentContainer mergeContainers(StudentContainer original, StudentContainer merger) {
+        StudentContainer c = new StudentContainer(original);
+        for (Student s : merger.getStudents())
+            c = c.add(s);
+        return c;
     }
 
     /**
@@ -221,78 +233,10 @@ class Island implements StudentMoveDestination {
      */
     boolean canBeMergedWith(Island other) {
         if (other == null) throw new IllegalArgumentException("other shouldn't be null");
-        return this.getControllingPlayer()
-                .map((p) -> other.getControllingPlayer()
-                        .filter(p::equals).isPresent())
+
+        return this.getConqueringColor()
+                .map(c -> other.getConqueringColor().filter(c::equals).isPresent())
                 .orElse(false);
-    }
-
-    /**
-     * Returns true if this island is related to the given one. Two Islands are related if:
-     * <p>
-     * 1. They are equal;
-     * 2. One is the child of the other;
-     * 3. The islands are siblings.
-     *
-     * @param other Island to check
-     * @return true if this island is related to the given one
-     * @throws IllegalArgumentException if {@code other} is null
-     */
-    boolean isRelatedTo(Island other) {
-        if (other == null) throw new IllegalArgumentException("other shouldn't be null");
-        return equals(other) || // equals
-                getParent().map(other::equals).orElse(false) || // parent
-                getParent().map(p -> other.getParent().filter(p::equals).isPresent()).orElse(false) || //sibling
-                children.contains(other); //child
-    }
-
-    /**
-     * Transfers blocks, if present, on the given Island.
-     *
-     * @param receiver Island that will receive the blocks
-     * @throws IllegalArgumentException if {@code receiver} is null
-     */
-    private void transferBlocks(Island receiver) {
-        if (receiver == null) throw new IllegalArgumentException("receiver shouldn't be null");
-        for (BlockCard b : blockCards)
-            receiver.pushBlock(b);
-        blockCards.clear();
-    }
-
-    /**
-     * Adds the given Island to the children set.
-     *
-     * @param child the children to add
-     * @throws IllegalArgumentException if {@code child} is null
-     */
-    private void addChildren(Island child) {
-        if (child == null) throw new IllegalArgumentException("child shouldn't be null");
-        children.add(child);
-        child.parent = this;
-    }
-
-    /**
-     * Transfers all children Islands to another Island.
-     *
-     * @param receiver the receiver of the children
-     * @throws IllegalArgumentException if {@code receiver} is null
-     */
-    private void transferChildren(Island receiver) {
-        if (receiver == null) throw new IllegalArgumentException("receiver shouldn't be null");
-        children.forEach(receiver::addChildren);
-        children.clear();
-    }
-
-    /**
-     * Transfers all students to another Island.
-     *
-     * @param receiver the receiver of the students
-     * @throws IllegalArgumentException if {@code receiver} is null
-     */
-    private void transferStudents(Island receiver) {
-        if (receiver == null) throw new IllegalArgumentException("receiver shouldn't be null");
-        students.forEach(receiver::receiveStudent);
-        students.clear();
     }
 
     /**
@@ -301,80 +245,43 @@ class Island implements StudentMoveDestination {
      * @return true if the island is blocked by a {@link BlockCard}, false otherwise
      */
     boolean isBlocked() {
-        return !getParent().orElse(this).blockCards.isEmpty();
+        return blocks.size() != 0;
     }
 
     /**
-     * Push a block on the island.
+     * Returns the number of blocks currently placed on this island.
+     *
+     * @return the number of blocks currently placed on this island
+     */
+    int getNumOfBlocks() {
+        return blocks.size();
+    }
+
+    /**
+     * Push a block on the Island.
      *
      * @param block the {@link BlockCard} to place
+     * @return a new updated Island
      * @throws IllegalArgumentException if {@code block} is null
      */
-    void pushBlock(BlockCard block) {
+    Island pushBlock(BlockCard block) {
         if (block == null) throw new IllegalArgumentException("block shouldn't be null");
-        Island toBlock = getParent().orElse(this);
-        toBlock.blockCards.push(block);
+        Island newIsland = new Island(this);
+        newIsland.blocks = new ArrayList<>(this.blocks);
+        newIsland.blocks.add(block);
+        return newIsland;
     }
 
     /**
-     * Pop one block from the island, and return it to its owner.
+     * Pop one block from the island.
      *
-     * @throws IllegalStateException if the entity isn't blocked
+     * @return a {@link Tuple} containing the new updated Island and the popped block in order.
+     * @throws IllegalStateException if the Island isn't blocked
      */
-    void popBlock() {
-        Island toUnblock = getParent().orElse(this);
-        if (!toUnblock.isBlocked()) throw new IllegalStateException("cannot unblock an already unblocked island");
-        toUnblock.blockCards.pop().returnToOwner();
-    }
-
-    /**
-     * Indicates whether some other object is "equal to" this one. Two islands are equals only if they have the same ID
-     * or are the same instance.
-     *
-     * @param o the object to compare
-     * @return true if the given object is equal to this one
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Island island = (Island) o;
-        return id == island.id;
-    }
-
-    /**
-     * Returns a hash code value for the object.
-     *
-     * @return a hash code value for the object.
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    /**
-     * Returns a string representation of this island.
-     *
-     * @return a string representation of this island
-     */
-    @Override
-    public String toString() {
-        return "Island{" +
-                "id=" + id +
-                ", children=" + children +
-                ", parent=" + getParent().map(Island::superToString).orElse(null) +
-                ", students=" + students +
-                ", tower=" + tower +
-                ", block=" + blockCards +
-                '}';
-    }
-
-    /**
-     * Returns the string representation of the superclass (object in this case)
-     *
-     * @return the string representation of the superclass (object in this case)
-     */
-    private String superToString() {
-        return super.toString();
+    Tuple<Island, BlockCard> popBlock() {
+        if (!isBlocked()) throw new IllegalStateException("cannot unblock an unblocked card");
+        Island newIsland = new Island(this);
+        newIsland.blocks = new ArrayList<>(this.blocks);
+        return new Tuple<>(newIsland, newIsland.blocks.remove(0));
     }
 }

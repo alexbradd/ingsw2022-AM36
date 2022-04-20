@@ -1,19 +1,27 @@
 package it.polimi.ingsw.server.model.iterators;
 
+import it.polimi.ingsw.server.model.Board;
+
+import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+// TODO docs
+
 /**
- * This class provides an iterator for a {@link List} of abstract elements {@code E}.
- * This implementation iterates through the list from an element at index {@code startIndex}
- * to an element at either index {@code startIndex - 1} or {@code list.size() - 1},
- * performing a clock-wise scan.
- * The class inherits from {@link CyclicalIterator} since it offers a single cycle version of the parent class.
+ * This class provides an implementation of the Iterator<{@link Board}> interface.
+ * This iterator offers a custom implementation that allows to start the iteration from a given {@code startIndex} of the list.
+ * Iterating from element @ {@code startIndex} to last element @ {@code startIndex - 1 || list.size() - 1}, it conventionally follows a clockwise scan of the list.
  *
  * @author Mattia Busso
- * @see CyclicalIterator
+ * @see Board
  */
-public class ClockWiseIterator<E> extends CyclicalIterator<E> {
+public class ClockWiseIterator implements Iterator<Board> {
+
+    /**
+     * The list of boards to iterate on.
+     */
+    private final List<Board> list;
 
     /**
      * Flag that indicates if we are currently performing the first iteration.
@@ -21,38 +29,68 @@ public class ClockWiseIterator<E> extends CyclicalIterator<E> {
     private boolean start = true;
 
     /**
-     * The index from which to start iterating.
+     * The index of the {@code Board} from which to start iterating.
      */
     private final int startIndex;
 
     /**
+     * The index of the current {@code Board} pointed by the iterator.
+     */
+    private int currentIndex;
+
+    /**
      * Custom {@code startIndex} constructor.
-     * Calls the constructor of the parent class {@link CyclicalIterator} and sets the custom {@code startIndex}.
+     * Sets the list of boards to the one passed via parameter and sets the custom {@code startIndex}.
      *
      * @param list the list to iterate on
      * @param startIndex the custom {@code startIndex} for the iteration
-     * @throws IllegalArgumentException if {@code list == null} or list is empty
+     * @throws IllegalArgumentException if {@code list == null}
      * @throws IndexOutOfBoundsException if {@code startIndex} is out of range
      */
-    public ClockWiseIterator(List<E> list, int startIndex) throws IllegalArgumentException, IndexOutOfBoundsException {
-        super(list, startIndex);
+    public ClockWiseIterator(List<Board> list, int startIndex) throws IllegalArgumentException, IndexOutOfBoundsException {
+        if (list == null) throw new IllegalArgumentException("list must not be null.");
+        this.list = list;
+
+        if(list.isEmpty()) {
+            throw new IllegalArgumentException("list shouldn't be empty");
+        }
+
+        if(startIndex < 0 || startIndex >= list.size()) {
+            throw new IndexOutOfBoundsException("invalid startIndex");
+        }
         this.startIndex = startIndex;
+        currentIndex = startIndex;
     }
 
     /**
      * Returns the next element in the iteration.
      *
      * @return the next element in the iteration
-     * @throws NoSuchElementException if the iteration has no more elements
+     * @throws NoSuchElementException if the iteration has no more elements or if the list is empty
      */
-    public E next() throws NoSuchElementException {
-        if((super.getCurrentIndex() == startIndex) && !start) {
-            throw new NoSuchElementException("no more elements to iterate on");
+    public Board next() throws NoSuchElementException {
+        Board nextBoard;
+
+        if(currentIndex == list.size()) {
+            currentIndex = 0;
         }
-        if(start) {
-            start = false;
+
+        if(currentIndex == startIndex) {
+            if(start) {
+                nextBoard = list.get(currentIndex);
+                currentIndex++;
+                start = false;
+                return nextBoard;
+            }
+            else {
+                throw new NoSuchElementException("no more elements to iterate on");
+            }
         }
-        return super.next();
+
+        nextBoard = list.get(currentIndex);
+        currentIndex++;
+        return nextBoard;
+
     }
 
     /**
@@ -62,7 +100,10 @@ public class ClockWiseIterator<E> extends CyclicalIterator<E> {
      * @return {@code true} if the iteration has more elements, {@code false} otherwise.
      */
     public boolean hasNext() {
-        return (super.getCurrentIndex() != startIndex) || start;
+        if(currentIndex == list.size()) {
+            currentIndex = 0;
+        }
+        return (currentIndex != startIndex) || start;
     }
 
 }

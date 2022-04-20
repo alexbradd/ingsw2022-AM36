@@ -1,108 +1,86 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.server.model.iterators.CyclicalIterator;
+
+import java.util.List;
+
 /**
- * Represents the Mother Nature (MN) piece. MN iterates cyclically on groups of a {@link IslandList} using a
- * {@link IslandListIterator}. Everytime MN arrives at an {@link Island}, it calculates the influence of players and
- * assigns the island to the player with the maximum. To modify the influence calculation and maximum extraction,
- * setters for the {@link InfluenceCalculator} and {@link MaxExtractor} are provided. Both calculators are reset
- * after each movement.
+ * Represents the Mother Nature (MN) piece. MN iterates cyclically on a list of {@link Island} using a
+ * {@link CyclicalIterator}.
  */
 class MotherNature {
-    /**
-     * The iterator on the game's {@link IslandList}.
-     */
-    private final IslandListIterator iterator;
-
     /**
      * The {@link Island} on which Mother Nature is currently on.
      */
     private Island current;
 
     /**
-     * The {@link InfluenceCalculator} to use for influence calculation.
-     */
-    private InfluenceCalculator calculator;
-
-    /**
-     * The {@link MaxExtractor} to use for maximum extraction.
-     */
-    private MaxExtractor extractor;
-
-    /**
-     * Creates a new Mother Nature that will move on the given {@link IslandList}.
+     * Creates a new Mother Nature that will move on the given list
      *
-     * @param list the {@link IslandList} to move on
+     * @param list             the list to move on
+     * @param startingPosition the starting position
      * @throws IllegalArgumentException if {@code list} is null
      */
-    MotherNature(IslandList list) {
-        if (list == null) throw new IllegalArgumentException("list shouldn't be null");
-        this.iterator = list.randomGroupIterator();
-        current = null;
-        calculator = new StandardInfluenceCalculator();
-        extractor = new EqualityExclusiveMaxExtractor();
+    MotherNature(List<Island> list, int startingPosition) {
+        if (list == null) throw new IllegalArgumentException("list cannot be null");
+        if (startingPosition < 0 || startingPosition >= list.size())
+            throw new IllegalArgumentException("starting position out of bounds");
+        current = list.get(startingPosition);
     }
 
     /**
-     * Getter for the {@link InfluenceCalculator} currently in use.
+     * Creates a new MotherNature that is a shallow copy of the given one.
      *
-     * @return the {@link InfluenceCalculator} currently in use
+     * @param old the MotherNature to copy
      */
-    InfluenceCalculator getCalculator() {
-        return calculator;
+    MotherNature(MotherNature old) {
+        if (old == null) throw new IllegalArgumentException("old cannot be null");
+        this.current = old.current;
     }
 
     /**
-     * Sets the given InfluenceCalculator for use in the next movement.
+     * Return the first id of the {@link Island} Mother Nature is standing on
      *
-     * @param calculator the InfluenceCalculator to use in the next movement
-     * @throws IllegalArgumentException if {@code calculator} is null
+     * @return the id of the {@link Island} Mother Nature is standing on
      */
-    void setCalculator(InfluenceCalculator calculator) {
-        if (calculator == null) throw new IllegalArgumentException("calculator shouldn't be null");
-        this.calculator = calculator;
+    int getCurrentIslandId() {
+        return current.getIds().get(0);
     }
 
     /**
-     * Sets the given MaxExtractor for use in the next movement.
+     * Return the Island that MotherNature is currently on
      *
-     * @param extractor the InfluenceCalculator to use in the next movement
-     * @throws IllegalArgumentException if {@code extractor} is null
+     * @return the Island that MotherNature is currently on
      */
-    void setExtractor(MaxExtractor extractor) {
-        if (extractor == null) throw new IllegalArgumentException("extractor shouldn't be null");
-        this.extractor = extractor;
+    Island getCurrentIsland() {
+        return current;
     }
 
     /**
      * Executes a movement of the given number of steps. The number of steps should be greater or equal than 1.
+     * MotherNature, in case the given doesn't contain the current Island, will try to find a new Island with at least
+     * the same ids as the current one to start from.
      *
+     * @param list  the list on which to move
      * @param steps the number steps to take
+     * @throws IllegalArgumentException if {@code list} is null
      * @throws IllegalArgumentException if {@code steps} is less than 1
+     * @throws IllegalArgumentException if {@code list} doesn't contain any compatible Island
      */
-    void move(int steps) {
+    MotherNature move(List<Island> list, int steps) {
+        if (list == null) throw new IllegalArgumentException("list shouldn't be null");
         if (steps < 1) throw new IllegalArgumentException("Mother nature moves at least one step");
-        for (int i = 0; i < steps; i++) current = iterator.next();
-        assignTower();
-        if (current.isBlocked()) current.popBlock();
-        calculator = new StandardInfluenceCalculator();
-        extractor = new EqualityExclusiveMaxExtractor();
-    }
-
-    /**
-     * Assigns the current island to the {@link Player} that has the highest influence.
-     */
-    private void assignTower() {
-        assignTower(current);
-    }
-
-    /**
-     * Assigns the given {@link Island} to the {@link Player} that has the highest influence.
-     *
-     * @param island {@link Island} calculate influence on
-     * @throws IllegalArgumentException if {@code island} is null
-     */
-    void assignTower(Island island) {
-        if (island == null) throw new IllegalArgumentException("island shouldn't be null");
-        calculator.calculateInfluences(island).flatMap(extractor).ifPresent(island::conquer);
+        MotherNature ret = new MotherNature(this);
+        if (!list.contains(current)) { // the island got merged
+            ret.current = list.stream()
+                    .filter(i -> i.getIds().containsAll(current.getIds()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Could not find the old current island in the list"));
+        }
+        CyclicalIterator<Island> iterator = new CyclicalIterator<>(list, ret.current);
+        for (int i = 0; i < steps; i++)
+            ret.current = iterator.next();
+        return ret;
     }
 }
+

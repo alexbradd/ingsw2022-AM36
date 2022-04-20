@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -18,6 +20,7 @@ class StandardInfluenceCalculatorTest {
     private static InfluenceCalculator calculator;
     private static Professor professor1;
     private static Player player1, player2;
+    private static List<Professor> professorList;
     private Island island;
 
     /**
@@ -27,10 +30,20 @@ class StandardInfluenceCalculatorTest {
     static void staticSetUp() {
         calculator = new StandardInfluenceCalculator();
         professor1 = new Professor(PieceColor.RED);
-        player1 = new Player("Napoleon", 1, 10, TowerColor.BLACK);
-        player2 = new Player("Cesar", 1, 10, TowerColor.WHITE);
+        player1 = new Player("Napoleon");
+        player2 = new Player("Cesar");
 
         professor1.assign(player1);
+
+
+        professorList = new ArrayList<>();
+        professorList.add(professor1);
+        professorList.add(new Professor(PieceColor.YELLOW));
+        professorList.add(new Professor(PieceColor.GREEN));
+        professorList.add(new Professor(PieceColor.BLUE));
+        professorList.add(new Professor(PieceColor.PINK));
+
+
     }
 
     /**
@@ -46,7 +59,7 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void withNull() {
-        assertThrows(IllegalArgumentException.class, () -> calculator.calculateInfluences(null));
+        assertThrows(IllegalArgumentException.class, () -> calculator.calculateInfluences(null, professorList));
     }
 
     /**
@@ -54,7 +67,7 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void emptyIslandEmptyMap() {
-        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isPresent());
         assertTrue(inf.get().isEmpty());
     }
@@ -64,10 +77,9 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void blockedIslandNoMap() {
-        Herbalist blocker = new Herbalist();
-        island.pushBlock(blocker.popBlock());
+        island = island.pushBlock(new BlockCard(new Herbalist()));
 
-        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
         assertTrue(inf.isEmpty());
     }
 
@@ -76,13 +88,18 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void correctStudentInfluence() {
-        for (int i = 0; i < 10; i++)
-            island.receiveStudent(new Student(professor1));
-        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
+        island = island.updateStudents(c -> {
+            for (int i = 0; i < 10; i++) {
+                c = c.add(new Student(professor1.getColor()));
+            }
+            return c;
+        });
+
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
 
         assertTrue(inf.isPresent());
         Map<Player, Integer> map = inf.get();
-        assertEquals(map.get(player1), 10);
+        assertEquals(10, map.get(player1));
         assertNull(map.get(player2));
     }
 
@@ -91,13 +108,14 @@ class StandardInfluenceCalculatorTest {
      */
     @Test
     void correctTowerInfluence() {
-        Island child = new Island(1);
-
-        island.conquer(player1);
-        child.conquer(player1);
+        Island child = new Island(1)
+                .updateTowers(t -> List.of(new Tower(TowerColor.BLACK, player1)));
+        island = island
+                .updateTowers((t) -> List.of(new Tower(TowerColor.BLACK, player1)))
+                .merge(child);
         island.merge(child);
 
-        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island);
+        Optional<Map<Player, Integer>> inf = calculator.calculateInfluences(island, professorList);
 
         assertTrue(inf.isPresent());
         Map<Player, Integer> map = inf.get();
