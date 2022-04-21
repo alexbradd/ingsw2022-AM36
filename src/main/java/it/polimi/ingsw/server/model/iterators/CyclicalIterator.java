@@ -69,7 +69,7 @@ public class CyclicalIterator<E> implements Iterator<E> {
         if (!list.contains(start))
             throw new IllegalArgumentException("cannot start from an island that is not in the list");
         this.list = list;
-        currentIndex = list.indexOf(start) + 1;
+        currentIndex = list.indexOf(start);
     }
 
     /**

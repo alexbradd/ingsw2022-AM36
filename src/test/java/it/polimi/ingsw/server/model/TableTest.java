@@ -4,6 +4,8 @@ import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,10 +50,12 @@ class TableTest {
     /**
      * Check that updateMotherNature updates the internal motherNature if update function doesn't return null
      */
-    @Test
-    void updateMotherNature() {
-        Table updateMn = t.updateMotherNature(m -> null);
-        assertEquals(t.getMotherNature(), updateMn.getMotherNature());
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11})
+    void updateMotherNature(int pos) {
+        Table fixedMn = t.updateMotherNature(m -> new MotherNature(t.getIslandList(), pos));
+        Table updateMn = fixedMn.updateMotherNature(m -> null);
+        assertEquals(fixedMn.getMotherNature(), updateMn.getMotherNature());
 
         MotherNature old = updateMn.getMotherNature();
         updateMn = updateMn.updateMotherNature(m -> m.move(t.getIslandList(), 1));

@@ -81,6 +81,7 @@ class MotherNature {
                     .orElseThrow(() -> new IllegalArgumentException("Could not find the old current island in the list"));
         }
         CyclicalIterator<Island> iterator = new CyclicalIterator<>(list, ret.current);
+        iterator.next(); // discard current
         for (int i = 0; i < steps; i++)
             ret.current = iterator.next();
         return ret;
