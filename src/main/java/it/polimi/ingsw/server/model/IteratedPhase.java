@@ -24,13 +24,14 @@ abstract class IteratedPhase extends Phase {
     /**
      * Creates a new IteratedPhase with the given {@link Player} as its current.
      *
-     * @param table   the {@link Board} that this IteratedPhase will have
+     * @param old   the {@link Phase} that comes before this IteratedPhase
      * @param current the current {@link Player}
      * @throws IllegalArgumentException if any parameter is null
      */
-    IteratedPhase(Table table, Player current) {
-        if (table == null) throw new IllegalArgumentException("board cannot be null");
+    IteratedPhase(Phase old, Player current) {
+        super(old.parameters);
         if (current == null) throw new IllegalArgumentException("current cannot be null");
+        this.table = old.getTable();
         this.current = current;
     }
 
@@ -41,7 +42,7 @@ abstract class IteratedPhase extends Phase {
      * @throws IllegalArgumentException if {@code old} is null
      */
     IteratedPhase(IteratedPhase old) {
-        if (old == null) throw new IllegalArgumentException("old cannot be null");
+        super(old.parameters);
         this.table = old.table;
         this.current = old.current;
     }

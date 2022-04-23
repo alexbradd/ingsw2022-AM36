@@ -244,6 +244,15 @@ public class Board {
         return towers.size();
     }
 
+    /**
+     * Getter for the color of the towers held by the player.
+     *
+     * @return the TowerColor of the towers held by the player
+     */
+    TowerColor getTowersColor() {
+        return towersColor;
+    }
+
     // Hall and entrance updates
 
     /**
