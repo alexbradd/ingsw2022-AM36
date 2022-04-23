@@ -23,6 +23,25 @@ import java.util.function.Function;
  * @see EndgamePhase
  */
 public abstract class Phase {
+
+    /**
+     * The game's parameters.
+     */
+    protected final GameParameters parameters;
+
+    /**
+     * {@link GameParameters} constructor.
+     *
+     * @param parameters the game's parameters
+     * @throws IllegalArgumentException if {@code parameters == null}
+     */
+    Phase(GameParameters parameters) throws IllegalArgumentException {
+        if(parameters == null) {
+            throw new IllegalArgumentException("parameters shouldn't be null");
+        }
+        this.parameters = parameters;
+    }
+
     /**
      * Getter for this Phase's {@link Table}.
      *
