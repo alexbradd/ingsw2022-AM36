@@ -36,10 +36,30 @@ public abstract class Phase {
      * @throws IllegalArgumentException if {@code parameters == null}
      */
     Phase(GameParameters parameters) throws IllegalArgumentException {
-        if(parameters == null) {
+        if (parameters == null) {
             throw new IllegalArgumentException("parameters shouldn't be null");
         }
         this.parameters = parameters;
+    }
+
+    /**
+     * Copy constructor: copies this Phase's GameParameters
+     *
+     * @param old the phase to copy
+     * @throws IllegalArgumentException if {@code old} is null
+     */
+    Phase(Phase old) {
+        if (old == null) throw new IllegalArgumentException("old shouldn't be null");
+        this.parameters = old.parameters;
+    }
+
+    /**
+     * Getter for this Phase's GameParameters
+     *
+     * @return this Phase's GameParameters
+     */
+    GameParameters getParameters() {
+        return parameters;
     }
 
     /**

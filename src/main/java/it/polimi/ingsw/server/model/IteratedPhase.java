@@ -17,11 +17,14 @@ abstract class IteratedPhase extends Phase {
     /**
      * Creates a new IteratedPhase with the given {@link Player} as its current.
      *
-     * @param prev   the previous {@link Phase} of the game
+     * @param previous the previous Phase that led to the creation of this one
+     * @param current  the current {@link Player}
      * @throws IllegalArgumentException if any parameter is null
      */
-    IteratedPhase(Phase prev) throws IllegalArgumentException {
-        super(prev.parameters);
+    IteratedPhase(Phase previous, Player current) {
+        super(previous);
+        if (current == null) throw new IllegalArgumentException("current cannot be null");
+        this.current = current;
     }
 
     /**
@@ -30,15 +33,9 @@ abstract class IteratedPhase extends Phase {
      * @param old the IteratedPhase to copy
      * @throws IllegalArgumentException if {@code old} is null
      */
-     IteratedPhase(IteratedPhase old) throws IllegalArgumentException {
-        super(checkPhaseNotNull(old).parameters);
-        current = old.current;
-    }
-
-
-    IteratedPhase(Phase old, Player current) throws IllegalArgumentException {
-        super(checkPhaseNotNull(old).parameters);
-        this.current = current;
+    IteratedPhase(IteratedPhase old) {
+        super(old);
+        this.current = old.current;
     }
 
     /**
@@ -63,18 +60,5 @@ abstract class IteratedPhase extends Phase {
         if (username == null) throw new IllegalArgumentException("username cannot be null");
         if (!current.getUsername().equals(username)) throw new InvalidPlayerException();
         return getCurrentPlayer();
-    }
-
-    /**
-     * Helper method for controlling that the previous phase passed to the constructor is not null. It is a static method
-     * because it needs to be called before calling super().
-     *
-     * @param p the {@link Phase} to check
-     * @return {@code p} if {@code p != null}
-     * @throws IllegalArgumentException if {@code p} is null
-     */
-    private static Phase checkPhaseNotNull(Phase p) throws IllegalArgumentException {
-        if (p == null) throw new IllegalArgumentException("phase must not be null.");
-        return p;
     }
 }
