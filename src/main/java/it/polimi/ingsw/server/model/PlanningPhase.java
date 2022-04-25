@@ -158,8 +158,9 @@ public class PlanningPhase extends IteratedPhase {
         if (p.iterator.hasNext())
             return new PlanningPhase(p, p.iterator.next().getPlayer());
 
-        Player firstToPlay = new AssistantValueIterator(p.getTable().getBoards(), 0).next().getPlayer();
-        return new StudentMovePhase(p, firstToPlay);
+        AssistantValueIterator avi = new AssistantValueIterator(p.getTable().getBoards(), 0);
+        Player firstToPlay = avi.next().getPlayer();
+        return new StudentMovePhase(p, avi, firstToPlay);
     }
 
     /**
