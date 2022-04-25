@@ -360,6 +360,18 @@ abstract class ActionPhase extends IteratedPhase {
     }
 
     /**
+     * Convenience overload of {@link #assignTower(Island)}.
+     *
+     * @param index the index of the Island to assign towers to
+     * @return a new updated ActionPhase
+     */
+    ActionPhase assignTower(int index) {
+        if (index < 0 || index > table.getIslandList().size())
+            throw new IllegalArgumentException("island index out of bounds");
+        return assignTower(table.getIslandList().get(index));
+    }
+
+    /**
      * If blocked, pops one block from the island and returns it to the corresponding character.
      *
      * @param island the Island from which to pop the block

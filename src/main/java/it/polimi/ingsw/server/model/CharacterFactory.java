@@ -26,7 +26,7 @@ class CharacterFactory {
         ALL_CARDS = List.of(
                 () -> new PriestAndPrincess(PriestAndPrincess.Behaviour.PRIEST),
                 Innkeeper::new,
-//        Herald::new,
+                Herald::new,
                 Messenger::new,
                 Herbalist::new,
                 () -> new CentaurAndKnight(CentaurAndKnight.Behaviour.CENTAUR),
