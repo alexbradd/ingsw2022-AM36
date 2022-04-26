@@ -83,9 +83,9 @@ class PreparePhaseTest {
     @DisplayName("Basic test for picking a mage deck, then checking if the table is ready for the game.")
     void chooseMageTest() {
         CharacterFactory.setExtractableCards(List.of(
-                () -> new CentaurAndKnight(CentaurAndKnight.Behaviour.CENTAUR),
-                () -> new CentaurAndKnight(CentaurAndKnight.Behaviour.KNIGHT),
-                Messenger::new));
+                () -> new InfluenceDecoratingCharacter(InfluenceDecoratingCharacter.Behaviour.CENTAUR),
+                () -> new InfluenceDecoratingCharacter(InfluenceDecoratingCharacter.Behaviour.KNIGHT),
+                () -> new InfluenceDecoratingCharacter(InfluenceDecoratingCharacter.Behaviour.WIZARD)));
         try {
             assertEquals(2, prepare.getTable().getPlayers().size());
             prepare = prepare.chooseMageDeck(p1, Mage.FAIRY);

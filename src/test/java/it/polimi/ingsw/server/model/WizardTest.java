@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class WizardTest {
     private static ActionPhase ap;
-    private static Wizard w;
+    private static InfluenceDecoratingCharacter w;
 
     /**
      * Creates common state
@@ -31,7 +31,7 @@ class WizardTest {
                 .addPlayer(ann, 7, 8, TowerColor.BLACK)
                 .updateBoardOf(ann, b -> b.receiveDeck(deck).playAssistant(AssistantType.CHEETAH));
         ap = new MockActionPhase(t, ann);
-        w = new Wizard();
+        w = new InfluenceDecoratingCharacter(InfluenceDecoratingCharacter.Behaviour.WIZARD);
     }
 
     /**
