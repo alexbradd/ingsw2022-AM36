@@ -34,15 +34,15 @@ The final project will include:
 
 ## Implemented functionalities
 
-| Functionality       | Status       |
-|:-------------------:|:------------:|
-| Basic rules         | Implementing |
-| Complete rules      | Implementing |
-| All character cards | Implementing |
-| 4 player mode       | Not planned  |
-| Multiple games      | Implementing |
-| Persistence         | Implementing |
-| Resilience          | Not planned  |
+| Functionality       | Status                                                                  |
+|:-------------------:|:-----------------------------------------------------------------------:|
+| Basic rules         | Implemented ![#32](https://github.com/alexbradd/ingsw2022-AM36/pull/32) |
+| Complete rules      | Implemented ![#32](https://github.com/alexbradd/ingsw2022-AM36/pull/32) |
+| All character cards | Implemented ![#33](https://github.com/alexbradd/ingsw2022-AM36/pull/33) |
+| 4 player mode       | Not planned                                                             |
+| Multiple games      | Implementing                                                            |
+| Persistence         | Implementing                                                            |
+| Resilience          | Not planned                                                             |
 
 ## The team
 
