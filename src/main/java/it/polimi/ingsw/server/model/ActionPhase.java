@@ -185,9 +185,7 @@ abstract class ActionPhase extends IteratedPhase {
         ActionPhase a = this.shallowCopy();
         Hall old = a.table.getBoardOf(player).getHall();
         a.table = a.table.updateBoardOf(player, b -> b.updateHall(update));
-        if (a.getParameters().isExpertMode() && old.size() != a.table.getBoardOf(player).getHall().size())
-            a = a.giveCoins(player, old);
-        return a.reassignProfessors();
+        return a.handleHallUpdate(player, old);
     }
 
     /**
@@ -279,9 +277,12 @@ abstract class ActionPhase extends IteratedPhase {
         if (update == null) throw new IllegalArgumentException("update shouldn't be null");
         ActionPhase a = this.shallowCopy();
         for (Player p : a.table.getPlayers()) {
+            Hall old = a.table.getBoardOf(p).getHall();
             Board b = update.apply(a.table.getBoardOf(p));
-            if (b != null)
+            if (b != null) {
                 a.table = a.table.updateBoardOf(p, oldBoard -> b);
+                a = a.handleHallUpdate(p, old);
+            }
         }
         return a;
     }
@@ -662,6 +663,22 @@ abstract class ActionPhase extends IteratedPhase {
             return sack;
         });
         return new Tuple<>(ret, Optional.ofNullable(wrapper.drawn));
+    }
+
+    /**
+     * Puts the given list of Students in the sack
+     *
+     * @param students a list of Students
+     * @return a new ActionPhase with the updates
+     */
+    ActionPhase putInSack(List<Student> students) {
+        ActionPhase ret = shallowCopy();
+        ret.table = ret.table.updateSack(sack -> {
+            for (Student s : students)
+                sack = sack.add(s);
+            return sack;
+        });
+        return ret;
     }
 
     /**

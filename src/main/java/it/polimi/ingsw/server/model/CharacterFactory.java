@@ -34,8 +34,8 @@ class CharacterFactory {
                 () -> new CentaurAndKnight(CentaurAndKnight.Behaviour.KNIGHT),
                 Wizard::new,
                 Bard::new,
-                () -> new PriestAndPrincess(PriestAndPrincess.Behaviour.PRINCESS));
-//        Thief::new);
+                () -> new PriestAndPrincess(PriestAndPrincess.Behaviour.PRINCESS),
+                Thief::new);
         extractableCards = ALL_CARDS;
     }
 
