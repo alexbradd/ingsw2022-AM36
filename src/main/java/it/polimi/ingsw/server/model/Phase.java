@@ -65,6 +65,15 @@ public abstract class Phase {
     }
 
     /**
+     * Returns the name of this Phase
+     *
+     * @return the name of this Phase
+     */
+    String getName() {
+        return this.getClass().getSimpleName();
+    }
+
+    /**
      * Getter for this Phase's {@link Table}.
      *
      * @return this Phase's {@link Table}.
