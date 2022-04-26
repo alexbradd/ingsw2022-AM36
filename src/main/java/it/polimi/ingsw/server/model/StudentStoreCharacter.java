@@ -1,5 +1,8 @@
 package it.polimi.ingsw.server.model;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
@@ -197,5 +200,19 @@ abstract class StudentStoreCharacter extends Character implements StudentContain
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), container);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonElement toJson() {
+        JsonObject ret = super.toJson().getAsJsonObject();
+
+        JsonArray students = new JsonArray();
+        getStudents().forEach(s -> students.add(s.getColor().toString()));
+        ret.add("students", students);
+
+        return ret;
     }
 }

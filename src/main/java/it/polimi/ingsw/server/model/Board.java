@@ -1,5 +1,8 @@
 package it.polimi.ingsw.server.model;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import it.polimi.ingsw.server.model.exceptions.NoTowersException;
@@ -21,7 +24,7 @@ import java.util.function.Function;
  * @see Player
  */
 
-public class Board {
+public class Board implements Jsonable {
     /**
      * The {@link Player} who owns the board.
      */
@@ -411,5 +414,30 @@ public class Board {
                 .filter(e -> e.getAssistantType().equals(type))
                 .findFirst()
                 .orElseThrow();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonElement toJson() {
+        JsonObject ret = new JsonObject();
+        ret.addProperty("username", getPlayer().getUsername());
+        getLastPlayedAssistant().ifPresent(a ->
+                ret.addProperty("lastPlayedAssistant", a.getAssistantType().toString()));
+        ret.addProperty("coins", getCoins());
+
+        ret.add("entrance", getEntrance().toJson().getAsJsonArray());
+        ret.add("hall", getHall().toJson().getAsJsonArray());
+
+        JsonArray towers = new JsonArray();
+        this.towers.forEach(t -> towers.add(t.getColor().toString()));
+        ret.add("towers", towers);
+
+        JsonArray assistants = new JsonArray();
+        getAssistants().forEach(a -> assistants.add(a.getAssistantType().toString()));
+        ret.add("assistants", assistants);
+
+        return ret;
     }
 }

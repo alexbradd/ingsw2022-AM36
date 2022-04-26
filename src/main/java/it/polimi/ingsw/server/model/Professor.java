@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server.model;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 
 import java.util.Objects;
@@ -10,7 +12,7 @@ import java.util.Optional;
  *
  * @author Mattia Busso
  */
-public class Professor {
+public class Professor implements Jsonable {
 
     /**
      * The professor's piece color.
@@ -37,6 +39,7 @@ public class Professor {
 
     /**
      * Create a new Professor with the specified color and owner
+     *
      * @param color the color of the Professor
      * @param owner the owner of the Professor
      * @throws IllegalArgumentException if any parameter is null
@@ -86,5 +89,16 @@ public class Professor {
     @Override
     public int hashCode() {
         return Objects.hash(color, owner);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonElement toJson() {
+        JsonObject ret = new JsonObject();
+        ret.addProperty("color", getColor().toString());
+        getOwner().ifPresent(p -> ret.add("owner", p.toJson()));
+        return ret;
     }
 }

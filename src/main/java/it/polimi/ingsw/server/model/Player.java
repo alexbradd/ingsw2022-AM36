@@ -1,6 +1,9 @@
 package it.polimi.ingsw.server.model;
 
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
 import java.util.Objects;
 
 /**
@@ -11,7 +14,7 @@ import java.util.Objects;
  * @author Mattia Busso, Leonardo Bianconi
  * @see Board
  */
-public class Player {
+public class Player implements Jsonable {
     /**
      * The username of the player.
      */
@@ -60,5 +63,13 @@ public class Player {
     @Override
     public String toString() {
         return username;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonElement toJson() {
+        return new JsonPrimitive(getUsername());
     }
 }

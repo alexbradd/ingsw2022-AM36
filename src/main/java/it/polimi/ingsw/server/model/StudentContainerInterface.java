@@ -1,14 +1,16 @@
 package it.polimi.ingsw.server.model;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.ColorIsFullException;
 import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
-import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
 
 import java.util.EmptyStackException;
 import java.util.Set;
 
-interface StudentContainerInterface {
+interface StudentContainerInterface extends Jsonable {
 
     /**
      * It returns the total number of Students inside the Container.
@@ -61,7 +63,17 @@ interface StudentContainerInterface {
      * @param color the color of the student to remove
      * @return A {@link Tuple}<Container, Student> with the new container instance and the removed student
      * @throws IllegalArgumentException if the color passed is null
-     * @throws EmptyStackException if there are no students of the specified color in the container
+     * @throws EmptyStackException      if there are no students of the specified color in the container
      */
     Tuple<? extends StudentContainerInterface, Student> remove(PieceColor color) throws IllegalArgumentException, EmptyStackException;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    default JsonElement toJson() {
+        JsonArray students = new JsonArray();
+        getStudents().forEach(s -> students.add(s.getColor().toString()));
+        return students;
+    }
 }
