@@ -290,8 +290,9 @@ public class Island {
         Island island = (Island) o;
         return ids.equals(island.ids) &&
                 Objects.equals(container, island.container) &&
-                Objects.equals(blocks, island.blocks) &&
-                Objects.equals(towers, island.towers);
+                blocks.size() == island.blocks.size() &&
+                towers.size() == island.towers.size() &&
+                Objects.equals(getConqueringColor(), island.getConqueringColor());
     }
 
     /**

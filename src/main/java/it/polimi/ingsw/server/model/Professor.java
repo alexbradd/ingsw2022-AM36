@@ -2,6 +2,7 @@ package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.server.model.enums.PieceColor;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -64,5 +65,26 @@ public class Professor {
      */
     PieceColor getColor() {
         return color;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Professor professor = (Professor) o;
+        if (owner == null)
+            return color == professor.color && professor.owner == null;
+        return color == professor.color && owner.equals(professor.owner);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(color, owner);
     }
 }

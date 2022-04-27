@@ -6,6 +6,7 @@ import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
 
 import java.util.EmptyStackException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 
@@ -176,5 +177,25 @@ abstract class StudentStoreCharacter extends Character implements StudentContain
                         .map((character, student) -> new Tuple<>(stuffer.apply(originalPhase, student), character))
                         .map(retriever)
                         .map((f, s) -> new Tuple<>(f, s)));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        StudentStoreCharacter that = (StudentStoreCharacter) o;
+        return Objects.equals(container, that.container);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), container);
     }
 }

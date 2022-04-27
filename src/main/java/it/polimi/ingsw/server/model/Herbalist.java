@@ -159,7 +159,7 @@ class Herbalist extends Character {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Herbalist herbalist = (Herbalist) o;
-        return blocks.equals(herbalist.blocks);
+        return blocks.size() == herbalist.blocks.size();
     }
 
     /**

@@ -367,7 +367,7 @@ public class Board {
                 Objects.equals(lastPlayed, board.lastPlayed) &&
                 Objects.equals(entrance, board.entrance) &&
                 Objects.equals(hall, board.hall) &&
-                Objects.equals(towers, board.towers) &&
+                towers.size() == board.towers.size() &&
                 towersColor == board.towersColor;
     }
 
