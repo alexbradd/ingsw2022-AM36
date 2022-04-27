@@ -30,7 +30,7 @@ class CharacterFactory {
                 Messenger::new,
                 Herbalist::new,
                 () -> new InfluenceDecoratingCharacter(InfluenceDecoratingCharacter.Behaviour.CENTAUR),
-//        Jester::new.
+                Jester::new,
                 () -> new InfluenceDecoratingCharacter(InfluenceDecoratingCharacter.Behaviour.KNIGHT),
                 () -> new InfluenceDecoratingCharacter(InfluenceDecoratingCharacter.Behaviour.WIZARD),
                 Bard::new,
