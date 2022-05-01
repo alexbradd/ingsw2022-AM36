@@ -36,9 +36,9 @@ The final project will include:
 
 | Functionality       | Status                                                                  |
 |:-------------------:|:-----------------------------------------------------------------------:|
-| Basic rules         | Implemented ![#32](https://github.com/alexbradd/ingsw2022-AM36/pull/32) |
-| Complete rules      | Implemented ![#32](https://github.com/alexbradd/ingsw2022-AM36/pull/32) |
-| All character cards | Implemented ![#33](https://github.com/alexbradd/ingsw2022-AM36/pull/33) |
+| Basic rules         | Implemented [#32](https://github.com/alexbradd/ingsw2022-AM36/pull/32) |
+| Complete rules      | Implemented [#32](https://github.com/alexbradd/ingsw2022-AM36/pull/32) |
+| All character cards | Implemented [#33](https://github.com/alexbradd/ingsw2022-AM36/pull/33) |
 | 4 player mode       | Not planned                                                             |
 | Multiple games      | Implementing                                                            |
 | Persistence         | Implementing                                                            |
@@ -46,9 +46,9 @@ The final project will include:
 
 ## The team
 
-- ![Alexandru Gabriel Bradatan](https://github.com/alexbradd)
-- ![Leonardo Bianconi](https://github.com/leo-bianconi)
-- ![Mattia Busso](https://github.com/mattia-busso)
+- [Alexandru Gabriel Bradatan](https://github.com/alexbradd)
+- [Leonardo Bianconi](https://github.com/leo-bianconi)
+- [Mattia Busso](https://github.com/mattia-busso)
 
 ## Software used
 
@@ -61,5 +61,5 @@ The final project will include:
 Graphic assets have been provided by Cranio Creations SRL. Eriantys is a
 Cranio Creations SRL product, all rights belong to their respective owners.
 
-The code is licensed under the ![MIT license](https://github.com/alexbradd/ingsw2022-AM36/blob/main/LICENSE).
+The code is licensed under the [MIT license](https://github.com/alexbradd/ingsw2022-AM36/blob/main/LICENSE).
 You may not use this software except in compliance with the license.
