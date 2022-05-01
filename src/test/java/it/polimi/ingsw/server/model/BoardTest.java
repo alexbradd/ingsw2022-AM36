@@ -46,6 +46,10 @@ public class BoardTest {
     private TowerColor towerColor;
 
     /**
+     * The maximum number of towers in the player's board.
+     */
+    private int numTowers;
+    /**
      * Initializes the other tests and tests the constructor.
      */
     @BeforeAll
@@ -54,7 +58,7 @@ public class BoardTest {
     void initTest() {
         String playerUsername = "John";
         int entranceSize = 9;
-        int numTowers = 9;
+        numTowers = 9;
         towerColor = TowerColor.WHITE;
 
         player = new Player(playerUsername);
@@ -123,9 +127,12 @@ public class BoardTest {
     @Test
     @DisplayName("receiveTower() and sendTower() methods test")
     void towersFlowTest() {
-        assertThrows(IllegalStateException.class, () -> board.receiveTower(new Tower(towerColor, player)));
         assertThrows(IllegalArgumentException.class, () -> board.receiveTower(new Tower(TowerColor.BLACK, player)));
         assertThrows(IllegalArgumentException.class, () -> board.receiveTower(null));
+
+        for (int i = 0; i < numTowers; i++)
+            board = board.receiveTower(new Tower(towerColor, player));
+        assertThrows(IllegalStateException.class, () -> board.receiveTower(new Tower(towerColor, player)));
 
         int lastNumTowers = board.getNumOfTowers();
         while(lastNumTowers != 0) {

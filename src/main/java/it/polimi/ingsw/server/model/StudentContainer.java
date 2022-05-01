@@ -4,7 +4,6 @@ import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * This class represents a place on the game board containing a certain number (also infinite, theoretically) of students.
