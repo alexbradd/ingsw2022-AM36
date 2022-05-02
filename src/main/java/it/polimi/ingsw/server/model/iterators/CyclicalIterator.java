@@ -1,7 +1,5 @@
 package it.polimi.ingsw.server.model.iterators;
 
-import it.polimi.ingsw.server.model.Island;
-
 import java.util.Iterator;
 import java.util.List;
 

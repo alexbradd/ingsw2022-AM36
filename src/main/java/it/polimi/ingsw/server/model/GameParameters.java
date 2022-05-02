@@ -8,10 +8,16 @@ public class GameParameters {
     private final int nOfCharacters = 3;
     private final int nOfProfessors = 5;
     private final int nStudentsOfColor = 26;
+    private final int nIslands = 12;
     private final int nStudentsEntrance;
     private final int nStudentsMovable;
     private final int nTowers;
     private final boolean expertMode;
+
+    /**
+     * The number of students of each color to place on the Islands during initialization.
+     */
+    private final int nStudentsInSack = 2;
 
     private GameParameters(int nPlayers, int nStudentsEntrance, int nStudentsMovable, int nTowers, boolean expertMode) {
         this.nPlayers = nPlayers;
@@ -76,13 +82,15 @@ public class GameParameters {
     }
 
     /**
-     * Returns the number of Towers each player should have
+     * Returns the number of Towers each player should have at the beginning of the game.
      *
-     * @return the number of Towers each player should have
+     * @return the number of Towers each player should have at the beginning of the game
      */
     public int getnTowers() {
         return nTowers;
     }
+
+    public int getnIslands() { return nIslands; }
 
     /**
      * Return true if this match is being played in expertMode
@@ -91,6 +99,10 @@ public class GameParameters {
      */
     public boolean isExpertMode() {
         return expertMode;
+    }
+
+    public int getnStudentsInSack() {
+        return nStudentsInSack;
     }
 
     /**

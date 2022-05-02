@@ -97,9 +97,6 @@ public class Board {
         towers = new Stack<>();
         maxNumTowers = numTowers;
         towersColor = color;
-        for (int i = 0; i < numTowers; i++) {
-            towers.add(new Tower(color, this.getPlayer()));
-        }
     }
 
 

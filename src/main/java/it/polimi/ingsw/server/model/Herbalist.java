@@ -2,8 +2,6 @@ package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.server.model.enums.CharacterType;
 
-import java.util.function.Consumer;
-
 class Herbalist extends Character {
     private int blocks;
 

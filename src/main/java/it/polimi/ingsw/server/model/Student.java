@@ -35,4 +35,9 @@ final class Student {
     PieceColor getColor() {
         return this.color;
     }
+
+    @Override
+    public String toString() {
+        return color.toString();
+    }
 }

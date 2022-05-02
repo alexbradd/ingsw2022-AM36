@@ -3,8 +3,6 @@ package it.polimi.ingsw.server.model;
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.Mage;
 
-import java.util.Objects;
-
 /**
  * This class models the game's assistant cards.
  * It holds an {@link AssistantType} enumeration to store the card value

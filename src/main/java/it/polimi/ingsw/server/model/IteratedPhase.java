@@ -2,8 +2,6 @@ package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
 
-import java.util.Objects;
-
 /**
  * The IteratedPhase class represents a {@link Phase} that has a current player that is authorized to modify the state
  * of the game.
@@ -12,27 +10,18 @@ import java.util.Objects;
  */
 abstract class IteratedPhase extends Phase {
     /**
-     * This Phase's Table
-     */
-    private Table table;
-
-    /**
      * The current Player's username of this IteratedPhase.
      */
-    private final Player current;
+    private Player current;
 
     /**
      * Creates a new IteratedPhase with the given {@link Player} as its current.
      *
-     * @param old   the {@link Phase} that comes before this IteratedPhase
-     * @param current the current {@link Player}
+     * @param prev   the previous {@link Phase} of the game
      * @throws IllegalArgumentException if any parameter is null
      */
-    IteratedPhase(Phase old, Player current) {
-        super(old.parameters);
-        if (current == null) throw new IllegalArgumentException("current cannot be null");
-        this.table = old.getTable();
-        this.current = current;
+    IteratedPhase(Phase prev) throws IllegalArgumentException {
+        super(prev.parameters);
     }
 
     /**
@@ -41,10 +30,15 @@ abstract class IteratedPhase extends Phase {
      * @param old the IteratedPhase to copy
      * @throws IllegalArgumentException if {@code old} is null
      */
-    IteratedPhase(IteratedPhase old) {
-        super(old.parameters);
-        this.table = old.table;
-        this.current = old.current;
+     IteratedPhase(IteratedPhase old) throws IllegalArgumentException {
+        super(checkPhaseNotNull(old).parameters);
+        current = old.current;
+    }
+
+
+    IteratedPhase(Phase old, Player current) throws IllegalArgumentException {
+        super(checkPhaseNotNull(old).parameters);
+        this.current = current;
     }
 
     /**
@@ -52,16 +46,35 @@ abstract class IteratedPhase extends Phase {
      *
      * @return this phase's current player.
      */
+
     Player getCurrentPlayer() {
         return current;
+    }
+
+    void setCurrentPlayer(Player p) {
+        this.current = p;
     }
 
     /**
      * {@inheritDoc}
      */
+
     public Player authorizePlayer(String username) throws InvalidPlayerException {
         if (username == null) throw new IllegalArgumentException("username cannot be null");
         if (!current.getUsername().equals(username)) throw new InvalidPlayerException();
         return getCurrentPlayer();
+    }
+
+    /**
+     * Helper method for controlling that the previous phase passed to the constructor is not null. It is a static method
+     * because it needs to be called before calling super().
+     *
+     * @param p the {@link Phase} to check
+     * @return {@code p} if {@code p != null}
+     * @throws IllegalArgumentException if {@code p} is null
+     */
+    private static Phase checkPhaseNotNull(Phase p) throws IllegalArgumentException {
+        if (p == null) throw new IllegalArgumentException("phase must not be null.");
+        return p;
     }
 }

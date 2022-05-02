@@ -183,10 +183,10 @@ class TableTest {
         Table update = preUpdate.updateBoardOf(ann, b -> null);
         assertEquals(update, preUpdate);
 
-        update = update.updateBoardOf(ann, b -> b.sendTower().getFirst());
+        update = update.updateBoardOf(ann, b -> b.receiveTower(new Tower(TowerColor.BLACK, ann)));
         assertNotEquals(preUpdate.getBoardOf(ann), update.getBoardOf(ann));
         assertNotSame(preUpdate.getBoardOf(ann), update.getBoardOf(ann));
-        assertEquals(7, update.getBoardOf(ann).getNumOfTowers());
+        assertEquals(1, update.getBoardOf(ann).getNumOfTowers());
     }
 
     /**
