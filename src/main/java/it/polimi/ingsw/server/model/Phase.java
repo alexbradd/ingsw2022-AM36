@@ -3,10 +3,12 @@ package it.polimi.ingsw.server.model;
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.Mage;
+import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
 
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -36,10 +38,30 @@ public abstract class Phase {
      * @throws IllegalArgumentException if {@code parameters == null}
      */
     Phase(GameParameters parameters) throws IllegalArgumentException {
-        if(parameters == null) {
+        if (parameters == null) {
             throw new IllegalArgumentException("parameters shouldn't be null");
         }
         this.parameters = parameters;
+    }
+
+    /**
+     * Copy constructor: copies this Phase's GameParameters
+     *
+     * @param old the phase to copy
+     * @throws IllegalArgumentException if {@code old} is null
+     */
+    Phase(Phase old) {
+        if (old == null) throw new IllegalArgumentException("old shouldn't be null");
+        this.parameters = old.parameters;
+    }
+
+    /**
+     * Getter for this Phase's GameParameters
+     *
+     * @return this Phase's GameParameters
+     */
+    GameParameters getParameters() {
+        return parameters;
     }
 
     /**
@@ -81,14 +103,15 @@ public abstract class Phase {
     }
 
     /**
-     * Applies the given update to the Entrance of the given {@link Player}.
+     * Retrieve a Student from the specified Player's entrance
      *
-     * @param player the {@link Player} of whom the Entrance will be updated
-     * @param update the update to apply
-     * @return a new Phase containing the update
-     * @throws IllegalArgumentException if any parameter is null
+     * @param player the Player of whom board to modify
+     * @param color  the color to get from the entrance
+     * @return a {@link Tuple} containing a Phase with the changes applied and the Student extracted
+     * @throws InvalidPhaseUpdateException if the player's entrance doesn't have enough students of the specified color
+     * @throws IllegalArgumentException    if any parameter is null
      */
-    public Phase updateEntrance(Player player, Function<BoundedStudentContainer, BoundedStudentContainer> update) throws InvalidPhaseUpdateException {
+    public Tuple<? extends Phase, Student> getFromEntrance(Player player, PieceColor color) throws InvalidPhaseUpdateException {
         throw new UnsupportedOperationException();
     }
 
@@ -213,5 +236,26 @@ public abstract class Phase {
      */
     public Phase removePlayer(String username) throws InvalidPhaseUpdateException {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Returns true if this Phase corresponds to a "game ended" scenario.
+     *
+     * @return true if this Phase corresponds to a "game ended" scenario
+     */
+    boolean isFinal() {
+        return false;
+    }
+
+    /**
+     * Returns a list with all the Players that meet the winner criteria. If the list is of length greater than 1, we
+     * are in a tie situation. If the list is empty, that means that this phase isn't a final phase. To see the cases in
+     * which a Player is a winner, check the game rules.
+     *
+     * @return a list with all the Players that meet the winner criteria
+     * @see Phase#isFinal()
+     */
+    List<Player> getWinners() {
+        return List.of();
     }
 }

@@ -1,6 +1,9 @@
 package it.polimi.ingsw.server.model;
 
-import it.polimi.ingsw.server.model.enums.*;
+import it.polimi.ingsw.server.model.enums.AssistantType;
+import it.polimi.ingsw.server.model.enums.CharacterType;
+import it.polimi.ingsw.server.model.enums.Mage;
+import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -71,7 +74,7 @@ class PreparePhaseTest {
         assertThrows(UnsupportedOperationException.class,
                 () -> prepare.updateHall(p1, hall -> hall = hall.add(new Student(PieceColor.RED))));
         assertThrows(UnsupportedOperationException.class,
-                () -> prepare.updateEntrance(p1, e -> e = e.add(new Student(PieceColor.RED))));
+                () -> prepare.getFromEntrance(p1, PieceColor.PINK));
         assertThrows(UnsupportedOperationException.class,
                 () -> prepare.updateIsland(p1, 0, i -> i = i.add(new Student(PieceColor.RED))));
     }
@@ -79,6 +82,10 @@ class PreparePhaseTest {
     @Test
     @DisplayName("Basic test for picking a mage deck, then checking if the table is ready for the game.")
     void chooseMageTest() {
+        CharacterFactory.setExtractableCards(List.of(
+                () -> new CentaurAndKnight(CentaurAndKnight.Behaviour.CENTAUR),
+                () -> new CentaurAndKnight(CentaurAndKnight.Behaviour.KNIGHT),
+                Messenger::new));
         try {
             assertEquals(2, prepare.getTable().getPlayers().size());
             prepare = prepare.chooseMageDeck(p1, Mage.FAIRY);

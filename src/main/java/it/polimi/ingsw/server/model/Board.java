@@ -315,6 +315,15 @@ public class Board {
 // Coins management
 
     /**
+     * Returns the number of coins on this Board
+     *
+     * @return the number of coins on this Board
+     */
+    public int getCoins() {
+        return coins;
+    }
+
+    /**
      * The player spends {@code num_coins} coins. This method then returns a new Board instance with the updated
      * internal state
      *

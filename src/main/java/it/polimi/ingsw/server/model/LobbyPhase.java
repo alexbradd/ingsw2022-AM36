@@ -37,11 +37,10 @@ public class LobbyPhase extends Phase {
      * Constructor that creates a copy of a {@code LobbyPhase} instance passed.
      *
      * @param old the old {@code LobbyPhase} instance
-     * @throws NullPointerException if {@code old == null}
      * @throws IllegalArgumentException if {@code old.parameters == null}
      */
-    LobbyPhase(LobbyPhase old) throws IllegalArgumentException, NullPointerException {
-        super(old.parameters);
+    LobbyPhase(LobbyPhase old) throws IllegalArgumentException {
+        super(old);
         table = old.table;
     }
 

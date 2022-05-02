@@ -8,7 +8,9 @@ import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.server.model.iterators.ClockWiseIterator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -44,7 +46,7 @@ public class PreparePhase extends IteratedPhase {
      *
      * @param p the {@code LobbyPhase} instance
      */
-    PreparePhase(LobbyPhase p) throws IllegalArgumentException {
+    PreparePhase(Phase p) throws IllegalArgumentException {
         super(p, p.getTable().getPlayers().get(0));
 
         table = p.getTable();
@@ -54,6 +56,7 @@ public class PreparePhase extends IteratedPhase {
     }
 
     // PreparePhase -> PreparePhase
+
     /**
      * Shallow copy constructor given the previous {@code PreparePhase}.
      *
@@ -70,7 +73,7 @@ public class PreparePhase extends IteratedPhase {
      * Shallow copy constructor given the previous {@code PreparePhase}, allows to specify a different {@link Player} to
      * play the round.
      *
-     * @param prev the previous {@code PreparePhase} instance
+     * @param prev    the previous {@code PreparePhase} instance
      * @param current the {@code Player} to play the round
      */
     PreparePhase(PreparePhase prev, Player current) throws IllegalArgumentException {
@@ -140,8 +143,8 @@ public class PreparePhase extends IteratedPhase {
      *     <li>The {@code List<Cloud>} is populated</li>
      *     <li>Every {@code Board} receives {@link GameParameters#getnTowers()} towers</li>
      *     <li>Every {@code Board} receives {@link GameParameters#getnStudentsEntrance()} students</li>
-     *     <li>If {@link GameParameters#isExpertMode()} {@code == true}, distribute coins and pick
-     *              {@link GameParameters#getnOfCharacters()} {@code Character}s</li>
+     *     <li>If {@link GameParameters#isExpertMode()} {@code == true}, distribute coins pick
+     *              {@link GameParameters#getnOfCharacters()} {@code Character}s and execute the PreparePhase hook</li>
      * </ul>
      *
      * @param phase the phase on which to perform the initialization operations
@@ -156,7 +159,9 @@ public class PreparePhase extends IteratedPhase {
                 .distributeStudents()
                 .distributeTowers();
 
-        return parameters.isExpertMode() ? standard.distributeCoins().pickCharacters() : standard;
+        return parameters.isExpertMode()
+                ? standard.distributeCoins().pickCharacters().executeCharacterHook()
+                : standard;
     }
 
     /**
@@ -308,13 +313,36 @@ public class PreparePhase extends IteratedPhase {
     }
 
     /**
+     * Runs the PreparePhase hooks of the various Character cards
+     *
+     * @return the new updated {@code PreparePhase}
+     */
+    private PreparePhase executeCharacterHook() {
+        PreparePhase p = new PreparePhase(this);
+        for (Character character : table.getCharacters()) {
+            p = character.doPrepare(p)
+                    .map((preparePhase, updatedCharacter) -> preparePhase
+                            .updateTable(t -> t
+                                    .updateCharacters(cs -> {
+                                        cs.replaceAll(c -> {
+                                            if (c.getCharacterType() == updatedCharacter.getCharacterType())
+                                                return updatedCharacter;
+                                            return c;
+                                        });
+                                        return cs;
+                                    })));
+        }
+        return p;
+    }
+
+    /**
      * Helper method that extracts one {@code Student} from the {@code Sack}, and returns the update, as a {@link Tuple}
      * containing the updated {@code PreparePhase} and the retrieved {@code Student}.
      *
      * @return a {@link Tuple} containing the updated {@code PreparePhase} and the retrieved {@code Student}.
      * @throws EmptyContainerException if the {@code Sack} is empty
      */
-    private Tuple<PreparePhase, Student> extractFromSack() throws EmptyContainerException {
+    Tuple<PreparePhase, Student> extractFromSack() throws EmptyContainerException {
         var wrapper = new Object() {
             Student drawn = null;
         };

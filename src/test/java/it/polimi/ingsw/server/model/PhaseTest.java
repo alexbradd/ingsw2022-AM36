@@ -17,7 +17,7 @@ public class PhaseTest {
      */
     @Test
     void assertNotImplementedException() {
-        MockPhase p = new MockPhase(GameParameters.twoPlayerGame(false));
+        MockPhase p = new MockPhase(GameParameters.twoPlayerGame(true));
         assertThrows(UnsupportedOperationException.class, p::getTable);
         assertThrows(UnsupportedOperationException.class, () -> p.authorizePlayer(null));
         assertThrows(UnsupportedOperationException.class, () -> p.chooseMageDeck(null, null));
@@ -28,7 +28,7 @@ public class PhaseTest {
         assertThrows(UnsupportedOperationException.class, () -> p.removePlayer(null));
         assertThrows(UnsupportedOperationException.class, () -> p.playAssistant(null, AssistantType.CHEETAH));
         assertThrows(UnsupportedOperationException.class, () -> p.playCharacter(null, CharacterType.HERBALIST, null));
-        assertThrows(UnsupportedOperationException.class, () -> p.updateEntrance(null, null));
+        assertThrows(UnsupportedOperationException.class, () -> p.getFromEntrance(null, null));
         assertThrows(UnsupportedOperationException.class, () -> p.updateHall(null, null));
         assertThrows(UnsupportedOperationException.class, () -> p.updateIsland(null, 0, null));
     }
@@ -37,8 +37,13 @@ public class PhaseTest {
      * Mock a concrete phase implementation
      */
     private static class MockPhase extends Phase {
+
         MockPhase(GameParameters parameters) {
             super(parameters);
+        }
+
+        MockPhase(Phase old) {
+            super(old);
         }
     }
 }

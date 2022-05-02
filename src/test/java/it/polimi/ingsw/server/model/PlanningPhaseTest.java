@@ -81,7 +81,7 @@ class PlanningPhaseTest {
             assertThrows(UnsupportedOperationException.class,
                     () -> plan.updateHall(p1, hall -> hall = hall.add(new Student(PieceColor.RED))));
             assertThrows(UnsupportedOperationException.class,
-                    () -> plan.updateEntrance(p1, e -> e = e.add(new Student(PieceColor.RED))));
+                    () -> plan.getFromEntrance(p1, PieceColor.PINK));
             assertThrows(UnsupportedOperationException.class,
                     () -> plan.updateIsland(p1, 0, i -> i = i.add(new Student(PieceColor.RED))));
         }

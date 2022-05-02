@@ -202,5 +202,15 @@ class TableTest {
             super(type);
             this.type = type;
         }
+
+        /**
+         * Abstract method that returns a shallow copy of the current object.
+         *
+         * @return returns a shallow copy of the current object.
+         */
+        @Override
+        Character shallowCopy() {
+            return new MockCharacter(type);
+        }
     }
 }
