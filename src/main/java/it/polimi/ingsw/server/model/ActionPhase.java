@@ -161,6 +161,21 @@ abstract class ActionPhase extends IteratedPhase {
     }
 
     /**
+     * Applies the given update to the specified player's entrance
+     *
+     * @param player the player whose entrance to update
+     * @param update the update to apply
+     * @return a new Update ActionPhase
+     */
+    ActionPhase updateEntrance(Player player, Function<BoundedStudentContainer, BoundedStudentContainer> update) {
+        if (player == null) throw new IllegalArgumentException("player shouldn't be null");
+        if (update == null) throw new IllegalArgumentException("update cannot be null");
+        ActionPhase a = this.shallowCopy();
+        a.table = a.table.updateBoardOf(player, b -> b.updateEntrance(update));
+        return a;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -170,6 +185,36 @@ abstract class ActionPhase extends IteratedPhase {
         ActionPhase a = this.shallowCopy();
         Hall old = a.table.getBoardOf(player).getHall();
         a.table = a.table.updateBoardOf(player, b -> b.updateHall(update));
+        return a.handleHallUpdate(player, old);
+    }
+
+    /**
+     * Like {@link #unsafeGetFromEntrance(Player, PieceColor)}, however with Halls.
+     *
+     * @param player the Player of whom board to modify
+     * @param color  the color to get
+     * @return a {@link Tuple} containing a Phase with the changes applied and the Student extracted
+     * @throws IllegalArgumentException if any argument is null
+     */
+    Tuple<ActionPhase, Student> getFromHall(Player player, PieceColor color) {
+        if (player == null) throw new IllegalArgumentException("player shouldn't be null");
+        if (color == null) throw new IllegalArgumentException("color cannot be null");
+        Tuple<Hall, Student> update = table.getBoardOf(player).getHall().remove(color);
+        return update.map((container, student) -> {
+            ActionPhase a = this.updateHall(player, h -> container);
+            return new Tuple<>(a, student);
+        });
+    }
+
+    /**
+     * Handles a change of the given player Hall from the old one.
+     *
+     * @param player the player whose hall to update
+     * @param old    the old Hall
+     * @return a new update ActionPhase
+     */
+    private ActionPhase handleHallUpdate(Player player, Hall old) {
+        ActionPhase a = shallowCopy();
         if (a.getParameters().isExpertMode() && old.size() != a.table.getBoardOf(player).getHall().size())
             a = a.giveCoins(player, old);
         return a.reassignProfessors();
@@ -232,9 +277,12 @@ abstract class ActionPhase extends IteratedPhase {
         if (update == null) throw new IllegalArgumentException("update shouldn't be null");
         ActionPhase a = this.shallowCopy();
         for (Player p : a.table.getPlayers()) {
+            Hall old = a.table.getBoardOf(p).getHall();
             Board b = update.apply(a.table.getBoardOf(p));
-            if (b != null)
+            if (b != null) {
                 a.table = a.table.updateBoardOf(p, oldBoard -> b);
+                a = a.handleHallUpdate(p, old);
+            }
         }
         return a;
     }
@@ -357,6 +405,18 @@ abstract class ActionPhase extends IteratedPhase {
                         .map(t -> t.getFirst().replaceTowersOnIsland(island, t.getSecond()))
                         .map(t -> t.getFirst().sendTowersToOwner(t.getSecond())))
                 .orElseGet(() -> this.shallowCopy().popBlockFromIsland(island));
+    }
+
+    /**
+     * Convenience overload of {@link #assignTower(Island)}.
+     *
+     * @param index the index of the Island to assign towers to
+     * @return a new updated ActionPhase
+     */
+    ActionPhase assignTower(int index) {
+        if (index < 0 || index > table.getIslandList().size())
+            throw new IllegalArgumentException("island index out of bounds");
+        return assignTower(table.getIslandList().get(index));
     }
 
     /**
@@ -603,6 +663,22 @@ abstract class ActionPhase extends IteratedPhase {
             return sack;
         });
         return new Tuple<>(ret, Optional.ofNullable(wrapper.drawn));
+    }
+
+    /**
+     * Puts the given list of Students in the sack
+     *
+     * @param students a list of Students
+     * @return a new ActionPhase with the updates
+     */
+    ActionPhase putInSack(List<Student> students) {
+        ActionPhase ret = shallowCopy();
+        ret.table = ret.table.updateSack(sack -> {
+            for (Student s : students)
+                sack = sack.add(s);
+            return sack;
+        });
+        return ret;
     }
 
     /**

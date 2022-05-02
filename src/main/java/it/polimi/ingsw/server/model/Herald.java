@@ -1,20 +1,19 @@
 package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.server.model.enums.CharacterType;
-import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 
 /**
- * Represents the Wizard card.
+ * Represents the Herald character card.
  *
  * @author Alexandru Gabriel Bradatan
  */
-class Wizard extends Character {
+class Herald extends Character {
     /**
      * Base constructor. Sets up only the card's initial cost and character
      */
-    Wizard() {
-        super(CharacterType.WIZARD);
+    Herald() {
+        super(CharacterType.HERALD);
     }
 
     /**
@@ -23,26 +22,16 @@ class Wizard extends Character {
      * @param old Character to copy
      * @throws IllegalArgumentException if {@code old} is null
      */
-    private Wizard(Character old) {
+    private Herald(Character old) {
         super(old);
     }
 
     /**
-     * Abstract method that returns a shallow copy of the current object.
-     *
-     * @return returns a shallow copy of the current object.
-     */
-    @Override
-    Character shallowCopy() {
-        return new Wizard(this);
-    }
-
-    /**
-     * Pick one student color and exclude it from influence calculation. This card uses 1 step. The parameters are the
-     * following:
+     * Request an extra influence calculation on the given island. This card uses 1 step, any more will be ignored. The
+     * parameters used in the step are the following:
      *
      * <ul>
-     *     <li>color: color of the student to ignore</li>
+     *     <li>island: island index on which the calculation should be performed</li>
      * </ul>
      *
      * @param phase the {@link ActionPhase} the card's effect has been called from
@@ -54,14 +43,18 @@ class Wizard extends Character {
     @Override
     Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException {
         checkEffectParameters(phase, steps, 1);
-        PieceColor toIgnore = steps[0].getParameterAsColor("color");
+        int islandIndex = steps[0].getParameterAsIslandIndex("island", phase);
         return super.doEffect(phase, steps)
-                .map(t -> {
-                    ActionPhase p = t.getFirst();
-                    InfluenceCalculator i = p.getInfluenceCalculator();
-                    return new Tuple<>(
-                            p.setInfluenceCalculator(new RemoveStudentInfluenceDecorator(i, toIgnore)),
-                            t.getSecond());
-                });
+                .map(((actionPhase, character) -> new Tuple<>(actionPhase.assignTower(islandIndex), character)));
+    }
+
+    /**
+     * Abstract method that returns a shallow copy of the current object.
+     *
+     * @return returns a shallow copy of the current object.
+     */
+    @Override
+    Character shallowCopy() {
+        return new Herald(this);
     }
 }

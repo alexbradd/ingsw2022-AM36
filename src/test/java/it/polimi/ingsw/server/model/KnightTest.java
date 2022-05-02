@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class KnightTest {
     private static ActionPhase ap;
-    private static CentaurAndKnight k;
+    private static InfluenceDecoratingCharacter k;
 
     /**
      * Creates common state
@@ -33,7 +33,7 @@ class KnightTest {
                 .updateBoardOf(ann, b -> b.receiveDeck(deck).playAssistant(AssistantType.CHEETAH));
         AssistantValueIterator avi = new AssistantValueIterator(t.getBoards(), 0);
         ap = new MockActionPhase(t, ann);
-        k = new CentaurAndKnight(CentaurAndKnight.Behaviour.KNIGHT);
+        k = new InfluenceDecoratingCharacter(InfluenceDecoratingCharacter.Behaviour.KNIGHT);
     }
 
     /**

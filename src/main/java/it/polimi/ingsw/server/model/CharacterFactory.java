@@ -26,16 +26,16 @@ class CharacterFactory {
         ALL_CARDS = List.of(
                 () -> new PriestAndPrincess(PriestAndPrincess.Behaviour.PRIEST),
                 Innkeeper::new,
-//        Herald::new,
+                Herald::new,
                 Messenger::new,
                 Herbalist::new,
-                () -> new CentaurAndKnight(CentaurAndKnight.Behaviour.CENTAUR),
-//        Jester::new.
-                () -> new CentaurAndKnight(CentaurAndKnight.Behaviour.KNIGHT),
-                Wizard::new,
-//        Bard::new,
-                () -> new PriestAndPrincess(PriestAndPrincess.Behaviour.PRINCESS));
-//        Thief::new);
+                () -> new InfluenceDecoratingCharacter(InfluenceDecoratingCharacter.Behaviour.CENTAUR),
+                Jester::new,
+                () -> new InfluenceDecoratingCharacter(InfluenceDecoratingCharacter.Behaviour.KNIGHT),
+                () -> new InfluenceDecoratingCharacter(InfluenceDecoratingCharacter.Behaviour.WIZARD),
+                Bard::new,
+                () -> new PriestAndPrincess(PriestAndPrincess.Behaviour.PRINCESS),
+                Thief::new);
         extractableCards = ALL_CARDS;
     }
 
