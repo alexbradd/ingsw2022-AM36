@@ -159,7 +159,9 @@ final class StudentContainer implements StudentContainerInterface {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StudentContainer that = (StudentContainer) o;
-        return Objects.equals(students, that.students);
+        return this.students.entrySet().stream()
+                .map(e -> that.students.get(e.getKey()).size() == e.getValue().size())
+                .reduce(true, (a, b) -> a && b);
     }
 
     /**

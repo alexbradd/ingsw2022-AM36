@@ -145,4 +145,23 @@ class Cloud implements StudentContainerInterface {
         c.students = t.getFirst();
         return t.map((container, s) -> new Tuple<>(c, t.getSecond()));
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Cloud cloud = (Cloud) o;
+        return maxSize == cloud.maxSize && Objects.equals(students, cloud.students);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(students, maxSize);
+    }
 }

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server.model;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.server.model.iterators.CyclicalIterator;
 
 import java.util.List;
@@ -11,7 +13,7 @@ import java.util.Objects;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class MotherNature {
+class MotherNature implements Jsonable {
     /**
      * The {@link Island} on which Mother Nature is currently on.
      */
@@ -104,6 +106,16 @@ class MotherNature {
     @Override
     public int hashCode() {
         return Objects.hash(current);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonElement toJson() {
+        JsonObject ret = new JsonObject();
+        ret.addProperty("position", getCurrentIslandId());
+        return ret;
     }
 }
 

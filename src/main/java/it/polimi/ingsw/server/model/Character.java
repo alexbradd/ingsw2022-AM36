@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server.model;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 
@@ -15,7 +17,7 @@ import java.util.Objects;
  * @see ActionPhase
  * @see PreparePhase
  */
-abstract class Character {
+abstract class Character implements Jsonable {
     /**
      * This card's character. Represented as a {@link CharacterType} enum.
      */
@@ -183,5 +185,17 @@ abstract class Character {
     @Override
     public int hashCode() {
         return Objects.hash(characterType, initialCost, used);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonElement toJson() {
+        JsonObject ret = new JsonObject();
+
+        ret.addProperty("type", characterType.toString());
+        ret.addProperty("cost", getCost());
+        return ret;
     }
 }

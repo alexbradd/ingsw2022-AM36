@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server.model;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 
@@ -159,7 +161,7 @@ class Herbalist extends Character {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Herbalist herbalist = (Herbalist) o;
-        return blocks.equals(herbalist.blocks);
+        return blocks.size() == herbalist.blocks.size();
     }
 
     /**
@@ -168,5 +170,15 @@ class Herbalist extends Character {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), blocks);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonElement toJson() {
+        JsonObject ret = super.toJson().getAsJsonObject();
+        ret.addProperty("blocks", getNumOfBlocks());
+        return ret;
     }
 }

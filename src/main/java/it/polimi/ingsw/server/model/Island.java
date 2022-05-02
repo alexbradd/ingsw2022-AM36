@@ -1,5 +1,8 @@
 package it.polimi.ingsw.server.model;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 
 import java.util.*;
@@ -16,7 +19,7 @@ import java.util.function.Function;
  *
  * @author Alexandru Bradatan Gabriel
  */
-public class Island {
+public class Island implements Jsonable {
     private List<Integer> ids;
     private StudentContainer container;
     private List<BlockCard> blocks;
@@ -290,8 +293,9 @@ public class Island {
         Island island = (Island) o;
         return ids.equals(island.ids) &&
                 Objects.equals(container, island.container) &&
-                Objects.equals(blocks, island.blocks) &&
-                Objects.equals(towers, island.towers);
+                blocks.size() == island.blocks.size() &&
+                towers.size() == island.towers.size() &&
+                Objects.equals(getConqueringColor(), island.getConqueringColor());
     }
 
     /**
@@ -300,5 +304,28 @@ public class Island {
     @Override
     public int hashCode() {
         return Objects.hash(ids);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public JsonElement toJson() {
+        JsonObject ret = new JsonObject();
+
+        JsonArray ids = new JsonArray();
+        getIds().forEach(ids::add);
+
+        JsonArray students = new JsonArray();
+        getStudents().forEach(s -> students.add(s.getColor().toString()));
+
+        JsonArray towers = new JsonArray();
+        getTowers().forEach(t -> towers.add(t.getColor().toString()));
+
+        ret.add("ids", ids);
+        ret.add("students", students);
+        ret.add("towers", towers);
+        ret.addProperty("blocks", getNumOfBlocks());
+
+        return ret;
     }
 }
