@@ -30,7 +30,7 @@ class BardTest {
         Table t = new Table()
                 .addPlayer(ann, 7, 8, TowerColor.BLACK)
                 .updateBoardOf(ann, b -> b
-                        .receiveDeck(deck)
+                        .receiveDeck(Mage.MAGE, deck)
                         .playAssistant(AssistantType.CHEETAH)
                         .updateEntrance(c -> c.add(new Student(PieceColor.BLUE)))
                         .updateHall(c -> c.add(new Student(PieceColor.RED))));

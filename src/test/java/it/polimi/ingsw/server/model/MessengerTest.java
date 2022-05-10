@@ -29,7 +29,7 @@ class MessengerTest {
         deck.add(new Assistant(AssistantType.CHEETAH, Mage.MAGE));
         Table t = new Table()
                 .addPlayer(ann, 7, 8, TowerColor.BLACK)
-                .updateBoardOf(ann, b -> b.receiveDeck(deck).playAssistant(AssistantType.CHEETAH));
+                .updateBoardOf(ann, b -> b.receiveDeck(Mage.MAGE, deck).playAssistant(AssistantType.CHEETAH));
         ap = new MockActionPhase(t, ann);
         m = new Messenger();
     }

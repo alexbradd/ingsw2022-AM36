@@ -122,7 +122,7 @@ public class PreparePhase extends IteratedPhase {
         for (AssistantType type : AssistantType.values()) {
             deck.add(new Assistant(type, mage));
         }
-        PreparePhase p = updateTable(t -> t.updateBoardOf(getCurrentPlayer(), b -> b.receiveDeck(deck)));
+        PreparePhase p = updateTable(t -> t.updateBoardOf(getCurrentPlayer(), b -> b.receiveDeck(mage, deck)));
         p.chosenMages.add(mage);
 
         if (p.iterator.hasNext())

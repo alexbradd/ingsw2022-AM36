@@ -29,7 +29,7 @@ class HeraldTest {
         Table t = new Table()
                 .addPlayer(ann, 7, 8, TowerColor.BLACK)
                 .updateBoardOf(ann, b -> b
-                        .receiveDeck(deck)
+                        .receiveDeck(Mage.MAGE, deck)
                         .playAssistant(AssistantType.CHEETAH)
                         .receiveTower(new Tower(TowerColor.BLACK, ann)))
                 .updateProfessors(ps -> {

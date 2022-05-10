@@ -2,6 +2,7 @@ package it.polimi.ingsw.server.model;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import it.polimi.ingsw.server.model.iterators.CyclicalIterator;
 
 import java.util.List;
@@ -113,9 +114,7 @@ class MotherNature implements Jsonable {
      */
     @Override
     public JsonElement toJson() {
-        JsonObject ret = new JsonObject();
-        ret.addProperty("position", getCurrentIslandId());
-        return ret;
+        return new JsonPrimitive(current.getIds().get(0));
     }
 }
 

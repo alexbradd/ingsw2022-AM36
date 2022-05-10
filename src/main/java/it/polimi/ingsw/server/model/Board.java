@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.server.model.enums.AssistantType;
+import it.polimi.ingsw.server.model.enums.Mage;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import it.polimi.ingsw.server.model.exceptions.NoTowersException;
 import it.polimi.ingsw.server.model.exceptions.NotEnoughCoinsException;
@@ -30,6 +31,7 @@ public class Board implements Jsonable {
      */
     private final Player player;
 
+    private Mage mage;
     /**
      * The deck of {@link Assistant} of the player.
      */
@@ -92,6 +94,7 @@ public class Board implements Jsonable {
             throw new IllegalArgumentException("numTowers shouldn't  be <= 0");
         }
         player = playerOwner;
+        mage = null;
         assistants = new ArrayList<>();
         lastPlayed = null;
         deckAdded = false;
@@ -114,6 +117,7 @@ public class Board implements Jsonable {
             throw new IllegalArgumentException("Old player must not be null.");
 
         player = oldBoard.player;
+        mage = oldBoard.mage;
         assistants = oldBoard.assistants;
         lastPlayed = oldBoard.lastPlayed;
         deckAdded = oldBoard.deckAdded;
@@ -149,20 +153,24 @@ public class Board implements Jsonable {
     }
 
     /**
-     * Creates another Player instance with the specified deck of {@link Assistant}s, and it returns the new Player..
+     * Creates another Player instance with the specified deck of {@link Assistant}s, and it returns the new Player.
      *
+     * @param mage          the {@link Mage} of the deck
      * @param assistantDeck the given deck of assistants
      * @return the new Player instance
      * @throws IllegalStateException    if {@code deckAdded == true} (can't add a new deck if one is already present)
      * @throws IllegalArgumentException if {@code assistants == null}
      */
-    Board receiveDeck(List<Assistant> assistantDeck) throws IllegalArgumentException, IllegalStateException {
+    Board receiveDeck(Mage mage, List<Assistant> assistantDeck) throws IllegalArgumentException, IllegalStateException {
+        if (mage == null)
+            throw new IllegalArgumentException("mage must not be null");
         if (assistantDeck == null)
             throw new IllegalArgumentException("Assistant deck must not be null.");
         if (deckAdded)
             throw new IllegalStateException("A deck for this player has already been added.");
 
         Board b = new Board(this);
+        b.mage = mage;
         b.assistants = new ArrayList<>(assistantDeck);
         b.deckAdded = true;
         return b;
@@ -423,6 +431,8 @@ public class Board implements Jsonable {
     public JsonElement toJson() {
         JsonObject ret = new JsonObject();
         ret.addProperty("username", getPlayer().getUsername());
+        if (mage != null)
+            ret.addProperty("mage", mage.toString());
         getLastPlayedAssistant().ifPresent(a ->
                 ret.addProperty("lastPlayedAssistant", a.getAssistantType().toString()));
         ret.addProperty("coins", getCoins());
