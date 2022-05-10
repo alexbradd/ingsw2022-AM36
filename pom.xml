@@ -16,7 +16,14 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <sonar.coverage.exclusions>
-      **/client/**/*,**/functional/**/*,**/Main.java,**/ParameterParsingException.java,**/ProgramOptions.java,**/server/Server.java,**/server/net/**/*
+      **/client/**/*,
+      **/functional/**/*,
+      **/Main.java,
+      **/ParameterParsingException.java,
+      **/ProgramOptions.java,
+      **/server/Server.java,
+      **/server/net/**/*,
+      **/server/model/exceptions/**/*
     </sonar.coverage.exclusions>
   </properties>
 
