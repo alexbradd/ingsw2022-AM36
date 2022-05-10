@@ -43,11 +43,11 @@ class CloudPickPhaseTest {
                 .addPlayer(ann, 7, 8, TowerColor.BLACK)
                 .addPlayer(bob, 7, 8, TowerColor.WHITE)
                 .updateBoardOf(ann, b -> b
-                        .receiveDeck(deckAnn)
+                        .receiveDeck(Mage.MAGE, deckAnn)
                         .playAssistant(AssistantType.CHEETAH)
                         .receiveTower(new Tower(TowerColor.BLACK, ann)))
                 .updateBoardOf(bob, b -> b
-                        .receiveDeck(deckBob)
+                        .receiveDeck(Mage.FAIRY, deckBob)
                         .playAssistant(AssistantType.OSTRICH)
                         .receiveTower(new Tower(TowerColor.WHITE, bob)))
                 .updateClouds(cs -> {

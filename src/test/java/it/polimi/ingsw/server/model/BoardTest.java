@@ -66,7 +66,7 @@ public class BoardTest {
 
 
         initDeck();
-        board = board.receiveDeck(new ArrayList<>(deck));
+        board = board.receiveDeck(Mage.MAGE, new ArrayList<>(deck));
 
         assertThrows(IllegalArgumentException.class,
                 () -> new Board(player, -1, -1, towerColor)
@@ -79,8 +79,9 @@ public class BoardTest {
     @Test
     @DisplayName("receiveDeck() method test")
     void receiveDeckTest() {
-        assertThrows(IllegalArgumentException.class, () -> board.receiveDeck(null));
-        assertThrows(IllegalStateException.class, () -> board.receiveDeck(deck));
+        assertThrows(IllegalArgumentException.class, () -> board.receiveDeck(null, null));
+        assertThrows(IllegalArgumentException.class, () -> board.receiveDeck(null, deck));
+        assertThrows(IllegalStateException.class, () -> board.receiveDeck(Mage.FAIRY, deck));
     }
 
     /**

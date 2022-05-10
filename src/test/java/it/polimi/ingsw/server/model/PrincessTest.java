@@ -33,7 +33,7 @@ class PrincessTest {
         deck.add(new Assistant(AssistantType.CHEETAH, Mage.MAGE));
         t = new Table()
                 .addPlayer(ann, 7, 8, TowerColor.BLACK)
-                .updateBoardOf(ann, b -> b.receiveDeck(deck).playAssistant(AssistantType.CHEETAH));
+                .updateBoardOf(ann, b -> b.receiveDeck(Mage.MAGE, deck).playAssistant(AssistantType.CHEETAH));
         ap = new MockActionPhase(t, ann);
         c = new PriestAndPrincess(PriestAndPrincess.Behaviour.PRINCESS);
         pp = new MockPreparePhase();

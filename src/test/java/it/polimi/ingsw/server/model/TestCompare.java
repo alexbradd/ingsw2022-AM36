@@ -46,7 +46,7 @@ public class TestCompare {
                     ArrayList<Assistant> d = new ArrayList<>();
                     d.add(new Assistant(AssistantType.CAT, Mage.MAGE));
                     d.add(new Assistant(AssistantType.ELEPHANT, Mage.MAGE));
-                    return b.receiveDeck(d)
+                    return b.receiveDeck(Mage.MAGE, d)
                             .playAssistant(AssistantType.CAT)
                             .receiveCoin()
                             .updateEntrance(c -> c.add(new Student(PieceColor.BLUE)))
@@ -84,7 +84,7 @@ public class TestCompare {
                     ArrayList<Assistant> d = new ArrayList<>();
                     d.add(new Assistant(AssistantType.CAT, Mage.MAGE));
                     d.add(new Assistant(AssistantType.ELEPHANT, Mage.MAGE));
-                    return b.receiveDeck(d)
+                    return b.receiveDeck(Mage.MAGE, d)
                             .playAssistant(AssistantType.CAT)
                             .receiveCoin()
                             .updateEntrance(c -> c.add(new Student(PieceColor.BLUE)))

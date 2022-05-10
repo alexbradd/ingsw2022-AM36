@@ -47,7 +47,7 @@ public class AssistantValueIteratorTest {
         for (int i = 0; i < numPlayers; i++) {
             Player p = new Player("p" + i);
             Board b = new Board(p, 5, 5, TowerColor.WHITE);
-            b = b.receiveDeck(createDeck());
+            b = b.receiveDeck(Mage.MAGE, createDeck());
             list.add(b);
         }
     }

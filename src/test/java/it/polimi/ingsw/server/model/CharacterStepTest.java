@@ -47,7 +47,7 @@ class CharacterStepTest {
         deck.add(new Assistant(AssistantType.CHEETAH, Mage.MAGE));
         Table t = new Table()
                 .addPlayer(ann, 7, 8, TowerColor.BLACK)
-                .updateBoardOf(ann, b -> b.receiveDeck(deck).playAssistant(AssistantType.CHEETAH));
+                .updateBoardOf(ann, b -> b.receiveDeck(Mage.MAGE, deck).playAssistant(AssistantType.CHEETAH));
         ActionPhase p = new MockActionPhase(t, ann);
 
         cs.setParameter("a", "a");

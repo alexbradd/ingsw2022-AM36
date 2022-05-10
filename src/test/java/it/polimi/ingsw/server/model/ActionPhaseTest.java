@@ -48,13 +48,13 @@ public class ActionPhaseTest {
                         })
                         .toList())
                 .updateBoardOf(ann, b -> {
-                    b = b.receiveDeck(deckAnn).playAssistant(AssistantType.CHEETAH);
+                    b = b.receiveDeck(Mage.MAGE, deckAnn).playAssistant(AssistantType.CHEETAH);
                     for (int i = 0; i < 8; i++)
                         b = b.receiveTower(new Tower(TowerColor.BLACK, ann));
                     return b;
                 })
                 .updateBoardOf(bob, b -> {
-                    b = b.receiveDeck(deckBob).playAssistant(AssistantType.OSTRICH);
+                    b = b.receiveDeck(Mage.FAIRY, deckBob).playAssistant(AssistantType.OSTRICH);
                     for (int i = 0; i < 8; i++)
                         b = b.receiveTower(new Tower(TowerColor.WHITE, bob));
                     return b;
