@@ -222,18 +222,21 @@ abstract class ActionPhase extends IteratedPhase {
     }
 
     /**
-     * Give one coin to the player for each stack of students that has a multiple of 3 as size.
+     * Give one coin to the player for each stack of students that has crossed a multiple of 3 as size since the last
+     * update. If the ActionPhase is not in expert mode, it does nothing.
      *
-     * @param player  the player to whom give coins
-     * @param oldHall the previous Hall, used for checking how many students have been added
+     * @param player the player to whom give coins
      * @return a new ActionPhase with the changes applied
      */
-    private ActionPhase giveCoins(Player player, Hall oldHall) {
+    private ActionPhase giveCoins(Player player, Hall old) {
+        if (!getParameters().isExpertMode())
+            return this;
         ActionPhase a = this.shallowCopy();
         for (PieceColor c : PieceColor.values()) {
-            int diff = a.table.getBoardOf(player).getHall().size(c) - oldHall.size(c);
+            Hall h = a.table.getBoardOf(player).getHall();
+            int diff = h.size(c) - old.size(c);
             if (diff > 0) {
-                int numOfCoins = diff / 3;
+                int numOfCoins = (h.size() / 3) - (old.size() / 3);
                 a.table = a.table.updateBoardOf(player, b -> {
                     for (int i = 0; i < numOfCoins; i++)
                         b = b.receiveCoin();
