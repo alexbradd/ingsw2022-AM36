@@ -5,6 +5,7 @@ import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
 import java.util.ArrayList;
 import java.util.EmptyStackException;
@@ -33,8 +34,8 @@ class Thief extends Character {
     }
 
     /**
-     * Every Player must put at two students of the chosen color from their hall in the Sack. If they don't have enough,
-     * they will simply put every one they have. This card uses 1 step. The parameters used are the following:
+     * Every Player must put at most two students of the chosen color from their hall in the Sack. If they don't have
+     * enough, they will simply put every one they have. This card uses 1 step. The parameters used are the following:
      *
      * <ul>
      *     <li>"color": the color of the students to move</li>
@@ -47,7 +48,7 @@ class Thief extends Character {
      * @throws InvalidCharacterParameterException if any of the parameters in {@code steps} is formatted incorrectly
      */
     @Override
-    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException {
+    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         checkEffectParameters(phase, steps, 1);
         PieceColor color = steps[0].getParameterAsColor("color");
         return super.doEffect(phase, steps)

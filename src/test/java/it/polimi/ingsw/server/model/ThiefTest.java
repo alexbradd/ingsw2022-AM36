@@ -5,6 +5,7 @@ import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -54,7 +55,7 @@ class ThiefTest {
      * least two students in the Hall
      */
     @Test
-    void doEffectWithTwoStudents() throws InvalidCharacterParameterException {
+    void doEffect_atLeastTwoStudents() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         Table withStudents = t
                 .updateBoardOf(ann, b -> b.updateHall(h -> h
                         .add(new Student(PieceColor.RED))
@@ -87,7 +88,7 @@ class ThiefTest {
      * at least two students in the Hall
      */
     @Test
-    void doEffectWithoutTwoStudents() throws InvalidCharacterParameterException {
+    void doEffect_lessThenTwoStudents() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         Table withStudents = t
                 .updateBoardOf(ann, b -> b.updateHall(h -> h
                         .add(new Student(PieceColor.RED))
@@ -104,6 +105,39 @@ class ThiefTest {
         assertEquals(1, after.getFirst().getTable().getBoardOf(ann).getHall().size());
         assertEquals(0, after.getFirst().getTable().getBoardOf(bob).getHall().size());
         assertEquals(3, after.getFirst().getTable().getSack().size());
+        assertEquals(Optional.of(ann), after.getFirst()
+                .getTable()
+                .getProfessors()
+                .stream()
+                .filter(p -> p.getColor() == PieceColor.RED)
+                .findAny()
+                .orElseThrow()
+                .getOwner());
+    }
+
+    /**
+     * Check that doEffect ignores any exceeding steps passed
+     */
+    @Test
+    void doEffect_exceedingSteps() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
+        Table withStudents = t
+                .updateBoardOf(ann, b -> b.updateHall(h -> h
+                        .add(new Student(PieceColor.RED))
+                        .add(new Student(PieceColor.RED))
+                        .add(new Student(PieceColor.RED))))
+                .updateBoardOf(bob, b -> b.updateHall(h -> h
+                        .add(new Student(PieceColor.RED))
+                        .add(new Student(PieceColor.RED))));
+        ActionPhase ap = new MockActionPhase(withStudents, ann);
+        CharacterStep step1 = new CharacterStep();
+        step1.setParameter("color", "RED");
+        CharacterStep step2 = new CharacterStep();
+        step2.setParameter("color", "PINK");
+        Tuple<ActionPhase, Character> after = thief.doEffect(ap, new CharacterStep[]{step1, step2});
+
+        assertEquals(1, after.getFirst().getTable().getBoardOf(ann).getHall().size());
+        assertEquals(0, after.getFirst().getTable().getBoardOf(bob).getHall().size());
+        assertEquals(4, after.getFirst().getTable().getSack().size());
         assertEquals(Optional.of(ann), after.getFirst()
                 .getTable()
                 .getProfessors()

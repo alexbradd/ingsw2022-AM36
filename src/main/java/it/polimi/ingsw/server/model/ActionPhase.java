@@ -390,7 +390,7 @@ abstract class ActionPhase extends IteratedPhase {
      * @param steps   the parameters to be passed to said {@link Character}
      * @return a new updated ActionPhase
      */
-    private ActionPhase applyCharacterEffect(Character desired, CharacterStep[] steps) throws InvalidCharacterParameterException {
+    private ActionPhase applyCharacterEffect(Character desired, CharacterStep[] steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         Tuple<ActionPhase, Character> update = desired.doEffect(this, steps);
         ActionPhase ret = update.getFirst();
         ret.playedCharacter = true;

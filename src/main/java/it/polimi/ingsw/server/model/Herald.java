@@ -3,6 +3,7 @@ package it.polimi.ingsw.server.model;
 import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
 /**
  * Represents the Herald character card.
@@ -42,7 +43,7 @@ class Herald extends Character {
      * @throws InvalidCharacterParameterException if any of the parameters in {@code steps} is formatted incorrectly
      */
     @Override
-    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException {
+    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         checkEffectParameters(phase, steps, 1);
         int islandIndex = steps[0].getParameterAsIslandIndex("island", phase);
         return super.doEffect(phase, steps)

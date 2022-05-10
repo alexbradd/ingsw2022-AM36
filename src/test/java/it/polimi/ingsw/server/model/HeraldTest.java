@@ -3,6 +3,7 @@ package it.polimi.ingsw.server.model;
 import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.*;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -74,7 +75,7 @@ class HeraldTest {
      * Check that doEffect() modifies both the Character and the ActionPhase in the expected way
      */
     @Test
-    void doEffect() throws InvalidCharacterParameterException {
+    void doEffect() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         CharacterStep step = new CharacterStep();
         step.setParameter("island", "0");
         Tuple<ActionPhase, Character> after = h.doEffect(ap, new CharacterStep[]{step});
@@ -91,5 +92,22 @@ class HeraldTest {
         after = h.doEffect(ap, new CharacterStep[]{step});
         assertFalse(after.getFirst().getTable().getIslandList().get(0).getControllingPlayer().isPresent());
         assertFalse(after.getFirst().getTable().getIslandList().get(0).getConqueringColor().isPresent());
+    }
+
+    /**
+     * Check that doEffect() ignores any exceeding steps
+     */
+    @Test
+    void doEffect_withExceedingSteps() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
+        CharacterStep step1 = new CharacterStep();
+        step1.setParameter("island", "0");
+        CharacterStep step2 = new CharacterStep();
+        step2.setParameter("island", "2");
+        Tuple<ActionPhase, Character> after = h.doEffect(ap, new CharacterStep[]{step1, step2});
+
+        assertTrue(after.getFirst().getTable().getIslandList().get(0).getControllingPlayer().isPresent());
+        assertEquals(ann, after.getFirst().getTable().getIslandList().get(0).getControllingPlayer().get());
+        assertTrue(after.getFirst().getTable().getIslandList().get(0).getConqueringColor().isPresent());
+        assertEquals(TowerColor.BLACK, after.getFirst().getTable().getIslandList().get(0).getConqueringColor().get());
     }
 }

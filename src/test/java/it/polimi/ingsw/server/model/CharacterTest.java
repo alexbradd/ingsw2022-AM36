@@ -6,6 +6,7 @@ import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.Mage;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,7 +82,7 @@ class CharacterTest {
      * Test that calling doEffect increases cost by 1
      */
     @Test
-    void testDoEffect() throws InvalidCharacterParameterException {
+    void testDoEffect() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         assertEquals(CharacterType.HERBALIST.getInitialCost(), mc.getCost());
         mc = (MockCharacter) mc.doEffect(ap, new CharacterStep[]{}).getSecond();
         assertEquals(CharacterType.HERBALIST.getInitialCost() + 1, mc.getCost());

@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
 import java.util.Objects;
 
@@ -111,8 +112,9 @@ abstract class Character implements Jsonable {
      * @return a Tuple containing the updated ActionPhase and the updated Character
      * @throws IllegalArgumentException           if {@code phase} or {@code steps} or are null
      * @throws InvalidCharacterParameterException if any of the parameters in {@code steps} is formatted incorrectly
+     * @throws InvalidPhaseUpdateException        if the effect of the card would modify the state in an illegal way
      */
-    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException {
+    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         if (phase == null) throw new IllegalArgumentException("phase shouldn't be null");
         if (steps == null) throw new IllegalArgumentException("steps shouldn't be null");
         Character t = this.shallowCopy();
