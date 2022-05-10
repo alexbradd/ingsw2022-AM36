@@ -3,6 +3,7 @@
 out/
 target/
 log/
+shade/
 
 *.iml
 *.iws
