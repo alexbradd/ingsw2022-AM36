@@ -74,4 +74,34 @@ public class Tuple<T, V> {
         if (mapper == null) throw new IllegalArgumentException("mapper shouldn't be null");
         return mapper.apply(this.getFirst(), this.getSecond());
     }
+
+    /**
+     * Equivalent to {@link #map(Function)}, only that it takes a {@link ThrowingFunction}.
+     *
+     * @param mapper the mapping function
+     * @param <U>    return type of the mapper
+     * @param <E>    type of the exception thrown by the mapper
+     * @return result of the mapping function
+     * @throws IllegalArgumentException if {@code mapper} is null
+     * @throws E                        exception thrown by {@code mapper}
+     */
+    public <U, E extends Exception> U throwMap(ThrowingFunction<Tuple<T, V>, U, E> mapper) throws E {
+        if (mapper == null) throw new IllegalArgumentException("mapper shouldn't be null");
+        return mapper.apply(this);
+    }
+
+    /**
+     * Equivalent to {@link #map(BiFunction)}, only that it takes a {@link ThrowingBiFunction}.
+     *
+     * @param mapper the mapping function
+     * @param <U>    return type of the mapper
+     * @param <E>    type of the exception thrown by the mapper
+     * @return result of the mapping function
+     * @throws IllegalArgumentException if {@code mapper} is null
+     * @throws E                        exception thrown by {@code mapper}
+     */
+    public <U, E extends Exception> U throwMap(ThrowingBiFunction<T, V, U, E> mapper) throws E {
+        if (mapper == null) throw new IllegalArgumentException("mapper shouldn't be null");
+        return mapper.apply(this.getFirst(), this.getSecond());
+    }
 }
