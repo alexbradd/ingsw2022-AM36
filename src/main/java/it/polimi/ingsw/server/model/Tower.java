@@ -10,7 +10,6 @@ import it.polimi.ingsw.server.model.enums.TowerColor;
  * @see TowerColor
  * @see Player
  */
-
 public final class Tower {
     /**
      * The color of the tower, representing the player to which it belongs.

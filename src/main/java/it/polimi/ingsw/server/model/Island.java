@@ -19,7 +19,7 @@ import java.util.function.Function;
  *
  * @author Alexandru Bradatan Gabriel
  */
-public class Island implements Jsonable {
+class Island implements Jsonable {
     private List<Integer> ids;
     private StudentContainer container;
     private List<BlockCard> blocks;

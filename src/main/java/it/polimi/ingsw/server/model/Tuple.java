@@ -10,7 +10,7 @@ import java.util.function.Function;
  * @param <V> generic type
  * @author Alexandru Gabriel Bradatan, Leonardo Bianconi, Mattia Busso
  */
-class Tuple<T, V> {
+public class Tuple<T, V> {
     /**
      * The first element stored in the Tuple
      */
@@ -26,7 +26,7 @@ class Tuple<T, V> {
      * @param first  the first element to be stored in the Tuple
      * @param second the second element to be stored in the Tuple
      */
-    Tuple(T first, V second) {
+    public Tuple(T first, V second) {
         this.first = first;
         this.second = second;
     }
@@ -36,7 +36,7 @@ class Tuple<T, V> {
      *
      * @return the first element stored in the Tuple
      */
-    T getFirst() {
+    public T getFirst() {
         return first;
     }
 
@@ -45,7 +45,7 @@ class Tuple<T, V> {
      *
      * @return the second element stored in the Tuple
      */
-    V getSecond() {
+    public V getSecond() {
         return second;
     }
 
@@ -57,7 +57,7 @@ class Tuple<T, V> {
      * @return result of the mapping function
      * @throws IllegalArgumentException if {@code mapper} is null
      */
-    <U> U map(Function<Tuple<T, V>, U> mapper) {
+    public <U> U map(Function<Tuple<T, V>, U> mapper) {
         if (mapper == null) throw new IllegalArgumentException("mapper shouldn't be null");
         return mapper.apply(this);
     }
@@ -70,7 +70,7 @@ class Tuple<T, V> {
      * @return result of the mapping function
      * @throws IllegalArgumentException if {@code mapper} is null
      */
-    <U> U map(BiFunction<T, V, U> mapper) {
+    public <U> U map(BiFunction<T, V, U> mapper) {
         if (mapper == null) throw new IllegalArgumentException("mapper shouldn't be null");
         return mapper.apply(this.getFirst(), this.getSecond());
     }

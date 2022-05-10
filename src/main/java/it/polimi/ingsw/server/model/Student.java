@@ -7,7 +7,7 @@ import it.polimi.ingsw.server.model.enums.PieceColor;
  *
  * @author Mattia Busso, Leonardo Bianconi
  */
-final class Student {
+public final class Student {
 
     /**
      * Color of the student piece.

@@ -12,7 +12,7 @@ import java.util.Optional;
  *
  * @author Mattia Busso
  */
-public class Professor implements Jsonable {
+class Professor implements Jsonable {
 
     /**
      * The professor's piece color.
