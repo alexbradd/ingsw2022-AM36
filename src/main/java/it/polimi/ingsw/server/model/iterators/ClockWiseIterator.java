@@ -6,8 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-// TODO docs
-
 /**
  * This class provides an implementation of the Iterator<{@link Board}> interface.
  * This iterator offers a custom implementation that allows to start the iteration from a given {@code startIndex} of the list.
