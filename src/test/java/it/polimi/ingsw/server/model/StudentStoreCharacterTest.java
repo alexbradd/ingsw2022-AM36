@@ -4,6 +4,7 @@ import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.*;
 import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -111,7 +112,13 @@ class StudentStoreCharacterTest {
         StudentStoreCharacter m = (StudentStoreCharacter) c.doPrepare(pp).getSecond();
         PieceColor toMove = m.getStudents().stream().findAny().orElseThrow().getColor();
         Tuple<ActionPhase, Character> afterMove = m.moveFromHere(new Tuple<>(ap, m), toMove,
-                (action, student) -> action.updateHall(ann, h -> h.add(student)),
+                (action, student) -> {
+                    try {
+                        return action.addToHall(ann, student);
+                    } catch (InvalidPhaseUpdateException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 Tuple::new);
         assertEquals(1, afterMove.getFirst().getTable().getBoardOf(ann).getHall().size(toMove));
         assertEquals(9, ((StudentStoreCharacter) afterMove.getSecond()).getStudents().size());

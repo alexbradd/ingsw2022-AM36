@@ -101,7 +101,7 @@ class PriestAndPrincess extends StudentStoreCharacter {
         return moveFromHere(new Tuple<>(tuple.getFirst(), card), color,
                 (ap, student) -> {
                     try {
-                        return ap.updateIsland(ap.getCurrentPlayer(), island, i -> i.add(student));
+                        return ap.addToIsland(ap.getCurrentPlayer(), island, student);
                     } catch (InvalidPhaseUpdateException e) {
                         e.printStackTrace();
                     }
@@ -130,7 +130,13 @@ class PriestAndPrincess extends StudentStoreCharacter {
             throw new InvalidCharacterParameterException("Wrong invocation: current player's hall is full");
 
         return moveFromHere(new Tuple<>(tuple.getFirst(), card), color,
-                (ap, student) -> ap.updateHall(currentPlayer, h -> h.add(student)),
+                (ap, student) -> {
+                    try {
+                        return ap.addToHall(currentPlayer, student);
+                    } catch (InvalidPhaseUpdateException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 this::fromSack);
     }
 

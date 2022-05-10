@@ -69,6 +69,15 @@ final class BoundedStudentContainer implements StudentContainerInterface {
     }
 
     /**
+     * Returns true if the container is full
+     *
+     * @return true if the container is full
+     */
+    public boolean isFull() {
+        return size() >= maxSize;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

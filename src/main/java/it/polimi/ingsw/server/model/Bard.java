@@ -4,6 +4,7 @@ import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,21 +54,25 @@ class Bard extends Character {
         List<Tuple<PieceColor, PieceColor>> colors = fromStepToTuple(steps);
         verifyEntranceSize(phase, colors);
         verifyHallSize(phase, colors);
-        return super.doEffect(phase, steps)
-                .map(((actionPhase, character) -> {
+        try {
+            return super.doEffect(phase, steps)
+                    .throwMap(((actionPhase, character) -> {
                         for (Tuple<PieceColor, PieceColor> t : colors) {
                             actionPhase = actionPhase
-                                    .unsafeGetFromEntrance(current, t.getFirst())
-                                    .map((ap, studentEntrance) -> ap
+                                    .getFromEntrance(current, t.getFirst())
+                                    .throwMap((ap, studentEntrance) -> ap
                                             .getFromHall(current, t.getSecond())
                                             .map((ap1, studentFromHall) ->
                                                     new Tuple<>(ap1, new Tuple<>(studentEntrance, studentFromHall))))
-                                    .map((ap, tuple) -> ap
-                                            .updateEntrance(current, e -> e.add(tuple.getSecond()))
-                                            .updateHall(current, h -> h.add(tuple.getFirst())));
+                                    .throwMap((ap, tuple) -> ap
+                                            .addToEntrance(current, tuple.getSecond())
+                                            .addToHall(current, tuple.getFirst()));
                         }
-                    return new Tuple<>(actionPhase, character);
-                }));
+                        return new Tuple<>(actionPhase, character);
+                    }));
+        } catch (InvalidPhaseUpdateException e) {
+            throw new InvalidCharacterParameterException("Wrong invocation: not enough students in entrance or hall");
+        }
     }
 
     private List<Tuple<PieceColor, PieceColor>> fromStepToTuple(CharacterStep[] steps) throws InvalidCharacterParameterException {

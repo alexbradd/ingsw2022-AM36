@@ -72,11 +72,11 @@ class PreparePhaseTest {
         assertThrows(UnsupportedOperationException.class,
                 () -> prepare.moveMn(p1, 1));
         assertThrows(UnsupportedOperationException.class,
-                () -> prepare.updateHall(p1, hall -> hall = hall.add(new Student(PieceColor.RED))));
+                () -> prepare.addToHall(p1, new Student(PieceColor.RED)));
         assertThrows(UnsupportedOperationException.class,
                 () -> prepare.getFromEntrance(p1, PieceColor.PINK));
         assertThrows(UnsupportedOperationException.class,
-                () -> prepare.updateIsland(p1, 0, i -> i = i.add(new Student(PieceColor.RED))));
+                () -> prepare.addToIsland(p1, 0, new Student(PieceColor.RED)));
     }
 
     @Test

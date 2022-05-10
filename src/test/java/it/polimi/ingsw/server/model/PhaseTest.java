@@ -29,8 +29,8 @@ public class PhaseTest {
         assertThrows(UnsupportedOperationException.class, () -> p.playAssistant(null, AssistantType.CHEETAH));
         assertThrows(UnsupportedOperationException.class, () -> p.playCharacter(null, CharacterType.HERBALIST, null));
         assertThrows(UnsupportedOperationException.class, () -> p.getFromEntrance(null, null));
-        assertThrows(UnsupportedOperationException.class, () -> p.updateHall(null, null));
-        assertThrows(UnsupportedOperationException.class, () -> p.updateIsland(null, 0, null));
+        assertThrows(UnsupportedOperationException.class, () -> p.addToHall(null, null));
+        assertThrows(UnsupportedOperationException.class, () -> p.addToIsland(null, 0, null));
     }
 
     /**

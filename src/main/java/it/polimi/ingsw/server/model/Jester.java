@@ -4,6 +4,7 @@ import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,23 +55,27 @@ class Jester extends StudentStoreCharacter {
         List<Tuple<PieceColor, PieceColor>> colors = fromStepToTuple(steps);
         verifyEntranceSize(phase, colors);
         verifyCardSize(colors);
-        return super.doEffect(phase, steps)
-                .map((actionPhase, character) -> {
-                    Player p = actionPhase.getCurrentPlayer();
-                    StudentStoreCharacter studentStore = (StudentStoreCharacter) character;
-                    Tuple<ActionPhase, Character> t = new Tuple<>(actionPhase, character);
-                    for (Tuple<PieceColor, PieceColor> color : colors) {
-                        t = actionPhase
-                                .unsafeGetFromEntrance(p, color.getSecond())
-                                .map((ap, studentEntrance) -> studentStore
-                                        .remove(color.getFirst())
-                                        .map((ssc, studentCard) -> new Tuple<>(ssc.add(studentEntrance), studentCard))
-                                        .map((ssc, studentCard) -> new Tuple<>(
-                                                ap.updateEntrance(p, e -> e.add(studentCard)),
-                                                ssc)));
-                    }
-                    return t;
-                });
+        try {
+            return super.doEffect(phase, steps)
+                    .throwMap((actionPhase, character) -> {
+                        Player p = actionPhase.getCurrentPlayer();
+                        StudentStoreCharacter studentStore = (StudentStoreCharacter) character;
+                        Tuple<ActionPhase, Character> t = new Tuple<>(actionPhase, character);
+                        for (Tuple<PieceColor, PieceColor> color : colors) {
+                            t = actionPhase
+                                    .getFromEntrance(p, color.getSecond())
+                                    .throwMap((ap, studentEntrance) -> studentStore
+                                            .remove(color.getFirst())
+                                            .map((ssc, studentCard) -> new Tuple<>(ssc.add(studentEntrance), studentCard))
+                                            .throwMap((ssc, studentCard) -> new Tuple<>(
+                                                    ap.addToEntrance(p, studentCard),
+                                                    ssc)));
+                        }
+                        return t;
+                    });
+        } catch (InvalidPhaseUpdateException e) {
+            throw new InvalidCharacterParameterException("Wrong invocation: not enough students in entrance");
+        }
     }
 
     private List<Tuple<PieceColor, PieceColor>> fromStepToTuple(CharacterStep[] steps) throws InvalidCharacterParameterException {

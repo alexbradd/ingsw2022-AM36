@@ -91,10 +91,12 @@ public class ActionPhaseTest {
         assertThrows(IllegalArgumentException.class, () -> phase.setMaxExtractor(null));
         assertThrows(IllegalArgumentException.class, () -> phase.getFromEntrance(null, null));
         assertThrows(IllegalArgumentException.class, () -> phase.getFromEntrance(ann, null));
-        assertThrows(IllegalArgumentException.class, () -> phase.updateHall(null, null));
-        assertThrows(IllegalArgumentException.class, () -> phase.updateHall(ann, null));
-        assertThrows(IllegalArgumentException.class, () -> phase.updateIsland(null, 0, null));
-        assertThrows(IllegalArgumentException.class, () -> phase.updateIsland(ann, 0, null));
+        assertThrows(IllegalArgumentException.class, () -> phase.addToHall(null, null));
+        assertThrows(IllegalArgumentException.class, () -> phase.addToHall(ann, null));
+        assertThrows(IllegalArgumentException.class, () -> phase.getFromHall(null, null));
+        assertThrows(IllegalArgumentException.class, () -> phase.getFromHall(ann, null));
+        assertThrows(IllegalArgumentException.class, () -> phase.addToIsland(ann, 0, null));
+        assertThrows(IllegalArgumentException.class, () -> phase.addToIsland(null, 0, null));
         assertThrows(IllegalArgumentException.class, () -> phase.updateTable(null));
         assertThrows(IllegalArgumentException.class, () -> phase.authorizePlayer(null));
         assertThrows(IllegalArgumentException.class, () -> phase.forEachPlayer(null));
@@ -129,13 +131,26 @@ public class ActionPhaseTest {
     }
 
     /**
-     * Tests if the phase updates students in the hall and professors after
-     * {@link ActionPhase#updateHall(Player, Function)}
+     * Test that an exception is thrown if too many calls to {@link ActionPhase#addToHall(Player, Student)} are made.
      */
     @Test
-    void testUpdateHall() {
+    void testAddToHall() throws InvalidPhaseUpdateException {
         ActionPhase phase = new MockActionPhase(t, ann);
-        Phase afterUpdate = phase.updateHall(ann, c -> c.add(new Student(annColor)));
+
+        for (int i = 0; i < 10; i++)
+            phase = phase.addToHall(ann, new Student(annColor));
+        ActionPhase finalPhase = phase;
+        assertThrows(InvalidPhaseUpdateException.class, () -> finalPhase.addToHall(ann, new Student(annColor)));
+    }
+
+    /**
+     * Tests if the phase updates students in the hall and professors after
+     * {@link ActionPhase#addToHall(Player, Student)}
+     */
+    @Test
+    void testUpdateHall() throws InvalidPhaseUpdateException {
+        ActionPhase phase = new MockActionPhase(t, ann);
+        Phase afterUpdate = phase.addToHall(ann, new Student(annColor));
         afterUpdate.getTable().getBoardOf(ann).updateHall(c -> {
             assertEquals(1, c.size());
             return c;
@@ -159,45 +174,33 @@ public class ActionPhaseTest {
      * Note: a coin is not given if the size was already 3,6,9.
      */
     @Test
-    void testUpdateHallCoins() {
+    void testUpdateHallCoins() throws InvalidPhaseUpdateException {
         ActionPhase phase = new MockActionPhase(t, ann);
-        Phase afterUpdate = phase.updateHall(ann, c -> {
-            for (int i = 0; i < 3; i++)
-                c = c.add(new Student(annColor));
-            return c;
-        });
-        assertEquals(1, afterUpdate.getTable().getBoardOf(ann).getCoins());
 
-        afterUpdate = afterUpdate.updateHall(ann, c -> {
-            for (int i = 0; i < 3; i++)
-                c = c.add(new Student(annColor));
-            return c;
-        });
-        assertEquals(2, afterUpdate.getTable().getBoardOf(ann).getCoins());
+        for (int i = 0; i < 3; i++)
+            phase = phase.addToHall(ann, new Student(annColor));
+        assertEquals(1, phase.getTable().getBoardOf(ann).getCoins());
 
-        afterUpdate = afterUpdate.updateHall(ann, c -> {
-            for (int i = 0; i < 3; i++)
-                c = c.add(new Student(annColor));
-            return c;
-        });
-        assertEquals(3, afterUpdate.getTable().getBoardOf(ann).getCoins());
+        for (int i = 0; i < 3; i++)
+            phase = phase.addToHall(ann, new Student(annColor));
+        assertEquals(2, phase.getTable().getBoardOf(ann).getCoins());
 
-        afterUpdate = afterUpdate.updateHall(ann, c -> c);
-        assertEquals(3, afterUpdate.getTable().getBoardOf(ann).getCoins());
+        for (int i = 0; i < 3; i++)
+            phase = phase.addToHall(ann, new Student(annColor));
+        assertEquals(3, phase.getTable().getBoardOf(ann).getCoins());
     }
 
     /**
-     * Tests if the phase updates students in the give island (if in bounds) after
-     * {@link ActionPhase#updateIsland(Player, int, Function)}
+     * Test that {@link ActionPhase#addToHall(Player, Student)} respects its contract
      */
     @Test
-    void testUpdateIsland() throws InvalidPhaseUpdateException {
+    void testAddToIsland() throws InvalidPhaseUpdateException {
         ActionPhase phase = new MockActionPhase(t, ann);
 
-        assertThrows(InvalidPhaseUpdateException.class, () -> phase.updateIsland(ann, -1, i -> i));
-        assertThrows(InvalidPhaseUpdateException.class, () -> phase.updateIsland(ann, 15, i -> i));
+        assertThrows(InvalidPhaseUpdateException.class, () -> phase.addToIsland(ann, -1, new Student(annColor)));
+        assertThrows(InvalidPhaseUpdateException.class, () -> phase.addToIsland(ann, 15, new Student(annColor)));
 
-        Phase afterUpdate = phase.updateIsland(ann, 0, c -> c.add(new Student(annColor)));
+        Phase afterUpdate = phase.addToIsland(ann, 0, new Student(annColor));
         Island updated = afterUpdate.getTable().getIslandList().get(0);
         assertEquals(1, updated.getStudents().size());
     }
@@ -206,16 +209,10 @@ public class ActionPhaseTest {
      * Test that update* functions abort when null is returned
      */
     @Test
-    void testNullUpdate() throws InvalidPhaseUpdateException {
+    void testNullUpdate() {
         ActionPhase phase = new MockActionPhase(t, ann);
 
-        Phase u = phase.updateIsland(ann, 0, i -> null);
-        assertEquals(u.getTable(), phase.getTable());
-
-        u = phase.updateHall(ann, h -> null);
-        assertEquals(u.getTable(), phase.getTable());
-
-        u = phase.updateTable(t -> null);
+        Phase u = phase.updateTable(t -> null);
         assertEquals(u.getTable(), phase.getTable());
     }
 
