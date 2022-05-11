@@ -1,4 +1,4 @@
-package it.polimi.ingsw.server.controller;
+package it.polimi.ingsw.server.controller.commands;
 
 import com.google.gson.JsonObject;
 
