@@ -39,6 +39,16 @@ public class CharacterStep {
     }
 
     /**
+     * Returns the values associated with the given name. If there is none, null is returned
+     *
+     * @param name the name to search
+     * @return the String associated to {@code name} or null
+     */
+    public String getParameter(String name) {
+        return params.get(name);
+    }
+
+    /**
      * Interpret the value of the parameter with the given name as a {@link Island} index verify that it is valid in
      * the context of the given {@link ActionPhase}.
      *
