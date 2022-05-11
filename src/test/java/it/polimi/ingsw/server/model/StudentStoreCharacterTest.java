@@ -92,6 +92,21 @@ class StudentStoreCharacterTest {
     }
 
     /**
+     * Test remove()
+     */
+    @Test
+    void remove() {
+        StudentStoreCharacter m = (StudentStoreCharacter) c.doPrepare(pp).getSecond();
+        assertAll(() -> {
+            StudentStoreCharacter n = m;
+            while (n.size() > 0)
+                n = n.remove().getFirst();
+            StudentStoreCharacter finalN = n;
+            assertThrows(EmptyContainerException.class, () -> finalN.remove(PieceColor.RED));
+        });
+    }
+
+    /**
      * Test add()
      */
     @Test
