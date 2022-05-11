@@ -53,6 +53,16 @@ class PrincessTest {
     }
 
     /**
+     * Check that doEffect throws if passed null
+     */
+    @Test
+    void nullCheck() {
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(ap, (CharacterStep) null));
+    }
+
+    /**
      * Checks that doEffect parses steps correctly
      */
     @ParameterizedTest
@@ -62,9 +72,8 @@ class PrincessTest {
         CharacterStep wrong = new CharacterStep();
         wrong.setParameter(t.cardKey, t.cardValue);
 
-        assertThrows(IllegalArgumentException.class, () -> p.doEffect(ap, null));
-        assertThrows(InvalidCharacterParameterException.class, () -> p.doEffect(ap, new CharacterStep[]{}));
-        assertThrows(InvalidCharacterParameterException.class, () -> p.doEffect(ap, new CharacterStep[]{wrong}));
+        assertThrows(InvalidCharacterParameterException.class, () -> p.doEffect(ap));
+        assertThrows(InvalidCharacterParameterException.class, () -> p.doEffect(ap, wrong));
     }
 
     /**
@@ -89,7 +98,7 @@ class PrincessTest {
         CharacterStep step = new CharacterStep();
         step.setParameter("card", preUpdate.getStudents().stream().findAny().orElseThrow().getColor().toString());
         ActionPhase actionPhase = new MockActionPhase(withSack, ann);
-        Tuple<ActionPhase, Character> after = preUpdate.doEffect(actionPhase, new CharacterStep[]{step});
+        Tuple<ActionPhase, Character> after = preUpdate.doEffect(actionPhase, step);
 
         assertEquals(1, after.getFirst().getTable().getBoardOf(ann).getHall().size());
         assertTrue(after.getFirst()
@@ -110,7 +119,7 @@ class PrincessTest {
         PriestAndPrincess preUpdate = (PriestAndPrincess) c.doPrepare(pp).getSecond();
         CharacterStep step = new CharacterStep();
         step.setParameter("card", preUpdate.getStudents().stream().findAny().orElseThrow().getColor().toString());
-        Tuple<ActionPhase, Character> after = preUpdate.doEffect(ap, new CharacterStep[]{step});
+        Tuple<ActionPhase, Character> after = preUpdate.doEffect(ap, step);
 
         assertEquals(1, after.getFirst().getTable().getBoardOf(ann).getHall().size());
         assertTrue(after.getFirst()
@@ -138,7 +147,7 @@ class PrincessTest {
         CharacterStep step = new CharacterStep();
         step.setParameter("card", color.toString());
         ActionPhase actionPhase = new MockActionPhase(withFullHall, ann);
-        assertThrows(InvalidPhaseUpdateException.class, () -> preUpdate.doEffect(actionPhase, new CharacterStep[]{step}));
+        assertThrows(InvalidPhaseUpdateException.class, () -> preUpdate.doEffect(actionPhase, step));
     }
 
     /**
@@ -152,7 +161,7 @@ class PrincessTest {
         step.setParameter("card", "PINK");
         step.setParameter("island", "0");
         ActionPhase actionPhase = new MockActionPhase(withSack, ann);
-        assertThrows(InvalidPhaseUpdateException.class, () -> preUpdate.doEffect(actionPhase, new CharacterStep[]{step}));
+        assertThrows(InvalidPhaseUpdateException.class, () -> preUpdate.doEffect(actionPhase, step));
     }
 
     /**
@@ -165,7 +174,7 @@ class PrincessTest {
         CharacterStep step = new CharacterStep();
         step.setParameter("card", preUpdate.getStudents().stream().findAny().orElseThrow().getColor().toString());
         ActionPhase actionPhase = new MockActionPhase(withSack, ann);
-        Tuple<ActionPhase, Character> after = preUpdate.doEffect(actionPhase, new CharacterStep[]{step, step});
+        Tuple<ActionPhase, Character> after = preUpdate.doEffect(actionPhase, step, step);
 
         assertEquals(1, after.getFirst().getTable().getBoardOf(ann).getHall().size());
         assertTrue(after.getFirst()

@@ -43,7 +43,9 @@ class KnightTest {
      */
     @Test
     void boundCheckDoEffect() {
-        assertThrows(IllegalArgumentException.class, () -> k.doEffect(ap, null));
+        assertThrows(IllegalArgumentException.class, () -> k.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> k.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> k.doEffect(ap, (CharacterStep) null));
     }
 
     /**
@@ -51,7 +53,7 @@ class KnightTest {
      */
     @Test
     void doEffect() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        Tuple<ActionPhase, Character> after = k.doEffect(ap, new CharacterStep[]{});
+        Tuple<ActionPhase, Character> after = k.doEffect(ap);
 
         assertNotEquals(ap.getInfluenceCalculator(), after.getFirst().getInfluenceCalculator());
         assertInstanceOf(ExtraPointsInfluenceDecorator.class, after.getFirst().getInfluenceCalculator());

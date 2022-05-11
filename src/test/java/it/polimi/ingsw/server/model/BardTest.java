@@ -44,6 +44,16 @@ class BardTest {
     }
 
     /**
+     * Null check doEffect
+     */
+    @Test
+    void nullCheck() {
+        assertThrows(IllegalArgumentException.class, () -> b.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> b.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> b.doEffect(ap, (CharacterStep) null));
+    }
+
+    /**
      * Test that doEffect() parses steps correctly
      */
     @ParameterizedTest
@@ -52,8 +62,7 @@ class BardTest {
         CharacterStep wrong = new CharacterStep();
         wrong.setParameter(t.entranceKey, t.entranceValue);
         wrong.setParameter(t.hallKey, t.hallValue);
-        assertThrows(IllegalArgumentException.class, () -> b.doEffect(ap, null));
-        assertThrows(InvalidCharacterParameterException.class, () -> b.doEffect(ap, new CharacterStep[]{wrong}));
+        assertThrows(InvalidCharacterParameterException.class, () -> b.doEffect(ap, wrong));
     }
 
     /**
@@ -80,11 +89,11 @@ class BardTest {
         CharacterStep step = new CharacterStep();
         step.setParameter("entrance", "PINK");
         step.setParameter("hall", "RED");
-        assertThrows(InvalidPhaseUpdateException.class, () -> b.doEffect(ap, new CharacterStep[]{step}));
+        assertThrows(InvalidPhaseUpdateException.class, () -> b.doEffect(ap, step));
 
         step.setParameter("entrance", "BLUE");
         step.setParameter("hall", "PINK");
-        assertThrows(InvalidPhaseUpdateException.class, () -> b.doEffect(ap, new CharacterStep[]{step}));
+        assertThrows(InvalidPhaseUpdateException.class, () -> b.doEffect(ap, step));
     }
 
     /**
@@ -95,7 +104,7 @@ class BardTest {
         CharacterStep step = new CharacterStep();
         step.setParameter("entrance", "BLUE");
         step.setParameter("hall", "RED");
-        Tuple<ActionPhase, Character> after = b.doEffect(ap, new CharacterStep[]{step});
+        Tuple<ActionPhase, Character> after = b.doEffect(ap, step);
 
         assertEquals(1, after.getFirst().getTable().getBoardOf(ann).getEntrance().size(PieceColor.RED));
         assertEquals(1, after.getFirst().getTable().getBoardOf(ann).getHall().size(PieceColor.BLUE));
@@ -125,7 +134,7 @@ class BardTest {
         CharacterStep step = new CharacterStep();
         step.setParameter("entrance", "BLUE");
         step.setParameter("hall", "RED");
-        Tuple<ActionPhase, Character> after = b.doEffect(phase, new CharacterStep[]{step, step, step});
+        Tuple<ActionPhase, Character> after = b.doEffect(phase, step, step, step);
         assertEquals(2, after.getFirst().getTable().getBoardOf(ann).getEntrance().size(PieceColor.RED));
         assertEquals(2, after.getFirst().getTable().getBoardOf(ann).getHall().size(PieceColor.BLUE));
     }
@@ -151,7 +160,7 @@ class BardTest {
         CharacterStep step = new CharacterStep();
         step.setParameter("entrance", "BLUE");
         step.setParameter("hall", "BLUE");
-        Tuple<ActionPhase, Character> after = b.doEffect(full, new CharacterStep[]{step});
+        Tuple<ActionPhase, Character> after = b.doEffect(full, step);
 
         assertEquals(7, after.getFirst().getTable().getBoardOf(ann).getEntrance().size(PieceColor.BLUE));
         assertEquals(10, after.getFirst().getTable().getBoardOf(ann).getHall().size(PieceColor.BLUE));

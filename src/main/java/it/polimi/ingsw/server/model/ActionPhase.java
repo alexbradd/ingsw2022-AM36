@@ -336,7 +336,7 @@ abstract class ActionPhase extends IteratedPhase {
      * {@inheritDoc}
      */
     @Override
-    public Phase playCharacter(Player player, CharacterType characterType, CharacterStep[] steps) throws InvalidPhaseUpdateException, InvalidCharacterParameterException {
+    public Phase playCharacter(Player player, CharacterType characterType, CharacterStep... steps) throws InvalidPhaseUpdateException, InvalidCharacterParameterException {
         if (player == null) throw new IllegalArgumentException("player shouldn't be null");
         if (characterType == null) throw new IllegalArgumentException("characterType shouldn't be null");
         if (steps == null) throw new IllegalArgumentException("steps shouldn't be null");

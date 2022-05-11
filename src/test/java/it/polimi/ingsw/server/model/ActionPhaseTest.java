@@ -84,9 +84,9 @@ public class ActionPhaseTest {
         ActionPhase phase = new MockActionPhase(t, ann);
         assertThrows(IllegalArgumentException.class, () -> phase.assignTower(null));
         assertThrows(IllegalArgumentException.class, () -> phase.blockIsland(0, null));
-        assertThrows(IllegalArgumentException.class, () -> phase.playCharacter(null, null, null));
-        assertThrows(IllegalArgumentException.class, () -> phase.playCharacter(ann, null, null));
-        assertThrows(IllegalArgumentException.class, () -> phase.playCharacter(ann, CharacterType.HERBALIST, null));
+        assertThrows(IllegalArgumentException.class, () -> phase.playCharacter(null, null, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> phase.playCharacter(ann, null, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> phase.playCharacter(ann, CharacterType.HERBALIST, (CharacterStep[]) null));
         assertThrows(IllegalArgumentException.class, () -> phase.setInfluenceCalculator(null));
         assertThrows(IllegalArgumentException.class, () -> phase.setMaxExtractor(null));
         assertThrows(IllegalArgumentException.class, () -> phase.getFromEntrance(null, null));

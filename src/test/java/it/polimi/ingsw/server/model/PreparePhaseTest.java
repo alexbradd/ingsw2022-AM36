@@ -68,7 +68,7 @@ class PreparePhaseTest {
         assertThrows(UnsupportedOperationException.class,
                 () -> prepare.addPlayer("test"));
         assertThrows(UnsupportedOperationException.class,
-                () -> prepare.playCharacter(p1, CharacterType.HERBALIST, new CharacterStep[1]));
+                () -> prepare.playCharacter(p1, CharacterType.HERBALIST));
         assertThrows(UnsupportedOperationException.class,
                 () -> prepare.moveMn(p1, 1));
         assertThrows(UnsupportedOperationException.class,

@@ -207,18 +207,18 @@ public abstract class Phase {
 
     /**
      * This method lets the given Player play a character card. The {@link CharacterType} is
-     * passed via parameter, along with all the needed additional information, as can be seen below:
+     * passed via parameter, along with all the needed additional information as a series of {@link CharacterStep}.
      *
      * @param player    a reference to a Player as returned by {@code authorizePlayer}
      * @param character the {@link CharacterType} to play
-     * @param steps     additional arguments that specify the behaviour of the card (see method description)
+     * @param steps     additional arguments that specify the behaviour of the card (see specific card for details)
      * @throws UnsupportedOperationException      if this operation is not supported by the current phase of the game
      * @throws IllegalArgumentException           if any parameter is null
      * @throws InvalidCharacterParameterException if the additional information "args" is either missing or incorrect
      * @throws InvalidPhaseUpdateException        if the number of coins of the player is less than the amount required
      *                                            to play the character card (see game rules)
      */
-    public Phase playCharacter(Player player, CharacterType character, CharacterStep[] steps) throws InvalidPhaseUpdateException, InvalidCharacterParameterException {
+    public Phase playCharacter(Player player, CharacterType character, CharacterStep... steps) throws InvalidPhaseUpdateException, InvalidCharacterParameterException {
         throw new UnsupportedOperationException();
     }
 

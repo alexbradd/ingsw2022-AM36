@@ -34,6 +34,17 @@ class ThiefTest {
     }
 
     /**
+     * Check that doEffect throws if passed null
+     */
+    @Test
+    void nullCheck() {
+        ActionPhase ap = new MockActionPhase(t, ann);
+        assertThrows(IllegalArgumentException.class, () -> thief.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> thief.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> thief.doEffect(ap, (CharacterStep) null));
+    }
+
+    /**
      * Bound check doEffect()
      */
     @Test
@@ -44,10 +55,9 @@ class ThiefTest {
         CharacterStep wrong2 = new CharacterStep();
         wrong2.setParameter("color", "not color");
 
-        assertThrows(IllegalArgumentException.class, () -> thief.doEffect(ap, null));
-        assertThrows(InvalidCharacterParameterException.class, () -> thief.doEffect(ap, new CharacterStep[]{}));
-        assertThrows(InvalidCharacterParameterException.class, () -> thief.doEffect(ap, new CharacterStep[]{wrong1}));
-        assertThrows(InvalidCharacterParameterException.class, () -> thief.doEffect(ap, new CharacterStep[]{wrong2}));
+        assertThrows(InvalidCharacterParameterException.class, () -> thief.doEffect(ap));
+        assertThrows(InvalidCharacterParameterException.class, () -> thief.doEffect(ap, wrong1));
+        assertThrows(InvalidCharacterParameterException.class, () -> thief.doEffect(ap, wrong2));
     }
 
     /**
@@ -67,7 +77,7 @@ class ThiefTest {
         ActionPhase ap = new MockActionPhase(withStudents, ann);
         CharacterStep step = new CharacterStep();
         step.setParameter("color", "RED");
-        Tuple<ActionPhase, Character> after = thief.doEffect(ap, new CharacterStep[]{step});
+        Tuple<ActionPhase, Character> after = thief.doEffect(ap, step);
 
         assertEquals(CharacterType.THIEF.getInitialCost() + 1, after.getSecond().getCost());
         assertEquals(1, after.getFirst().getTable().getBoardOf(ann).getHall().size());
@@ -99,7 +109,7 @@ class ThiefTest {
         ActionPhase ap = new MockActionPhase(withStudents, ann);
         CharacterStep step = new CharacterStep();
         step.setParameter("color", "RED");
-        Tuple<ActionPhase, Character> after = thief.doEffect(ap, new CharacterStep[]{step});
+        Tuple<ActionPhase, Character> after = thief.doEffect(ap, step);
 
         assertEquals(CharacterType.THIEF.getInitialCost() + 1, after.getSecond().getCost());
         assertEquals(1, after.getFirst().getTable().getBoardOf(ann).getHall().size());
@@ -133,7 +143,7 @@ class ThiefTest {
         step1.setParameter("color", "RED");
         CharacterStep step2 = new CharacterStep();
         step2.setParameter("color", "PINK");
-        Tuple<ActionPhase, Character> after = thief.doEffect(ap, new CharacterStep[]{step1, step2});
+        Tuple<ActionPhase, Character> after = thief.doEffect(ap, step1, step2);
 
         assertEquals(1, after.getFirst().getTable().getBoardOf(ann).getHall().size());
         assertEquals(0, after.getFirst().getTable().getBoardOf(bob).getHall().size());

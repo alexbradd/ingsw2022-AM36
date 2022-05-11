@@ -41,6 +41,16 @@ class JesterTest {
     }
 
     /**
+     * Check that doEffect throws if passed null
+     */
+    @Test
+    void nullCheck() {
+        assertThrows(IllegalArgumentException.class, () -> j.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> j.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> j.doEffect(ap, (CharacterStep) null));
+    }
+
+    /**
      * Test that doEffect() parses steps correctly
      */
     @ParameterizedTest
@@ -49,8 +59,7 @@ class JesterTest {
         CharacterStep wrong = new CharacterStep();
         wrong.setParameter(t.cardKey, t.cardValue);
         wrong.setParameter(t.entranceKey, t.entranceValue);
-        assertThrows(IllegalArgumentException.class, () -> j.doEffect(ap, null));
-        assertThrows(InvalidCharacterParameterException.class, () -> j.doEffect(ap, new CharacterStep[]{wrong}));
+        assertThrows(InvalidCharacterParameterException.class, () -> j.doEffect(ap, wrong));
     }
 
     /**
@@ -78,7 +87,7 @@ class JesterTest {
         step.setParameter("card", "RED");
         step.setParameter("entrance", "BLUE");
         Jester withStudents = (Jester) j.add(new Student(PieceColor.RED));
-        Tuple<ActionPhase, Character> after = withStudents.doEffect(ap, new CharacterStep[]{step});
+        Tuple<ActionPhase, Character> after = withStudents.doEffect(ap, step);
 
         assertEquals(1, after.getFirst().getTable().getBoardOf(ann).getEntrance().size(PieceColor.RED));
         assertEquals(1, ((StudentStoreCharacter) after.getSecond()).size(PieceColor.BLUE));
@@ -94,7 +103,7 @@ class JesterTest {
         step.setParameter("card", "PINK");
         step.setParameter("entrance", "BLUE");
         Jester withStudents = (Jester) j.add(new Student(PieceColor.RED));
-        assertThrows(InvalidPhaseUpdateException.class, () -> withStudents.doEffect(ap, new CharacterStep[]{step}));
+        assertThrows(InvalidPhaseUpdateException.class, () -> withStudents.doEffect(ap, step));
     }
 
     /**
@@ -106,7 +115,7 @@ class JesterTest {
         step.setParameter("card", "RED");
         step.setParameter("entrance", "PINK");
         Jester withStudents = (Jester) j.add(new Student(PieceColor.RED));
-        assertThrows(InvalidPhaseUpdateException.class, () -> withStudents.doEffect(ap, new CharacterStep[]{step}));
+        assertThrows(InvalidPhaseUpdateException.class, () -> withStudents.doEffect(ap, step));
     }
 
     /**
@@ -126,7 +135,7 @@ class JesterTest {
         step.setParameter("card", "RED");
         step.setParameter("entrance", "BLUE");
         Jester finalWithStudents = withStudents;
-        assertAll(() -> finalWithStudents.doEffect(full, new CharacterStep[]{step, step, step}));
+        assertAll(() -> finalWithStudents.doEffect(full, step, step, step));
     }
 
     /**
@@ -145,7 +154,7 @@ class JesterTest {
         CharacterStep step = new CharacterStep();
         step.setParameter("card", "RED");
         step.setParameter("entrance", "BLUE");
-        Tuple<ActionPhase, Character> after = withStudents.doEffect(full, new CharacterStep[]{step, step, step, step});
+        Tuple<ActionPhase, Character> after = withStudents.doEffect(full, step, step, step, step);
         assertEquals(3, after.getFirst().getTable().getBoardOf(ann).getEntrance().size(PieceColor.RED));
         assertEquals(3, ((StudentStoreCharacter) after.getSecond()).size(PieceColor.BLUE));
     }

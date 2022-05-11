@@ -37,6 +37,16 @@ class WizardTest {
     }
 
     /**
+     * Check that doEffect throws if passed null
+     */
+    @Test
+    void nullCheck() {
+        assertThrows(IllegalArgumentException.class, () -> w.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> w.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> w.doEffect(ap, (CharacterStep) null));
+    }
+
+    /**
      * Bound check doEffect()
      */
     @Test
@@ -46,10 +56,9 @@ class WizardTest {
         CharacterStep wrong2 = new CharacterStep();
         wrong2.setParameter("color", "not color");
 
-        assertThrows(IllegalArgumentException.class, () -> w.doEffect(ap, null));
-        assertThrows(InvalidCharacterParameterException.class, () -> w.doEffect(ap, new CharacterStep[]{}));
-        assertThrows(InvalidCharacterParameterException.class, () -> w.doEffect(ap, new CharacterStep[]{wrong1}));
-        assertThrows(InvalidCharacterParameterException.class, () -> w.doEffect(ap, new CharacterStep[]{wrong2}));
+        assertThrows(InvalidCharacterParameterException.class, () -> w.doEffect(ap));
+        assertThrows(InvalidCharacterParameterException.class, () -> w.doEffect(ap, wrong1));
+        assertThrows(InvalidCharacterParameterException.class, () -> w.doEffect(ap, wrong2));
     }
 
     /**

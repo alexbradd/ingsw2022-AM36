@@ -41,7 +41,9 @@ class InnkeeperTest {
      */
     @Test
     void boundCheckDoEffect() {
-        assertThrows(IllegalArgumentException.class, () -> i.doEffect(ap, null));
+        assertThrows(IllegalArgumentException.class, () -> i.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> i.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> i.doEffect(ap, (CharacterStep) null));
     }
 
     /**
@@ -49,7 +51,7 @@ class InnkeeperTest {
      */
     @Test
     void doEffect() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        Tuple<ActionPhase, Character> after = i.doEffect(ap, new CharacterStep[]{});
+        Tuple<ActionPhase, Character> after = i.doEffect(ap);
 
         assertNotEquals(ap.getMaxExtractor(), after.getFirst().getMaxExtractor());
         assertInstanceOf(EqualityInclusiveMaxExtractor.class, after.getFirst().getMaxExtractor());

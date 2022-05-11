@@ -114,7 +114,7 @@ abstract class Character implements Jsonable {
      * @throws InvalidCharacterParameterException if any of the parameters in {@code steps} is formatted incorrectly
      * @throws InvalidPhaseUpdateException        if the effect of the card would modify the state in an illegal way
      */
-    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
+    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         if (phase == null) throw new IllegalArgumentException("phase shouldn't be null");
         if (steps == null) throw new IllegalArgumentException("steps shouldn't be null");
         Character t = this.shallowCopy();
@@ -135,7 +135,9 @@ abstract class Character implements Jsonable {
         if (phase == null) throw new IllegalArgumentException("phase shouldn't be null");
         if (steps == null) throw new IllegalArgumentException("steps shouldn't be null");
         if (steps.length < minimumSteps)
-            throw new InvalidCharacterParameterException("Too few parameters: at least 1 expected");
+            throw new InvalidCharacterParameterException("Too few parameters: at least " + minimumSteps + " expected");
+        for (CharacterStep s : steps)
+            if (s == null) throw new IllegalArgumentException("Step shouldn't be null");
     }
 
     /**

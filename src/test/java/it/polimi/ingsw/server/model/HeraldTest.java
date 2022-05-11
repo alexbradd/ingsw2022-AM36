@@ -53,6 +53,16 @@ class HeraldTest {
     }
 
     /**
+     * Check that doEffect throws if passed null
+     */
+    @Test
+    void nullCheck() {
+        assertThrows(IllegalArgumentException.class, () -> h.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> h.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> h.doEffect(ap, (CharacterStep) null));
+    }
+
+    /**
      * Bound check doEffect()
      */
     @Test
@@ -64,11 +74,9 @@ class HeraldTest {
         CharacterStep wrong3 = new CharacterStep();
         wrong3.setParameter("island", "20");
 
-        assertThrows(IllegalArgumentException.class, () -> h.doEffect(ap, null));
-        assertThrows(InvalidCharacterParameterException.class, () -> h.doEffect(ap, new CharacterStep[]{}));
-        assertThrows(InvalidCharacterParameterException.class, () -> h.doEffect(ap, new CharacterStep[]{wrong1}));
-        assertThrows(InvalidCharacterParameterException.class, () -> h.doEffect(ap, new CharacterStep[]{wrong2}));
-        assertThrows(InvalidCharacterParameterException.class, () -> h.doEffect(ap, new CharacterStep[]{wrong3}));
+        assertThrows(InvalidCharacterParameterException.class, () -> h.doEffect(ap, wrong1));
+        assertThrows(InvalidCharacterParameterException.class, () -> h.doEffect(ap, wrong2));
+        assertThrows(InvalidCharacterParameterException.class, () -> h.doEffect(ap, wrong3));
     }
 
     /**
@@ -78,7 +86,7 @@ class HeraldTest {
     void doEffect() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         CharacterStep step = new CharacterStep();
         step.setParameter("island", "0");
-        Tuple<ActionPhase, Character> after = h.doEffect(ap, new CharacterStep[]{step});
+        Tuple<ActionPhase, Character> after = h.doEffect(ap, step);
 
         assertTrue(after.getFirst().getTable().getIslandList().get(0).getControllingPlayer().isPresent());
         assertEquals(ann, after.getFirst().getTable().getIslandList().get(0).getControllingPlayer().get());
@@ -89,7 +97,7 @@ class HeraldTest {
 
         step = new CharacterStep();
         step.setParameter("island", "2");
-        after = h.doEffect(ap, new CharacterStep[]{step});
+        after = h.doEffect(ap, step);
         assertFalse(after.getFirst().getTable().getIslandList().get(0).getControllingPlayer().isPresent());
         assertFalse(after.getFirst().getTable().getIslandList().get(0).getConqueringColor().isPresent());
     }
@@ -103,7 +111,7 @@ class HeraldTest {
         step1.setParameter("island", "0");
         CharacterStep step2 = new CharacterStep();
         step2.setParameter("island", "2");
-        Tuple<ActionPhase, Character> after = h.doEffect(ap, new CharacterStep[]{step1, step2});
+        Tuple<ActionPhase, Character> after = h.doEffect(ap, step1, step2);
 
         assertTrue(after.getFirst().getTable().getIslandList().get(0).getControllingPlayer().isPresent());
         assertEquals(ann, after.getFirst().getTable().getIslandList().get(0).getControllingPlayer().get());

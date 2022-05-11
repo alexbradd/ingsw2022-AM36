@@ -51,6 +51,16 @@ class PriestTest {
     }
 
     /**
+     * Check that doEffect throws if passed null
+     */
+    @Test
+    void nullCheck() {
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(ap, (CharacterStep) null));
+    }
+
+    /**
      * Tests doEffect's step parsing
      */
     @ParameterizedTest
@@ -61,9 +71,8 @@ class PriestTest {
         wrong.setParameter(t.cardKey, t.cardValue);
         wrong.setParameter(t.islandKey, t.islandValue);
 
-        assertThrows(IllegalArgumentException.class, () -> p.doEffect(ap, null));
-        assertThrows(InvalidCharacterParameterException.class, () -> p.doEffect(ap, new CharacterStep[]{}));
-        assertThrows(InvalidCharacterParameterException.class, () -> p.doEffect(ap, new CharacterStep[]{wrong}));
+        assertThrows(InvalidCharacterParameterException.class, () -> p.doEffect(ap));
+        assertThrows(InvalidCharacterParameterException.class, () -> p.doEffect(ap, wrong));
     }
 
     /**
@@ -92,7 +101,7 @@ class PriestTest {
         step.setParameter("card", preUpdate.getStudents().stream().findAny().orElseThrow().getColor().toString());
         step.setParameter("island", "0");
         ActionPhase actionPhase = new MockActionPhase(withSack, ann);
-        Tuple<ActionPhase, Character> after = preUpdate.doEffect(actionPhase, new CharacterStep[]{step});
+        Tuple<ActionPhase, Character> after = preUpdate.doEffect(actionPhase, step);
 
         assertEquals(1, after.getFirst().getTable().getIslandList().get(0).getStudents().size());
         assertEquals(4, ((StudentStoreCharacter) after.getSecond()).getStudents().size());
@@ -112,7 +121,7 @@ class PriestTest {
         step.setParameter("card", "PINK");
         step.setParameter("island", "0");
         ActionPhase actionPhase = new MockActionPhase(withSack, ann);
-        assertThrows(InvalidPhaseUpdateException.class, () -> preUpdate.doEffect(actionPhase, new CharacterStep[]{step}));
+        assertThrows(InvalidPhaseUpdateException.class, () -> preUpdate.doEffect(actionPhase, step));
     }
 
     /**
@@ -126,7 +135,7 @@ class PriestTest {
         step.setParameter("card", preUpdate.getStudents().stream().findAny().orElseThrow().getColor().toString());
         step.setParameter("island", "0");
         ActionPhase actionPhase = new MockActionPhase(withSack, ann);
-        Tuple<ActionPhase, Character> after = preUpdate.doEffect(actionPhase, new CharacterStep[]{step, step});
+        Tuple<ActionPhase, Character> after = preUpdate.doEffect(actionPhase, step, step);
 
         assertEquals(1, after.getFirst().getTable().getIslandList().get(0).getStudents().size());
         assertEquals(4, ((StudentStoreCharacter) after.getSecond()).getStudents().size());
@@ -141,7 +150,7 @@ class PriestTest {
         CharacterStep step = new CharacterStep();
         step.setParameter("card", preUpdate.getStudents().stream().findAny().orElseThrow().getColor().toString());
         step.setParameter("island", "0");
-        Tuple<ActionPhase, Character> after = preUpdate.doEffect(ap, new CharacterStep[]{step});
+        Tuple<ActionPhase, Character> after = preUpdate.doEffect(ap, step);
 
         assertEquals(1, after.getFirst().getTable().getIslandList().get(0).getStudents().size());
         assertEquals(3, ((StudentStoreCharacter) after.getSecond()).getStudents().size());

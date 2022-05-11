@@ -41,7 +41,9 @@ class MessengerTest {
      */
     @Test
     void boundCheckDoEffect() {
-        assertThrows(IllegalArgumentException.class, () -> m.doEffect(ap, null));
+        assertThrows(IllegalArgumentException.class, () -> m.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> m.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> m.doEffect(ap, (CharacterStep) null));
     }
 
     /**
@@ -49,7 +51,7 @@ class MessengerTest {
      */
     @Test
     void doEffect() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        Tuple<ActionPhase, Character> after = m.doEffect(ap, new CharacterStep[]{});
+        Tuple<ActionPhase, Character> after = m.doEffect(ap);
 
         assertEquals(2, after.getFirst().getExtraMnMoves());
         assertEquals(CharacterType.MESSENGER.getInitialCost() + 1, after.getSecond().getCost());

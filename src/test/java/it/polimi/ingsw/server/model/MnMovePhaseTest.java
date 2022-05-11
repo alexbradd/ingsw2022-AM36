@@ -358,7 +358,7 @@ class MnMovePhaseTest {
         Phase afterMove = new MnMovePhase(new MockActionPhase(withoutStudents, ann), avi).moveMn(ann, 1);
 
         assertInstanceOf(StudentMovePhase.class, afterMove);
-        assertEquals(bob, ((StudentMovePhase) afterMove).getCurrentPlayer());
+        assertEquals(bob, afterMove.getCurrentPlayer());
     }
 
     /**
@@ -386,7 +386,7 @@ class MnMovePhaseTest {
                 .updateBoardOf(ann, b -> b.receiveCoin().receiveCoin());
         MockActionPhase mockActionPhase = new MockActionPhase(withCharacter, ann);
         ActionPhase phase = new MnMovePhase(mockActionPhase, avi);
-        phase = (ActionPhase) phase.playCharacter(ann, CharacterType.HERBALIST, new CharacterStep[]{});
+        phase = (ActionPhase) phase.playCharacter(ann, CharacterType.HERBALIST);
         phase = phase.setInfluenceCalculator(new ExtraPointsInfluenceDecorator(phase.getInfluenceCalculator(), ann, 2));
         phase = phase.setMaxExtractor(new EqualityInclusiveMaxExtractor(ann));
 

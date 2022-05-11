@@ -53,8 +53,8 @@ class CharacterTest {
     @Test
     void nullCheck() {
         assertThrows(IllegalArgumentException.class, () -> new MockCharacter(null));
-        assertThrows(IllegalArgumentException.class, () -> mc.doEffect(null, null));
-        assertThrows(IllegalArgumentException.class, () -> mc.doEffect(ap, null));
+        assertThrows(IllegalArgumentException.class, () -> mc.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> mc.doEffect(ap, (CharacterStep[]) null));
         assertThrows(IllegalArgumentException.class, () -> mc.doPrepare(null));
     }
 
@@ -84,7 +84,7 @@ class CharacterTest {
     @Test
     void testDoEffect() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         assertEquals(CharacterType.HERBALIST.getInitialCost(), mc.getCost());
-        mc = (MockCharacter) mc.doEffect(ap, new CharacterStep[]{}).getSecond();
+        mc = (MockCharacter) mc.doEffect(ap).getSecond();
         assertEquals(CharacterType.HERBALIST.getInitialCost() + 1, mc.getCost());
     }
 

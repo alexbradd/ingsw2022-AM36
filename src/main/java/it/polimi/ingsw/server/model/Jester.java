@@ -49,7 +49,7 @@ class Jester extends StudentStoreCharacter {
      * @throws InvalidPhaseUpdateException        if the effect of the card would modify the state in an illegal way
      */
     @Override
-    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
+    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         checkEffectParameters(phase, steps, 0);
         List<Tuple<PieceColor, PieceColor>> colors = fromStepToTuple(steps);
         return super.doEffect(phase, steps)

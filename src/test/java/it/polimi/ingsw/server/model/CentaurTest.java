@@ -40,8 +40,10 @@ class CentaurTest {
      * Bound check doEffect()
      */
     @Test
-    void boundCheckDoEffect() {
-        assertThrows(IllegalArgumentException.class, () -> c.doEffect(ap, null));
+    void nullCheck() {
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(ap, (CharacterStep) null));
     }
 
     /**
@@ -49,7 +51,7 @@ class CentaurTest {
      */
     @Test
     void doEffect() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        Tuple<ActionPhase, Character> after = c.doEffect(ap, new CharacterStep[]{});
+        Tuple<ActionPhase, Character> after = c.doEffect(ap);
 
         assertNotEquals(ap.getInfluenceCalculator(), after.getFirst().getInfluenceCalculator());
         assertInstanceOf(IgnoreTowersInfluenceDecorator.class, after.getFirst().getInfluenceCalculator());
