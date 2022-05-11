@@ -147,15 +147,4 @@ class LobbyPhase extends Phase {
     public int hashCode() {
         return Objects.hash(table, parameters);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return "LobbyPhase{" +
-                "table=" + table +
-                ", parameters=" + parameters;
-    }
-
 }

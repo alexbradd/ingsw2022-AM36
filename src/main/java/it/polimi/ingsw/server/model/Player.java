@@ -61,14 +61,6 @@ public class Player implements Jsonable {
      * {@inheritDoc}
      */
     @Override
-    public String toString() {
-        return username;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public JsonElement toJson() {
         return new JsonPrimitive(getUsername());
     }

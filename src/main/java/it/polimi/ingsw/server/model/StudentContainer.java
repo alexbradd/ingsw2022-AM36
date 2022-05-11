@@ -146,16 +146,6 @@ final class StudentContainer implements StudentContainerInterface {
      * {@inheritDoc}
      */
     @Override
-    public String toString() {
-        return "StudentContainer{" +
-                "students=" + students +
-                '}';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

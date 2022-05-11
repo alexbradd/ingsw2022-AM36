@@ -392,25 +392,6 @@ public class Board implements Jsonable {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return "Board{" +
-                "player=" + player +
-                ", assistants=" + assistants +
-                ", lastPlayed=" + lastPlayed +
-                ", entrance=" + entrance +
-                ", hall=" + hall +
-                ", towers=" + towers +
-                ", maxNumTowers=" + maxNumTowers +
-                ", towersColor=" + towersColor +
-                ", coins=" + coins +
-                ", deckAdded=" + deckAdded +
-                '}';
-    }
-
-    /**
      * Helper method that gets the assistant corresponding to a certain {@link AssistantType} passed via parameter,
      * if present in the player's deck. If not, it returns an exception.
      *
