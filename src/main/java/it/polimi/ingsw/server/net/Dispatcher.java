@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import it.polimi.ingsw.server.Server;
-import it.polimi.ingsw.server.controller.Parser;
+import it.polimi.ingsw.server.controller.Messages;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -51,7 +51,8 @@ public class Dispatcher implements Runnable {
      * message handler until the socket is disconnected.
      * <p>
      * If the socket disconnects, the onDisconnect callback is called and then the thread ends.
-     * If the read object is not a valid {@link JsonObject}, an error message is sent back (see {@link Parser}).
+     * If the read object is not a valid {@link JsonObject}, an error message is sent back (see
+     * {@link Messages#buildErrorMessage(String)}).
      */
     @Override
     public void run() {
@@ -61,7 +62,7 @@ public class Dispatcher implements Runnable {
                 if (obj.isPresent())
                     System.out.println(obj.get()); // FIXME: temporary until GameRegistry is up
                 else
-                    send(Parser.buildErrorMessage("Malformed JSON"));
+                    send(Messages.buildErrorMessage("Malformed JSON"));
             }
         } catch (IOException e) {
             System.out.println("Error while doing IO to socket: " + e);
