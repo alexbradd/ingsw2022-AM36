@@ -1,13 +1,13 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Represents the Jester card.
@@ -46,32 +46,44 @@ class Jester extends StudentStoreCharacter {
      * @return a Tuple containing the updated ActionPhase and the updated Character
      * @throws IllegalArgumentException           if {@code phase} or {@code steps} or are null
      * @throws InvalidCharacterParameterException if any of the parameters in {@code steps} is formatted incorrectly
+     * @throws InvalidPhaseUpdateException        if the effect of the card would modify the state in an illegal way
      */
     @Override
-    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException {
+    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         checkEffectParameters(phase, steps, 0);
         List<Tuple<PieceColor, PieceColor>> colors = fromStepToTuple(steps);
-        verifyEntranceSize(phase, colors);
-        verifyCardSize(colors);
         return super.doEffect(phase, steps)
-                .map((actionPhase, character) -> {
-                    Player p = actionPhase.getCurrentPlayer();
-                    StudentStoreCharacter studentStore = (StudentStoreCharacter) character;
-                    Tuple<ActionPhase, Character> t = new Tuple<>(actionPhase, character);
+                .throwMap(t -> {
+                    Player p = t.getFirst().getCurrentPlayer();
                     for (Tuple<PieceColor, PieceColor> color : colors) {
-                        t = actionPhase
-                                .unsafeGetFromEntrance(p, color.getSecond())
-                                .map((ap, studentEntrance) -> studentStore
-                                        .remove(color.getFirst())
-                                        .map((ssc, studentCard) -> new Tuple<>(ssc.add(studentEntrance), studentCard))
-                                        .map((ssc, studentCard) -> new Tuple<>(
-                                                ap.updateEntrance(p, e -> e.add(studentCard)),
-                                                ssc)));
+                        t = t.throwMap((actionPhase, character) -> {
+                            StudentStoreCharacter studentStore = (StudentStoreCharacter) character;
+                            return studentStore.moveFromHere(
+                                    new Tuple<>(actionPhase, studentStore),
+                                    color.getFirst(),
+                                    (ap, student) -> ap.addToEntrance(p, student),
+                                    (ap, ssc) -> ap
+                                            .getFromEntrance(p, color.getSecond())
+                                            .map((newAp, s) -> new Tuple<>(newAp, ssc.add(s))));
+
+                        });
                     }
                     return t;
                 });
     }
 
+    /**
+     * Converts a {@link CharacterStep} into a Tuple containing:
+     *
+     * <ol>
+     *     <li>as first, the color to take from the card</li>
+     *     <li>as second, the color to take from the player's entrance</li>
+     * </ol>
+     *
+     * @param steps the array of steps to convert
+     * @return a List of Tuple
+     * @throws InvalidCharacterParameterException if the {@link CharacterStep} is not formatted correctly
+     */
     private List<Tuple<PieceColor, PieceColor>> fromStepToTuple(CharacterStep[] steps) throws InvalidCharacterParameterException {
         List<Tuple<PieceColor, PieceColor>> colors = new ArrayList<>(2);
         for (int i = 0; i < 3 && i < steps.length; i++) {
@@ -80,28 +92,6 @@ class Jester extends StudentStoreCharacter {
             colors.add(new Tuple<>(card, entrance));
         }
         return colors;
-    }
-
-    void verifyEntranceSize(ActionPhase phase, List<Tuple<PieceColor, PieceColor>> colors) throws InvalidCharacterParameterException {
-        Player current = phase.getCurrentPlayer();
-        if (phase.getTable().getBoardOf(current).getEntrance().size() < colors.size())
-            throw new InvalidCharacterParameterException("Wrong invocation: not enough students in entrance");
-        for (Tuple<PieceColor, PieceColor> tuple : colors) {
-            PieceColor entranceColor = tuple.getSecond();
-            long n = colors.stream().filter(t -> t.getSecond().equals(entranceColor)).count();
-            if (phase.getTable().getBoardOf(current).getEntrance().size(entranceColor) < n)
-                throw new InvalidCharacterParameterException("Wrong invocation: not enough students of color" + entranceColor + " in entrance");
-        }
-    }
-
-    void verifyCardSize(List<Tuple<PieceColor, PieceColor>> colors) throws InvalidCharacterParameterException {
-        HashMap<PieceColor, Integer> map = new HashMap<>();
-        for (Tuple<PieceColor, PieceColor> p : colors)
-            map.merge(p.getFirst(), 1, Integer::sum);
-        for (Map.Entry<PieceColor, Integer> e : map.entrySet()) {
-            if (size(e.getKey()) < e.getValue())
-                throw new InvalidCharacterParameterException("Wrong invocation: not enough students of color" + e.getKey() + " on card");
-        }
     }
 
     /**

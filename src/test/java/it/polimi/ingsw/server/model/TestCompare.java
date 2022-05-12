@@ -310,7 +310,7 @@ public class TestCompare {
                     return cs;
                 });
         MockActionPhase p1 = new MockActionPhase(t, ann);
-        MockActionPhase p2 = (MockActionPhase) p1.playCharacter(ann, CharacterType.CENTAUR, new CharacterStep[]{});
+        MockActionPhase p2 = (MockActionPhase) p1.playCharacter(ann, CharacterType.CENTAUR);
 
         PhaseDiff diff = p2.compare(p1);
 

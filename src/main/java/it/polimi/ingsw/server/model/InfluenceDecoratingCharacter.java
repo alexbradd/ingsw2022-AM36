@@ -1,8 +1,10 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
 import java.util.Objects;
 
@@ -67,7 +69,7 @@ class InfluenceDecoratingCharacter extends Character {
      * @throws InvalidCharacterParameterException if any of the parameters in {@code steps} is formatted incorrectly
      */
     @Override
-    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException {
+    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         checkEffectParameters(phase, steps, 0);
         var colorWrapper = new Object() {
             PieceColor color = null;

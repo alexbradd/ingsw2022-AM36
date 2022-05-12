@@ -1,10 +1,12 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.Mage;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -38,16 +40,18 @@ class CentaurTest {
      * Bound check doEffect()
      */
     @Test
-    void boundCheckDoEffect() {
-        assertThrows(IllegalArgumentException.class, () -> c.doEffect(ap, null));
+    void nullCheck() {
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(ap, (CharacterStep) null));
     }
 
     /**
      * Check that doEffect() modifies both the Character and the ActionPhase in the expected way
      */
     @Test
-    void doEffect() throws InvalidCharacterParameterException {
-        Tuple<ActionPhase, Character> after = c.doEffect(ap, new CharacterStep[]{});
+    void doEffect() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
+        Tuple<ActionPhase, Character> after = c.doEffect(ap);
 
         assertNotEquals(ap.getInfluenceCalculator(), after.getFirst().getInfluenceCalculator());
         assertInstanceOf(IgnoreTowersInfluenceDecorator.class, after.getFirst().getInfluenceCalculator());

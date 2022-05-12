@@ -2,8 +2,10 @@ package it.polimi.ingsw.server.model;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -90,11 +92,11 @@ class Herbalist extends Character {
      * @throws InvalidCharacterParameterException if any of the parameters in {@code steps} is formatted incorrectly
      */
     @Override
-    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException {
+    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         checkEffectParameters(phase, steps, 1);
         int islandIndex = steps[0].getParameterAsIslandIndex("island", phase);
         if (getNumOfBlocks() == 0)
-            throw new InvalidCharacterParameterException("Wrong invocation: no more blocks on this card");
+            throw new InvalidPhaseUpdateException("no more blocks on this card");
         return super.doEffect(phase, steps)
                 .map(t -> {
                     ActionPhase p = t.getFirst();

@@ -3,6 +3,7 @@ package it.polimi.ingsw.server.model;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 
 import java.util.*;
@@ -19,7 +20,7 @@ import java.util.function.Function;
  *
  * @author Alexandru Bradatan Gabriel
  */
-public class Island implements Jsonable {
+class Island implements Jsonable {
     private List<Integer> ids;
     private StudentContainer container;
     private List<BlockCard> blocks;

@@ -1,7 +1,9 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.*;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -10,8 +12,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test class for the Jester card
@@ -40,33 +41,40 @@ class JesterTest {
     }
 
     /**
-     * Bound check doEffect()
+     * Check that doEffect throws if passed null
      */
-    @ParameterizedTest
-    @MethodSource("boundCheckSource")
-    void boundCheckDoEffect(StepTest t) {
-        CharacterStep wrong = new CharacterStep();
-        wrong.setParameter(t.cardKey, t.cardValue);
-        wrong.setParameter(t.entranceKey, t.entranceValue);
-        assertThrows(IllegalArgumentException.class, () -> j.doEffect(ap, null));
-        assertThrows(InvalidCharacterParameterException.class, () -> j.doEffect(ap, new CharacterStep[]{wrong}));
+    @Test
+    void nullCheck() {
+        assertThrows(IllegalArgumentException.class, () -> j.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> j.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> j.doEffect(ap, (CharacterStep) null));
     }
 
     /**
-     * Generates test cases for {@link #boundCheckDoEffect(StepTest)}.
+     * Test that doEffect() parses steps correctly
+     */
+    @ParameterizedTest
+    @MethodSource("parseCheckSource")
+    void parseCheck(StepTest t) {
+        CharacterStep wrong = new CharacterStep();
+        wrong.setParameter(t.cardKey, t.cardValue);
+        wrong.setParameter(t.entranceKey, t.entranceValue);
+        assertThrows(InvalidCharacterParameterException.class, () -> j.doEffect(ap, wrong));
+    }
+
+    /**
+     * Generates test cases for {@link #parseCheck(StepTest)}.
      *
      * @return a stream of StepTest
      */
-    static Stream<StepTest> boundCheckSource() {
+    static Stream<StepTest> parseCheckSource() {
         return Stream.of(
                 new StepTest("not card", "not entrance", "not color", "not color"),
                 new StepTest("card", "not entrance", "not color", "not color"),
                 new StepTest("not card", "hall", "not color", "not color"),
                 new StepTest("card", "entrance", "not color", "not color"),
                 new StepTest("card", "entrance", "BLUE", "not color"),
-                new StepTest("card", "entrance", "not color", "RED"),
-                new StepTest("card", "entrance", "PINK", "RED"),
-                new StepTest("card", "entrance", "BLUE", "PINK")
+                new StepTest("card", "entrance", "not color", "RED")
         );
     }
 
@@ -74,12 +82,12 @@ class JesterTest {
      * Check that doEffect() modifies both the Character and the ActionPhase in the expected way
      */
     @Test
-    void doEffect() throws InvalidCharacterParameterException {
+    void doEffect() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         CharacterStep step = new CharacterStep();
         step.setParameter("card", "RED");
         step.setParameter("entrance", "BLUE");
         Jester withStudents = (Jester) j.add(new Student(PieceColor.RED));
-        Tuple<ActionPhase, Character> after = withStudents.doEffect(ap, new CharacterStep[]{step});
+        Tuple<ActionPhase, Character> after = withStudents.doEffect(ap, step);
 
         assertEquals(1, after.getFirst().getTable().getBoardOf(ann).getEntrance().size(PieceColor.RED));
         assertEquals(1, ((StudentStoreCharacter) after.getSecond()).size(PieceColor.BLUE));
@@ -87,7 +95,72 @@ class JesterTest {
     }
 
     /**
-     * Simple data holder used by {@link #boundCheckDoEffect(StepTest)} and {@link #boundCheckSource()}.
+     * Check that trying to invoke the effect passing a color not present on the card throws an exception
+     */
+    @Test
+    void doEffect_notOnCard() {
+        CharacterStep step = new CharacterStep();
+        step.setParameter("card", "PINK");
+        step.setParameter("entrance", "BLUE");
+        Jester withStudents = (Jester) j.add(new Student(PieceColor.RED));
+        assertThrows(InvalidPhaseUpdateException.class, () -> withStudents.doEffect(ap, step));
+    }
+
+    /**
+     * Check that trying to invoke the effect passing a color not present in the player's entrance throws an exception
+     */
+    @Test
+    void doEffect_notInEntrance() {
+        CharacterStep step = new CharacterStep();
+        step.setParameter("card", "RED");
+        step.setParameter("entrance", "PINK");
+        Jester withStudents = (Jester) j.add(new Student(PieceColor.RED));
+        assertThrows(InvalidPhaseUpdateException.class, () -> withStudents.doEffect(ap, step));
+    }
+
+    /**
+     * Check that invoking the effect with everything filled to the brim does not throw an exception
+     */
+    @Test
+    void doEffect_full() {
+        Jester withStudents = j;
+        while (!withStudents.isFull())
+            withStudents = (Jester) withStudents.add(new Student(PieceColor.RED));
+        ActionPhase full = ap.updateTable(t -> t.updateBoardOf(ann, b -> b.updateEntrance(e -> {
+            while (!e.isFull())
+                e = e.add(new Student(PieceColor.BLUE));
+            return e;
+        })));
+        CharacterStep step = new CharacterStep();
+        step.setParameter("card", "RED");
+        step.setParameter("entrance", "BLUE");
+        Jester finalWithStudents = withStudents;
+        assertAll(() -> finalWithStudents.doEffect(full, step, step, step));
+    }
+
+    /**
+     * Check that if more than three steps are passed, the exceeding ones are ignored
+     */
+    @Test
+    void doEffect_excessSteps() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
+        Jester withStudents = j;
+        for (int i = 0; i < 3; i++)
+            withStudents = (Jester) withStudents.add(new Student(PieceColor.RED));
+        ActionPhase full = ap.updateTable(t -> t.updateBoardOf(ann, b -> b.updateEntrance(e -> {
+            for (int i = 0; i < 2; i++)
+                e = e.add(new Student(PieceColor.BLUE));
+            return e;
+        })));
+        CharacterStep step = new CharacterStep();
+        step.setParameter("card", "RED");
+        step.setParameter("entrance", "BLUE");
+        Tuple<ActionPhase, Character> after = withStudents.doEffect(full, step, step, step, step);
+        assertEquals(3, after.getFirst().getTable().getBoardOf(ann).getEntrance().size(PieceColor.RED));
+        assertEquals(3, ((StudentStoreCharacter) after.getSecond()).size(PieceColor.BLUE));
+    }
+
+    /**
+     * Simple data holder used by {@link #parseCheck(StepTest)} and {@link #parseCheckSource()}.
      */
     private static class StepTest {
         public String cardKey;

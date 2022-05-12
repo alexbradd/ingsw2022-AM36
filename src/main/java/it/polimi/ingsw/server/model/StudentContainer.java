@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
 
@@ -139,16 +140,6 @@ final class StudentContainer implements StudentContainerInterface {
                 .toList();
 
         return colors.get(r.nextInt(colors.size()));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return "StudentContainer{" +
-                "students=" + students +
-                '}';
     }
 
     /**

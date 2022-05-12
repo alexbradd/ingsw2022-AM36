@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.ColorIsFullException;
 import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
@@ -143,16 +144,6 @@ class Hall implements StudentContainerInterface {
                     h.wrapped = t.getFirst();
                     return new Tuple<>(h, t.getSecond());
                 });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return "Hall{" +
-                "wrapped=" + wrapped +
-                '}';
     }
 
     /**

@@ -11,10 +11,10 @@ import java.util.Objects;
  * through the {@code addPlayer()} and {@code removePlayer()} methods.
  * After the last Player joined the lobby, a new {@link PreparePhase} is returned.
  *
- * @see Phase
  * @author Mattia Busso
+ * @see Phase
  */
-public class LobbyPhase extends Phase {
+class LobbyPhase extends Phase {
 
     /**
      * The game's table.
@@ -147,15 +147,4 @@ public class LobbyPhase extends Phase {
     public int hashCode() {
         return Objects.hash(table, parameters);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return "LobbyPhase{" +
-                "table=" + table +
-                ", parameters=" + parameters;
-    }
-
 }

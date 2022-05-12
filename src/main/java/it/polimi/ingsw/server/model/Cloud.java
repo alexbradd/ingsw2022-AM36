@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.ColorIsFullException;
 import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
@@ -111,14 +112,16 @@ class Cloud implements StudentContainerInterface {
     }
 
     /**
-     * This method removes a random {@link Student} from the container, and returns it with a new container instance, not
-     * containing the removed student.
+     * This method allows to add a {@link Student} to the Cloud, and returns a copy of the container containing
+     * that student.
      *
-     * @return A {@link Tuple}<Container, Student> with the new container instance and the removed student
-     * @throws EmptyContainerException if the container is empty
+     * @param s the student to add
+     * @return the new container instance including the new student
+     * @throws IllegalArgumentException if the student to add is null
+     * @throws ContainerIsFullException if the container reached the maximum size
      */
     @Override
-    public Cloud add(Student s) throws IllegalArgumentException, ContainerIsFullException, ColorIsFullException {
+    public Cloud add(Student s) throws IllegalArgumentException, ContainerIsFullException {
         Cloud c = new Cloud(this);
         c.students = c.students.add(s);
         return c;
@@ -139,7 +142,7 @@ class Cloud implements StudentContainerInterface {
      * {@inheritDoc}
      */
     @Override
-    public Tuple<Cloud, Student> remove(PieceColor color) throws IllegalArgumentException, EmptyStackException {
+    public Tuple<Cloud, Student> remove(PieceColor color) throws IllegalArgumentException, EmptyStackException, EmptyContainerException {
         Cloud c = new Cloud(this);
         Tuple<BoundedStudentContainer, Student> t = c.students.remove(color);
         c.students = t.getFirst();

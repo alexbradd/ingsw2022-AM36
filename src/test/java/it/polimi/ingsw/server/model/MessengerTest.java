@@ -1,10 +1,12 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.Mage;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -39,15 +41,17 @@ class MessengerTest {
      */
     @Test
     void boundCheckDoEffect() {
-        assertThrows(IllegalArgumentException.class, () -> m.doEffect(ap, null));
+        assertThrows(IllegalArgumentException.class, () -> m.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> m.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> m.doEffect(ap, (CharacterStep) null));
     }
 
     /**
      * Check that doEffect() modifies both the Character and the ActionPhase in the expected way
      */
     @Test
-    void doEffect() throws InvalidCharacterParameterException {
-        Tuple<ActionPhase, Character> after = m.doEffect(ap, new CharacterStep[]{});
+    void doEffect() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
+        Tuple<ActionPhase, Character> after = m.doEffect(ap);
 
         assertEquals(2, after.getFirst().getExtraMnMoves());
         assertEquals(CharacterType.MESSENGER.getInitialCost() + 1, after.getSecond().getCost());

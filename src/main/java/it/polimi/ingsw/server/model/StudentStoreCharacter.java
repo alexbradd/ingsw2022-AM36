@@ -3,15 +3,17 @@ package it.polimi.ingsw.server.model;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import it.polimi.ingsw.functional.ThrowingBiFunction;
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
 import java.util.EmptyStackException;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.BiFunction;
 
 /**
  * Represents and abstract character card that has the ability to store students a maximum amount of students.
@@ -106,6 +108,15 @@ abstract class StudentStoreCharacter extends Character implements StudentContain
     }
 
     /**
+     * Returns true if the card is full
+     *
+     * @return true if the card is full
+     */
+    public boolean isFull() {
+        return container.isFull();
+    }
+
+    /**
      * Remove and return a {@link Student} of the given color from the store.
      *
      * @param color the color of the student to remove
@@ -162,24 +173,31 @@ abstract class StudentStoreCharacter extends Character implements StudentContain
      *
      * @param tuple     a {@link Tuple} containing an ActionPhase and a StudentStoreCharacter
      * @param color     the color to extract from the card
-     * @param stuffer   a {@link BiFunction} that takes an ActionPhase and a Student
-     * @param retriever a {@link BiFunction} that takes and ActionPhase and a StudentStoreCharacter
+     * @param stuffer   a {@link ThrowingBiFunction} that takes an ActionPhase and a Student
+     * @param retriever a {@link ThrowingBiFunction} that takes and ActionPhase and a StudentStoreCharacter
      * @return a {@link Tuple} containing the updated ActionPhase and Character
-     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException    if any parameter is null
+     * @throws InvalidPhaseUpdateException if this card doesn't have ar least ont student or either the stuffer or
+     *                                     retriever fail
      */
     Tuple<ActionPhase, Character> moveFromHere(Tuple<ActionPhase, StudentStoreCharacter> tuple,
                                                PieceColor color,
-                                               BiFunction<ActionPhase, Student, ActionPhase> stuffer,
-                                               BiFunction<ActionPhase, StudentStoreCharacter, Tuple<ActionPhase, StudentStoreCharacter>> retriever) {
+                                               ThrowingBiFunction<ActionPhase, Student, ActionPhase, InvalidPhaseUpdateException> stuffer,
+                                               ThrowingBiFunction<ActionPhase, StudentStoreCharacter, Tuple<ActionPhase, StudentStoreCharacter>, InvalidPhaseUpdateException> retriever)
+            throws InvalidPhaseUpdateException {
         if (tuple == null) throw new IllegalArgumentException("tuple shouldn't be null");
         if (color == null) throw new IllegalArgumentException("color shouldn't be null");
         if (stuffer == null) throw new IllegalArgumentException("stuffer shouldn't be null");
         if (retriever == null) throw new IllegalArgumentException("putter shouldn't be null");
-        return tuple.map((originalPhase, originalCard) ->
+        if (size(color) < 1)
+            throw new InvalidPhaseUpdateException("card hasn't got enough students");
+        return tuple.throwMap((originalPhase, originalCard) ->
                 originalCard.remove(color)
-                        .map((character, student) -> new Tuple<>(stuffer.apply(originalPhase, student), character))
-                        .map(retriever)
-                        .map((f, s) -> new Tuple<>(f, s)));
+                        .throwMap((c, s) -> new Tuple<>(retriever.apply(originalPhase, c), s))
+                        .throwMap((t, s) -> {
+                            ActionPhase afterStuffing = stuffer.apply(t.getFirst(), s);
+                            return new Tuple<>(afterStuffing, t.getSecond());
+                        }));
     }
 
     /**

@@ -1,7 +1,9 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.*;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -49,34 +51,42 @@ class PriestTest {
     }
 
     /**
-     * Bound check doEffect()
+     * Check that doEffect throws if passed null
+     */
+    @Test
+    void nullCheck() {
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> c.doEffect(ap, (CharacterStep) null));
+    }
+
+    /**
+     * Tests doEffect's step parsing
      */
     @ParameterizedTest
-    @MethodSource("boundCheckSource")
-    void boundCheckDoEffect(StepTest t) {
+    @MethodSource("parseCheckSource")
+    void parseCheck(StepTest t) {
         PriestAndPrincess p = (PriestAndPrincess) c.add(new Student(PieceColor.RED));
         CharacterStep wrong = new CharacterStep();
         wrong.setParameter(t.cardKey, t.cardValue);
         wrong.setParameter(t.islandKey, t.islandValue);
 
-        assertThrows(IllegalArgumentException.class, () -> p.doEffect(ap, null));
-        assertThrows(InvalidCharacterParameterException.class, () -> p.doEffect(ap, new CharacterStep[]{}));
-        assertThrows(InvalidCharacterParameterException.class, () -> p.doEffect(ap, new CharacterStep[]{wrong}));
+        assertThrows(InvalidCharacterParameterException.class, () -> p.doEffect(ap));
+        assertThrows(InvalidCharacterParameterException.class, () -> p.doEffect(ap, wrong));
     }
 
     /**
-     * Generates test cases for {@link #boundCheckDoEffect(StepTest)}.
+     * Generates test cases for {@link #parseCheck(StepTest)}.
      *
      * @return a stream of StepTest
      */
-    static Stream<StepTest> boundCheckSource() {
+    static Stream<StepTest> parseCheckSource() {
         return Stream.of(
                 new StepTest("wrong", "wrong", "not color", "-1"),
                 new StepTest("card", "wrong", "not color", "-1"),
                 new StepTest("wrong", "island", "not color", "-1"),
                 new StepTest("card", "island", "not color", "-1"),
-                new StepTest("card", "island", "RED", "-1"),
-                new StepTest("card", "island", "PINK", "0")
+                new StepTest("card", "island", "RED", "-1")
         );
     }
 
@@ -84,14 +94,14 @@ class PriestTest {
      * Check that doEffect() modifies both the Character and the ActionPhase in the expected way
      */
     @Test
-    void doEffect() throws InvalidCharacterParameterException {
+    void doEffect() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         Table withSack = t.updateSack(s -> s.add(new Student(PieceColor.RED)));
         PriestAndPrincess preUpdate = (PriestAndPrincess) c.doPrepare(pp).getSecond();
         CharacterStep step = new CharacterStep();
         step.setParameter("card", preUpdate.getStudents().stream().findAny().orElseThrow().getColor().toString());
         step.setParameter("island", "0");
         ActionPhase actionPhase = new MockActionPhase(withSack, ann);
-        Tuple<ActionPhase, Character> after = preUpdate.doEffect(actionPhase, new CharacterStep[]{step});
+        Tuple<ActionPhase, Character> after = preUpdate.doEffect(actionPhase, step);
 
         assertEquals(1, after.getFirst().getTable().getIslandList().get(0).getStudents().size());
         assertEquals(4, ((StudentStoreCharacter) after.getSecond()).getStudents().size());
@@ -101,15 +111,46 @@ class PriestTest {
     }
 
     /**
-     * Check that doEffect() modifies both the Character and the ActionPhase in the expected way if the sack is empty
+     * Check that doEffect() throws exception if invoked with a color that is not present on the card
      */
     @Test
-    void doEffectWithEmptySack() throws InvalidCharacterParameterException {
+    void doEffect_emptyCard() {
+        Table withSack = t.updateSack(s -> s.add(new Student(PieceColor.RED)));
+        PriestAndPrincess preUpdate = (PriestAndPrincess) c.add(new Student(PieceColor.RED));
+        CharacterStep step = new CharacterStep();
+        step.setParameter("card", "PINK");
+        step.setParameter("island", "0");
+        ActionPhase actionPhase = new MockActionPhase(withSack, ann);
+        assertThrows(InvalidPhaseUpdateException.class, () -> preUpdate.doEffect(actionPhase, step));
+    }
+
+    /**
+     * Check that doEffect() ignores exceeding steps
+     */
+    @Test
+    void doEffect_exceedingSteps() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
+        Table withSack = t.updateSack(s -> s.add(new Student(PieceColor.RED)));
         PriestAndPrincess preUpdate = (PriestAndPrincess) c.doPrepare(pp).getSecond();
         CharacterStep step = new CharacterStep();
         step.setParameter("card", preUpdate.getStudents().stream().findAny().orElseThrow().getColor().toString());
         step.setParameter("island", "0");
-        Tuple<ActionPhase, Character> after = preUpdate.doEffect(ap, new CharacterStep[]{step});
+        ActionPhase actionPhase = new MockActionPhase(withSack, ann);
+        Tuple<ActionPhase, Character> after = preUpdate.doEffect(actionPhase, step, step);
+
+        assertEquals(1, after.getFirst().getTable().getIslandList().get(0).getStudents().size());
+        assertEquals(4, ((StudentStoreCharacter) after.getSecond()).getStudents().size());
+    }
+
+    /**
+     * Check that doEffect() modifies both the Character and the ActionPhase in the expected way if the sack is empty
+     */
+    @Test
+    void doEffect_emptySack() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
+        PriestAndPrincess preUpdate = (PriestAndPrincess) c.doPrepare(pp).getSecond();
+        CharacterStep step = new CharacterStep();
+        step.setParameter("card", preUpdate.getStudents().stream().findAny().orElseThrow().getColor().toString());
+        step.setParameter("island", "0");
+        Tuple<ActionPhase, Character> after = preUpdate.doEffect(ap, step);
 
         assertEquals(1, after.getFirst().getTable().getIslandList().get(0).getStudents().size());
         assertEquals(3, ((StudentStoreCharacter) after.getSecond()).getStudents().size());
@@ -119,7 +160,7 @@ class PriestTest {
     }
 
     /**
-     * Simple data holder used by {@link #boundCheckDoEffect(StepTest)} and {@link #boundCheckSource()}.
+     * Simple data holder used by {@link #parseCheck(StepTest)} and {@link #parseCheckSource()}.
      */
     private static class StepTest {
         public String cardKey;

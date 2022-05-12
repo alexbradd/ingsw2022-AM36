@@ -75,15 +75,15 @@ class PlanningPhaseTest {
             assertThrows(UnsupportedOperationException.class,
                     () -> plan.addPlayer("test"));
             assertThrows(UnsupportedOperationException.class,
-                    () -> plan.playCharacter(p1, CharacterType.HERBALIST, new CharacterStep[1]));
+                    () -> plan.playCharacter(p1, CharacterType.HERBALIST));
             assertThrows(UnsupportedOperationException.class,
                     () -> plan.moveMn(p1, 1));
             assertThrows(UnsupportedOperationException.class,
-                    () -> plan.updateHall(p1, hall -> hall = hall.add(new Student(PieceColor.RED))));
+                    () -> plan.addToHall(p1, new Student(PieceColor.RED)));
             assertThrows(UnsupportedOperationException.class,
                     () -> plan.getFromEntrance(p1, PieceColor.PINK));
             assertThrows(UnsupportedOperationException.class,
-                    () -> plan.updateIsland(p1, 0, i -> i = i.add(new Student(PieceColor.RED))));
+                    () -> plan.addToIsland(p1, 0, new Student(PieceColor.RED)));
         }
 
         @Test

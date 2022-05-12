@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.Mage;
 import it.polimi.ingsw.server.model.enums.PieceColor;
@@ -24,7 +25,7 @@ import java.util.function.Function;
  * @see LobbyPhase
  * @see PlanningPhase
  */
-public class PreparePhase extends IteratedPhase {
+class PreparePhase extends IteratedPhase {
     /**
      * The table instance of the phase.
      */

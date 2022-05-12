@@ -1,12 +1,13 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.ThrowingBiFunction;
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
 import java.util.Objects;
-import java.util.function.BiFunction;
 
 class PriestAndPrincess extends StudentStoreCharacter {
     private final Behaviour behaviour;
@@ -64,7 +65,7 @@ class PriestAndPrincess extends StudentStoreCharacter {
      * step. Parameters are the following:
      *
      * <ul>
-     *     <li>card: color of the student to move from this card to the Island</li>
+     *     <li>card: color of the student to move from this card to the Hall</li>
      * </ul>
      *
      * @param phase the {@link ActionPhase} the card's effect has been called from
@@ -74,7 +75,7 @@ class PriestAndPrincess extends StudentStoreCharacter {
      * @throws InvalidCharacterParameterException if any of the parameters in {@code steps} is formatted incorrectly
      */
     @Override
-    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException {
+    Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         checkEffectParameters(phase, steps, 1);
         if (behaviour == Behaviour.PRIEST)
             return doPriest(super.doEffect(phase, steps), steps);
@@ -91,21 +92,12 @@ class PriestAndPrincess extends StudentStoreCharacter {
      * @throws IllegalArgumentException           if {@code phase} or {@code steps} or are null
      * @throws InvalidCharacterParameterException if any of the parameters in {@code steps} is formatted incorrectly
      */
-    private Tuple<ActionPhase, Character> doPriest(Tuple<ActionPhase, Character> tuple, CharacterStep[] steps) throws InvalidCharacterParameterException {
+    private Tuple<ActionPhase, Character> doPriest(Tuple<ActionPhase, Character> tuple, CharacterStep[] steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         PieceColor color = steps[0].getParameterAsColor("card");
         int island = steps[0].getParameterAsIslandIndex("island", tuple.getFirst());
         PriestAndPrincess card = (PriestAndPrincess) tuple.getSecond();
-        if (card.size(color) < 1)
-            throw new InvalidCharacterParameterException("Wrong invocation: card hasn't got enough students");
         return moveFromHere(new Tuple<>(tuple.getFirst(), card), color,
-                (ap, student) -> {
-                    try {
-                        return ap.updateIsland(ap.getCurrentPlayer(), island, i -> i.add(student));
-                    } catch (InvalidPhaseUpdateException e) {
-                        e.printStackTrace();
-                    }
-                    return ap;
-                },
+                (ap, student) -> ap.addToIsland(ap.getCurrentPlayer(), island, student),
                 this::fromSack);
     }
 
@@ -118,23 +110,19 @@ class PriestAndPrincess extends StudentStoreCharacter {
      * @throws IllegalArgumentException           if {@code phase} or {@code steps} or are null
      * @throws InvalidCharacterParameterException if any of the parameters in {@code steps} is formatted incorrectly
      */
-    private Tuple<ActionPhase, Character> doPrincess(Tuple<ActionPhase, Character> tuple, CharacterStep[] steps) throws InvalidCharacterParameterException {
+    private Tuple<ActionPhase, Character> doPrincess(Tuple<ActionPhase, Character> tuple, CharacterStep[] steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         ActionPhase actionPhase = tuple.getFirst();
         Player currentPlayer = actionPhase.getCurrentPlayer();
         PieceColor color = steps[0].getParameterAsColor("card");
         PriestAndPrincess card = (PriestAndPrincess) tuple.getSecond();
-        if (card.size(color) < 1)
-            throw new InvalidCharacterParameterException("Wrong invocation: card hasn't got enough students");
-        if (actionPhase.getTable().getBoardOf(currentPlayer).getHall().isFull(color))
-            throw new InvalidCharacterParameterException("Wrong invocation: current player's hall is full");
 
         return moveFromHere(new Tuple<>(tuple.getFirst(), card), color,
-                (ap, student) -> ap.updateHall(currentPlayer, h -> h.add(student)),
+                (ap, student) -> ap.addToHall(currentPlayer, student),
                 this::fromSack);
     }
 
     /**
-     * To be fed to {@link StudentStoreCharacter#moveFromHere(Tuple, PieceColor, BiFunction, BiFunction)}, puts a
+     * To be fed to {@link StudentStoreCharacter#moveFromHere(Tuple, PieceColor, ThrowingBiFunction, ThrowingBiFunction)}, puts a
      * character from the sack onto the card
      *
      * @param ap        the ActionPhase
@@ -143,8 +131,7 @@ class PriestAndPrincess extends StudentStoreCharacter {
      */
     private Tuple<ActionPhase, StudentStoreCharacter> fromSack(ActionPhase ap, StudentStoreCharacter character) {
         return ap.drawStudent()
-                .map((newAp, student) -> student
-                        .map(s -> new Tuple<>(newAp, character.add(s)))
+                .map((newAp, student) -> student.map(s -> new Tuple<>(newAp, character.add(s)))
                         .orElse(new Tuple<>(newAp, character)));
     }
 

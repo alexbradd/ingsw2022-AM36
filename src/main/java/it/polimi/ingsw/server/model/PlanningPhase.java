@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
@@ -22,7 +23,7 @@ import java.util.function.Function;
  * @see IteratedPhase
  * @see ClockWiseIterator
  */
-public class PlanningPhase extends IteratedPhase {
+class PlanningPhase extends IteratedPhase {
     /**
      * The table instance of the phase.
      */

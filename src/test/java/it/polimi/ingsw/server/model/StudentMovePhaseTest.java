@@ -145,7 +145,7 @@ class StudentMovePhaseTest {
                 .updateBoardOf(ann, b -> b.receiveCoin().receiveCoin());
         MockActionPhase mockActionPhase = new MockActionPhase(withCharacter, ann);
         ActionPhase phase = new StudentMovePhase(mockActionPhase, avi, ann);
-        phase = (ActionPhase) phase.playCharacter(ann, CharacterType.HERBALIST, new CharacterStep[]{});
+        phase = (ActionPhase) phase.playCharacter(ann, CharacterType.HERBALIST);
         phase = phase.setInfluenceCalculator(new ExtraPointsInfluenceDecorator(phase.getInfluenceCalculator(), ann, 2));
         phase = phase.setMaxExtractor(new EqualityInclusiveMaxExtractor(ann));
 

@@ -3,6 +3,7 @@ package it.polimi.ingsw.server.model;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.Mage;
@@ -15,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * The Phase class represents a single state of the game, and it is a facade facing the controller via the Command
@@ -114,16 +114,16 @@ public abstract class Phase {
     }
 
     /**
-     * Applies the given update to the {@link StudentContainer} of the {@link Island} with the given index.
+     * Add the given Student to the student store on the {@link Island} with the given index.
      *
-     * @param player the {@link Player} that will execute this operation
-     * @param index  the index of the {@link Island}
-     * @param update the update to apply
+     * @param player  the Player who will move the Student
+     * @param index   the index of the {@link Island}
+     * @param student the Student to add
      * @return a new Phase containing the update
      * @throws IllegalArgumentException    if any parameter is null
      * @throws InvalidPhaseUpdateException if the index is out of bounds
      */
-    public Phase updateIsland(Player player, int index, Function<StudentContainer, StudentContainer> update) throws InvalidPhaseUpdateException {
+    public Phase addToIsland(Player player, int index, Student student) throws InvalidPhaseUpdateException {
         throw new UnsupportedOperationException();
     }
 
@@ -141,14 +141,15 @@ public abstract class Phase {
     }
 
     /**
-     * Applies the given update to the Hall of the given {@link Player}.
+     * Add the given Student to the player's hall.
      *
-     * @param player the {@link Player} of whom the Hall will be updated
-     * @param update the update to apply
+     * @param player  the Player whose Hall will be updated
+     * @param student the Student to add
      * @return a new Phase containing the update
-     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException    if any parameter is null
+     * @throws InvalidPhaseUpdateException if the Hall cannot contain any more students of that color
      */
-    public Phase updateHall(Player player, Function<Hall, Hall> update) {
+    public Phase addToHall(Player player, Student student) throws InvalidPhaseUpdateException {
         throw new UnsupportedOperationException();
     }
 
@@ -206,18 +207,18 @@ public abstract class Phase {
 
     /**
      * This method lets the given Player play a character card. The {@link CharacterType} is
-     * passed via parameter, along with all the needed additional information, as can be seen below:
+     * passed via parameter, along with all the needed additional information as a series of {@link CharacterStep}.
      *
      * @param player    a reference to a Player as returned by {@code authorizePlayer}
      * @param character the {@link CharacterType} to play
-     * @param steps     additional arguments that specify the behaviour of the card (see method description)
+     * @param steps     additional arguments that specify the behaviour of the card (see specific card for details)
      * @throws UnsupportedOperationException      if this operation is not supported by the current phase of the game
      * @throws IllegalArgumentException           if any parameter is null
      * @throws InvalidCharacterParameterException if the additional information "args" is either missing or incorrect
      * @throws InvalidPhaseUpdateException        if the number of coins of the player is less than the amount required
      *                                            to play the character card (see game rules)
      */
-    public Phase playCharacter(Player player, CharacterType character, CharacterStep[] steps) throws InvalidPhaseUpdateException, InvalidCharacterParameterException {
+    public Phase playCharacter(Player player, CharacterType character, CharacterStep... steps) throws InvalidPhaseUpdateException, InvalidCharacterParameterException {
         throw new UnsupportedOperationException();
     }
 

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.exceptions.ColorIsFullException;
 import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
 import it.polimi.ingsw.server.model.enums.PieceColor;
@@ -68,6 +69,15 @@ final class BoundedStudentContainer implements StudentContainerInterface {
     }
 
     /**
+     * Returns true if the container is full
+     *
+     * @return true if the container is full
+     */
+    public boolean isFull() {
+        return size() >= maxSize;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -124,17 +134,6 @@ final class BoundedStudentContainer implements StudentContainerInterface {
                     return new Tuple<>(c, t.getSecond());
                 });
 
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return "BoundedStudentContainer{" +
-                "maxSize=" + maxSize +
-                ", wrapped=" + wrapped +
-                '}';
     }
 
     /**

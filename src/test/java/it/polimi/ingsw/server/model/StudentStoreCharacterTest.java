@@ -1,8 +1,11 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.ThrowingBiFunction;
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.*;
 import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -89,6 +92,21 @@ class StudentStoreCharacterTest {
     }
 
     /**
+     * Test remove()
+     */
+    @Test
+    void remove() {
+        StudentStoreCharacter m = (StudentStoreCharacter) c.doPrepare(pp).getSecond();
+        assertAll(() -> {
+            StudentStoreCharacter n = m;
+            while (n.size() > 0)
+                n = n.remove().getFirst();
+            StudentStoreCharacter finalN = n;
+            assertThrows(EmptyContainerException.class, () -> finalN.remove(PieceColor.RED));
+        });
+    }
+
+    /**
      * Test add()
      */
     @Test
@@ -103,14 +121,26 @@ class StudentStoreCharacterTest {
     }
 
     /**
-     * Test moveFromHere()
+     * Test that {@link StudentStoreCharacter#moveFromHere(Tuple, PieceColor, ThrowingBiFunction, ThrowingBiFunction)}
+     * throws exception if there are no students on the card.
      */
     @Test
-    void moveFromHere() {
+    void moveFromHere_noStudents() {
+        assertThrows(InvalidPhaseUpdateException.class, () -> c.moveFromHere(new Tuple<>(ap, c), PieceColor.BLUE,
+                (action, student) -> action,
+                Tuple::new));
+    }
+
+    /**
+     * Test that {@link StudentStoreCharacter#moveFromHere(Tuple, PieceColor, ThrowingBiFunction, ThrowingBiFunction)}
+     * respects its contract.
+     */
+    @Test
+    void moveFromHere() throws InvalidPhaseUpdateException {
         StudentStoreCharacter m = (StudentStoreCharacter) c.doPrepare(pp).getSecond();
         PieceColor toMove = m.getStudents().stream().findAny().orElseThrow().getColor();
         Tuple<ActionPhase, Character> afterMove = m.moveFromHere(new Tuple<>(ap, m), toMove,
-                (action, student) -> action.updateHall(ann, h -> h.add(student)),
+                (action, student) -> action.addToHall(ann, student),
                 Tuple::new);
         assertEquals(1, afterMove.getFirst().getTable().getBoardOf(ann).getHall().size(toMove));
         assertEquals(9, ((StudentStoreCharacter) afterMove.getSecond()).getStudents().size());

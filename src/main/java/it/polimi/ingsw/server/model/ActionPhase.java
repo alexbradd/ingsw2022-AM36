@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.*;
@@ -139,19 +140,6 @@ abstract class ActionPhase extends IteratedPhase {
         if (color == null) throw new IllegalArgumentException("color cannot be null");
         if (table.getBoardOf(player).getEntrance().size(color) == 0)
             throw new InvalidPhaseUpdateException("Player's entrance is empty");
-        return unsafeGetFromEntrance(player, color);
-    }
-
-    /**
-     * Retrieve a Student from the specified Player's entrance.
-     *
-     * @param player the Player of whom board to modify
-     * @param color  the color to get from the entrance
-     * @return a {@link Tuple} containing a Phase with the changes applied and the Student extracted
-     */
-    Tuple<ActionPhase, Student> unsafeGetFromEntrance(Player player, PieceColor color) {
-        if (player == null) throw new IllegalArgumentException("player shouldn't be null");
-        if (color == null) throw new IllegalArgumentException("color cannot be null");
         Tuple<BoundedStudentContainer, Student> update = table.getBoardOf(player).getEntrance().remove(color);
         return update.map((container, student) -> {
             ActionPhase a = this.shallowCopy();
@@ -161,17 +149,21 @@ abstract class ActionPhase extends IteratedPhase {
     }
 
     /**
-     * Applies the given update to the specified player's entrance
+     * Adds the given Student to specified student's entrance
      *
-     * @param player the player whose entrance to update
-     * @param update the update to apply
-     * @return a new Update ActionPhase
+     * @param player  the Player to whose Entrance add the Student
+     * @param student the Student to add
+     * @return an ActionPhase with the update applied
+     * @throws InvalidPhaseUpdateException if the player's entrance is full
+     * @throws IllegalArgumentException    if any parameter is null
      */
-    ActionPhase updateEntrance(Player player, Function<BoundedStudentContainer, BoundedStudentContainer> update) {
+    ActionPhase addToEntrance(Player player, Student student) throws InvalidPhaseUpdateException {
         if (player == null) throw new IllegalArgumentException("player shouldn't be null");
-        if (update == null) throw new IllegalArgumentException("update cannot be null");
-        ActionPhase a = this.shallowCopy();
-        a.table = a.table.updateBoardOf(player, b -> b.updateEntrance(update));
+        if (student == null) throw new IllegalArgumentException("student shouldn't be null");
+        if (table.getBoardOf(player).getEntrance().isFull())
+            throw new InvalidPhaseUpdateException("entrance is full");
+        ActionPhase a = shallowCopy();
+        a.table = a.table.updateBoardOf(player, b -> b.updateEntrance(e -> e.add(student)));
         return a;
     }
 
@@ -179,60 +171,70 @@ abstract class ActionPhase extends IteratedPhase {
      * {@inheritDoc}
      */
     @Override
-    public ActionPhase updateHall(Player player, Function<Hall, Hall> update) {
+    public ActionPhase addToHall(Player player, Student student) throws InvalidPhaseUpdateException {
         if (player == null) throw new IllegalArgumentException("player shouldn't be null");
-        if (update == null) throw new IllegalArgumentException("update cannot be null");
-        ActionPhase a = this.shallowCopy();
-        Hall old = a.table.getBoardOf(player).getHall();
-        a.table = a.table.updateBoardOf(player, b -> b.updateHall(update));
-        return a.handleHallUpdate(player, old);
+        if (student == null) throw new IllegalArgumentException("student shouldn't be null");
+        Hall old = table.getBoardOf(player).getHall();
+        if (old.isFull(student.getColor()))
+            throw new InvalidPhaseUpdateException("cannot add student because this color is already full");
+        return updateHall(player, hall -> hall.add(student))
+                .reassignProfessors()
+                .giveCoins(player, old);
     }
 
     /**
-     * Like {@link #unsafeGetFromEntrance(Player, PieceColor)}, however with Halls.
+     * Like {@link #getFromEntrance(Player, PieceColor)}, return a Student of a specified color from the {@link Hall}.
      *
      * @param player the Player of whom board to modify
      * @param color  the color to get
      * @return a {@link Tuple} containing a Phase with the changes applied and the Student extracted
-     * @throws IllegalArgumentException if any argument is null
+     * @throws IllegalArgumentException    if any argument is null
+     * @throws InvalidPhaseUpdateException if there aren't enough students of the specified color in the player's hall
      */
-    Tuple<ActionPhase, Student> getFromHall(Player player, PieceColor color) {
+    Tuple<ActionPhase, Student> getFromHall(Player player, PieceColor color) throws InvalidPhaseUpdateException {
         if (player == null) throw new IllegalArgumentException("player shouldn't be null");
         if (color == null) throw new IllegalArgumentException("color cannot be null");
+        if (table.getBoardOf(player).getHall().size(color) == 0)
+            throw new InvalidPhaseUpdateException("Player's entrance is empty");
+        Hall oldHall = table.getBoardOf(player).getHall();
         Tuple<Hall, Student> update = table.getBoardOf(player).getHall().remove(color);
-        return update.map((container, student) -> {
-            ActionPhase a = this.updateHall(player, h -> container);
-            return new Tuple<>(a, student);
-        });
+        return update.map((container, student) -> new Tuple<>(
+                updateHall(player, h -> container).reassignProfessors().giveCoins(player, oldHall),
+                student));
     }
 
     /**
-     * Handles a change of the given player Hall from the old one.
+     * Applies the given update to the Hall of the given {@link Player}.
      *
-     * @param player the player whose hall to update
-     * @param old    the old Hall
-     * @return a new update ActionPhase
+     * @param player the {@link Player} of whom the Hall will be updated
+     * @param update the update to apply
+     * @return a new Phase containing the update
+     * @throws IllegalArgumentException if any parameter is null
      */
-    private ActionPhase handleHallUpdate(Player player, Hall old) {
-        ActionPhase a = shallowCopy();
-        if (a.getParameters().isExpertMode() && old.size() != a.table.getBoardOf(player).getHall().size())
-            a = a.giveCoins(player, old);
-        return a.reassignProfessors();
+    private ActionPhase updateHall(Player player, Function<Hall, Hall> update) {
+        if (player == null) throw new IllegalArgumentException("player shouldn't be null");
+        if (update == null) throw new IllegalArgumentException("update cannot be null");
+        ActionPhase a = this.shallowCopy();
+        a.table = a.table.updateBoardOf(player, b -> b.updateHall(update));
+        return a;
     }
 
     /**
-     * Give one coin to the player for each stack of students that has a multiple of 3 as size.
+     * Give one coin to the player for each stack of students that has crossed a multiple of 3 as size since the last
+     * update. If the ActionPhase is not in expert mode, it does nothing.
      *
-     * @param player  the player to whom give coins
-     * @param oldHall the previous Hall, used for checking how many students have been added
+     * @param player the player to whom give coins
      * @return a new ActionPhase with the changes applied
      */
-    private ActionPhase giveCoins(Player player, Hall oldHall) {
+    private ActionPhase giveCoins(Player player, Hall old) {
+        if (!getParameters().isExpertMode())
+            return this;
         ActionPhase a = this.shallowCopy();
         for (PieceColor c : PieceColor.values()) {
-            int diff = a.table.getBoardOf(player).getHall().size(c) - oldHall.size(c);
+            Hall h = a.table.getBoardOf(player).getHall();
+            int diff = h.size(c) - old.size(c);
             if (diff > 0) {
-                int numOfCoins = diff / 3;
+                int numOfCoins = (h.size() / 3) - (old.size() / 3);
                 a.table = a.table.updateBoardOf(player, b -> {
                     for (int i = 0; i < numOfCoins; i++)
                         b = b.receiveCoin();
@@ -281,7 +283,7 @@ abstract class ActionPhase extends IteratedPhase {
             Board b = update.apply(a.table.getBoardOf(p));
             if (b != null) {
                 a.table = a.table.updateBoardOf(p, oldBoard -> b);
-                a = a.handleHallUpdate(p, old);
+                a = a.giveCoins(p, old).reassignProfessors();
             }
         }
         return a;
@@ -291,7 +293,22 @@ abstract class ActionPhase extends IteratedPhase {
      * {@inheritDoc}
      */
     @Override
-    public ActionPhase updateIsland(Player player, int index, Function<StudentContainer, StudentContainer> update) throws InvalidPhaseUpdateException {
+    public ActionPhase addToIsland(Player player, int index, Student student) throws InvalidPhaseUpdateException {
+        if (student == null) throw new IllegalArgumentException("student cannot be null");
+        return updateIsland(player, index, i -> i.add(student));
+    }
+
+    /**
+     * Applies the given update to the {@link StudentContainer} of the {@link Island} with the given index.
+     *
+     * @param player the {@link Player} that will execute this operation
+     * @param index  the index of the {@link Island}
+     * @param update the update to apply
+     * @return a new Phase containing the update
+     * @throws IllegalArgumentException    if any parameter is null
+     * @throws InvalidPhaseUpdateException if the index is out of bounds
+     */
+    private ActionPhase updateIsland(Player player, int index, Function<StudentContainer, StudentContainer> update) throws InvalidPhaseUpdateException {
         if (player == null) throw new IllegalArgumentException("player shouldn't be null");
         if (update == null) throw new IllegalArgumentException("update cannot be null");
         if (!isValidIslandIndex(index))
@@ -319,7 +336,7 @@ abstract class ActionPhase extends IteratedPhase {
      * {@inheritDoc}
      */
     @Override
-    public Phase playCharacter(Player player, CharacterType characterType, CharacterStep[] steps) throws InvalidPhaseUpdateException, InvalidCharacterParameterException {
+    public Phase playCharacter(Player player, CharacterType characterType, CharacterStep... steps) throws InvalidPhaseUpdateException, InvalidCharacterParameterException {
         if (player == null) throw new IllegalArgumentException("player shouldn't be null");
         if (characterType == null) throw new IllegalArgumentException("characterType shouldn't be null");
         if (steps == null) throw new IllegalArgumentException("steps shouldn't be null");
@@ -373,7 +390,7 @@ abstract class ActionPhase extends IteratedPhase {
      * @param steps   the parameters to be passed to said {@link Character}
      * @return a new updated ActionPhase
      */
-    private ActionPhase applyCharacterEffect(Character desired, CharacterStep[] steps) throws InvalidCharacterParameterException {
+    private ActionPhase applyCharacterEffect(Character desired, CharacterStep[] steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
         Tuple<ActionPhase, Character> update = desired.doEffect(this, steps);
         ActionPhase ret = update.getFirst();
         ret.playedCharacter = true;

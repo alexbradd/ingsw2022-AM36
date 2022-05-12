@@ -1,10 +1,12 @@
 package it.polimi.ingsw.server.model;
 
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.AssistantType;
 import it.polimi.ingsw.server.model.enums.CharacterType;
 import it.polimi.ingsw.server.model.enums.Mage;
 import it.polimi.ingsw.server.model.enums.TowerColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
+import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +37,16 @@ class WizardTest {
     }
 
     /**
+     * Check that doEffect throws if passed null
+     */
+    @Test
+    void nullCheck() {
+        assertThrows(IllegalArgumentException.class, () -> w.doEffect(null));
+        assertThrows(IllegalArgumentException.class, () -> w.doEffect(ap, (CharacterStep[]) null));
+        assertThrows(IllegalArgumentException.class, () -> w.doEffect(ap, (CharacterStep) null));
+    }
+
+    /**
      * Bound check doEffect()
      */
     @Test
@@ -44,24 +56,43 @@ class WizardTest {
         CharacterStep wrong2 = new CharacterStep();
         wrong2.setParameter("color", "not color");
 
-        assertThrows(IllegalArgumentException.class, () -> w.doEffect(ap, null));
-        assertThrows(InvalidCharacterParameterException.class, () -> w.doEffect(ap, new CharacterStep[]{}));
-        assertThrows(InvalidCharacterParameterException.class, () -> w.doEffect(ap, new CharacterStep[]{wrong1}));
-        assertThrows(InvalidCharacterParameterException.class, () -> w.doEffect(ap, new CharacterStep[]{wrong2}));
+        assertThrows(InvalidCharacterParameterException.class, () -> w.doEffect(ap));
+        assertThrows(InvalidCharacterParameterException.class, () -> w.doEffect(ap, wrong1));
+        assertThrows(InvalidCharacterParameterException.class, () -> w.doEffect(ap, wrong2));
     }
 
     /**
-     * Check that doEffect() modifies both the Character and the ActionPhase in the expected way
+     * Check that doEffect() modifies both the Character and the ActionPhase in the expected way using the given steps.
      */
-    @Test
-    void doEffect() throws InvalidCharacterParameterException {
-        CharacterStep step = new CharacterStep();
-        step.setParameter("color", "RED");
-        Tuple<ActionPhase, Character> after = w.doEffect(ap, new CharacterStep[]{step});
+    void doEffect_withSteps(CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
+        Tuple<ActionPhase, Character> after = w.doEffect(ap, steps);
 
         assertInstanceOf(RemoveStudentInfluenceDecorator.class, after.getFirst().getInfluenceCalculator());
         assertEquals(CharacterType.WIZARD.getInitialCost() + 1, after.getSecond().getCost());
         assertNotSame(ap, after.getFirst());
         assertNotSame(w, after.getSecond());
+    }
+
+    /**
+     * Check that doEffect() modifies both the Character and the ActionPhase in the expected way using the correct
+     * amount of steps.
+     */
+    @Test
+    void doEffect_oneStep() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
+        CharacterStep step = new CharacterStep();
+        step.setParameter("color", "RED");
+        doEffect_withSteps(step);
+    }
+
+    /**
+     * Check that doEffect() ignores any exceeding steps passed
+     */
+    @Test
+    void doEffect_exceedingSteps() throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
+        CharacterStep step1 = new CharacterStep();
+        step1.setParameter("color", "RED");
+        CharacterStep step2 = new CharacterStep();
+        step2.setParameter("color", "PINK");
+        doEffect_withSteps(step1, step2);
     }
 }
