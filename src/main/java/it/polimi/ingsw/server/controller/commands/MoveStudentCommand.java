@@ -7,7 +7,7 @@ import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.Phase;
 import it.polimi.ingsw.server.model.Player;
 import it.polimi.ingsw.server.model.Student;
-import it.polimi.ingsw.server.model.enums.PieceColor;
+import it.polimi.ingsw.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;

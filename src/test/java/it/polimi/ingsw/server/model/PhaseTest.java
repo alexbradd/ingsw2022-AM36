@@ -1,7 +1,7 @@
 package it.polimi.ingsw.server.model;
 
-import it.polimi.ingsw.server.model.enums.AssistantType;
-import it.polimi.ingsw.server.model.enums.CharacterType;
+import it.polimi.ingsw.enums.AssistantType;
+import it.polimi.ingsw.enums.CharacterType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;

@@ -1,4 +1,4 @@
-package it.polimi.ingsw.server.model.enums;
+package it.polimi.ingsw.enums;
 
 import it.polimi.ingsw.functional.Tuple;
 

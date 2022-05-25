@@ -1,6 +1,6 @@
 package it.polimi.ingsw.server.model;
 
-import it.polimi.ingsw.server.model.enums.PieceColor;
+import it.polimi.ingsw.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

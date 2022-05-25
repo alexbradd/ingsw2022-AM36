@@ -1,7 +1,7 @@
 package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.functional.Tuple;
-import it.polimi.ingsw.server.model.enums.CharacterType;
+import it.polimi.ingsw.enums.CharacterType;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 

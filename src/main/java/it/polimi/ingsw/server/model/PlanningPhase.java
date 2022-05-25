@@ -1,7 +1,7 @@
 package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.functional.Tuple;
-import it.polimi.ingsw.server.model.enums.AssistantType;
+import it.polimi.ingsw.enums.AssistantType;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;

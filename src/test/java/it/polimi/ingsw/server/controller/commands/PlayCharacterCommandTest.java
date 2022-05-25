@@ -2,7 +2,7 @@ package it.polimi.ingsw.server.controller.commands;
 
 import com.google.gson.*;
 import it.polimi.ingsw.server.model.CharacterStep;
-import it.polimi.ingsw.server.model.enums.CharacterType;
+import it.polimi.ingsw.enums.CharacterType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

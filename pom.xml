@@ -18,6 +18,7 @@
     <sonar.coverage.exclusions>
       **/client/**/*,
       **/functional/**/*,
+      **/enums/**/*,
       **/Main.java,
       **/ParameterParsingException.java,
       **/ProgramOptions.java,

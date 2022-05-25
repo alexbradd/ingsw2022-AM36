@@ -4,9 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.functional.Tuple;
-import it.polimi.ingsw.server.model.enums.AssistantType;
-import it.polimi.ingsw.server.model.enums.Mage;
-import it.polimi.ingsw.server.model.enums.TowerColor;
+import it.polimi.ingsw.enums.AssistantType;
+import it.polimi.ingsw.enums.Mage;
+import it.polimi.ingsw.enums.TowerColor;
 import it.polimi.ingsw.server.model.exceptions.NoTowersException;
 import it.polimi.ingsw.server.model.exceptions.NotEnoughCoinsException;
 

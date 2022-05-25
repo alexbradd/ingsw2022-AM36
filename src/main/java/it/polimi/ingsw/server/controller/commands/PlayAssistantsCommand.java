@@ -3,7 +3,7 @@ package it.polimi.ingsw.server.controller.commands;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.server.model.Phase;
 import it.polimi.ingsw.server.model.Player;
-import it.polimi.ingsw.server.model.enums.AssistantType;
+import it.polimi.ingsw.enums.AssistantType;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
 

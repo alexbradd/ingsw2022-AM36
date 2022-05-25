@@ -1,8 +1,8 @@
 package it.polimi.ingsw.server.controller.commands;
 
 import com.google.gson.*;
-import it.polimi.ingsw.server.model.enums.AssistantType;
-import it.polimi.ingsw.server.model.enums.Mage;
+import it.polimi.ingsw.enums.AssistantType;
+import it.polimi.ingsw.enums.Mage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.function.ThrowingConsumer;
 import org.junit.jupiter.params.ParameterizedTest;

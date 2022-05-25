@@ -1,9 +1,9 @@
 package it.polimi.ingsw.server.model;
 
-import it.polimi.ingsw.server.model.enums.AssistantType;
-import it.polimi.ingsw.server.model.enums.CharacterType;
-import it.polimi.ingsw.server.model.enums.Mage;
-import it.polimi.ingsw.server.model.enums.PieceColor;
+import it.polimi.ingsw.enums.AssistantType;
+import it.polimi.ingsw.enums.CharacterType;
+import it.polimi.ingsw.enums.Mage;
+import it.polimi.ingsw.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;

@@ -1,7 +1,7 @@
 package it.polimi.ingsw.server.model;
 
-import it.polimi.ingsw.server.model.enums.PieceColor;
-import it.polimi.ingsw.server.model.enums.TowerColor;
+import it.polimi.ingsw.enums.PieceColor;
+import it.polimi.ingsw.enums.TowerColor;
 
 import java.util.ArrayList;
 import java.util.List;
