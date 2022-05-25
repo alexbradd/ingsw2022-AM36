@@ -76,7 +76,7 @@ class PriestAndPrincess extends StudentStoreCharacter {
      */
     @Override
     Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        checkEffectParameters(phase, steps, 1);
+        checkEffectParameters(phase, steps);
         if (behaviour == Behaviour.PRIEST)
             return doPriest(super.doEffect(phase, steps), steps);
         else

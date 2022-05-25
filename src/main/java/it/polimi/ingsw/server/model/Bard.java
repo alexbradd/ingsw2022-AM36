@@ -49,7 +49,7 @@ class Bard extends Character {
      */
     @Override
     Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        checkEffectParameters(phase, steps, 0);
+        checkEffectParameters(phase, steps);
         Player current = phase.getCurrentPlayer();
         List<Tuple<PieceColor, PieceColor>> colors = fromStepToTuple(steps);
         return super.doEffect(phase, steps)
@@ -83,7 +83,7 @@ class Bard extends Character {
      */
     private List<Tuple<PieceColor, PieceColor>> fromStepToTuple(CharacterStep[] steps) throws InvalidCharacterParameterException {
         List<Tuple<PieceColor, PieceColor>> colors = new ArrayList<>(2);
-        for (int i = 0; i < 2 && i < steps.length; i++) {
+        for (int i = 0; i < getCharacterType().getMaxSteps() && i < steps.length; i++) {
             PieceColor entrance = steps[i].getParameterAsColor("entrance");
             PieceColor hall = steps[i].getParameterAsColor("hall");
             colors.add(new Tuple<>(entrance, hall));

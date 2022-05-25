@@ -44,7 +44,7 @@ class Herald extends Character {
      */
     @Override
     Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        checkEffectParameters(phase, steps, 1);
+        checkEffectParameters(phase, steps);
         int islandIndex = steps[0].getParameterAsIslandIndex("island", phase);
         return super.doEffect(phase, steps)
                 .map(((actionPhase, character) -> new Tuple<>(actionPhase.assignTower(islandIndex), character)));

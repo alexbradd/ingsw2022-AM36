@@ -93,7 +93,7 @@ class Herbalist extends Character {
      */
     @Override
     Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        checkEffectParameters(phase, steps, 1);
+        checkEffectParameters(phase, steps);
         int islandIndex = steps[0].getParameterAsIslandIndex("island", phase);
         if (getNumOfBlocks() == 0)
             throw new InvalidPhaseUpdateException("no more blocks on this card");

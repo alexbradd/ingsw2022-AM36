@@ -70,7 +70,7 @@ class InfluenceDecoratingCharacter extends Character {
      */
     @Override
     Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        checkEffectParameters(phase, steps, 0);
+        checkEffectParameters(phase, steps);
         var colorWrapper = new Object() {
             PieceColor color = null;
         };

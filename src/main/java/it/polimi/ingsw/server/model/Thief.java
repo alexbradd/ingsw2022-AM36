@@ -49,7 +49,7 @@ class Thief extends Character {
      */
     @Override
     Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        checkEffectParameters(phase, steps, 1);
+        checkEffectParameters(phase, steps);
         PieceColor color = steps[0].getParameterAsColor("color");
         return super.doEffect(phase, steps)
                 .map((actionPhase, character) -> {

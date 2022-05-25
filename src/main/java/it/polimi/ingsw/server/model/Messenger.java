@@ -49,7 +49,7 @@ class Messenger extends Character {
      */
     @Override
     Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        checkEffectParameters(phase, steps, 0);
+        checkEffectParameters(phase, steps);
         return super.doEffect(phase, steps)
                 .map(t -> new Tuple<>(
                         t.getFirst().requestExtraMnMovement(2),
