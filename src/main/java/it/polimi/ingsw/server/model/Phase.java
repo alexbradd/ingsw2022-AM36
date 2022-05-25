@@ -88,6 +88,19 @@ public abstract class Phase {
     }
 
     /**
+     * Returns a list containing all the usernames that this phase has knowledge of.
+     *
+     * @return a list containing all the usernames that this phase has knowledge of.
+     * @throws UnsupportedOperationException if this operation is not supported by the current phase of the game
+     */
+    public List<String> getPlayerUsernames() {
+        return getTable()
+                .getPlayers().stream()
+                .map(Player::getUsername)
+                .toList();
+    }
+
+    /**
      * Getter for this Phase's current player. Default implementation throws exception if the phase's has not got a
      * player.
      *
