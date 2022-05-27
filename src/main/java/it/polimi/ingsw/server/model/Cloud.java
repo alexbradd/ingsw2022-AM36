@@ -2,7 +2,6 @@ package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.enums.PieceColor;
-import it.polimi.ingsw.server.model.exceptions.ColorIsFullException;
 import it.polimi.ingsw.server.model.exceptions.ContainerIsFullException;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
 
@@ -29,7 +28,7 @@ class Cloud implements StudentContainerInterface {
      * Cloud constructor.
      * There are no students present on the cloud initially.
      *
-     * @param maxSize maximumm cloud size
+     * @param maxSize maximum cloud size
      * @throws IllegalArgumentException maxSize can't be <= 0
      */
     Cloud(int maxSize) throws IllegalArgumentException {
