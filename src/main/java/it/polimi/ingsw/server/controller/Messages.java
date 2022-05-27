@@ -4,6 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.List;
+
 /**
  * Static class containing utilities for working with JsonObject messages
  */
@@ -106,6 +108,33 @@ public class Messages {
     }
 
     /**
+     * Utility static method that extracts a boolean with the given key from the specified JsonObject,
+     *
+     * @param obj the JsonObject from which to extract the boolean
+     * @param key the name of property from which to extract the boolean
+     * @return the extracted boolean
+     * @throws IllegalArgumentException if any parameter is null or {@code obj} is badly formatted
+     */
+    public static boolean extractBoolean(JsonObject obj, String key) {
+        JsonElement keyElement = extractElement(obj, key);
+        return asBoolean(keyElement);
+    }
+
+    /**
+     * Utility static method that converts a JsonElement into a boolean.
+     *
+     * @param elem the JsonElement to convert
+     * @return the boolean contained inside the JsonElement
+     * @throws IllegalArgumentException if {@code elem} is null or not a boolean
+     */
+    public static boolean asBoolean(JsonElement elem) {
+        if (elem == null) throw new IllegalArgumentException("elem shouldn't be null");
+        if (!elem.isJsonPrimitive() || !elem.getAsJsonPrimitive().isNumber())
+            throw new IllegalArgumentException(elem + " is not a valid boolean");
+        return elem.getAsBoolean();
+    }
+
+    /**
      * Creates a non-game-specific error message with the given reason.
      *
      * @param reason a human-readable string describing why the error happened.
@@ -127,6 +156,53 @@ public class Messages {
      */
     public static JsonObject buildErrorMessage(long gameId, String reason) {
         JsonObject ret = buildErrorMessage(reason);
+        ret.addProperty("gameId", gameId);
+        return ret;
+    }
+
+    /**
+     * Creates a ping message relative to a game.
+     *
+     * @param gameId the id of the game this ping message is relative to
+     * @return a {@link JsonObject} containing the ping message
+     */
+    public static JsonObject buildPingMessage(long gameId) {
+        JsonObject ret = new JsonObject();
+        ret.addProperty("type", "PING");
+        ret.addProperty("gameId", gameId);
+        return ret;
+    }
+
+    /**
+     * Creates a game-end message relative to a game with the given reason and a list of winning players.
+     *
+     * @param gameId  the id of the game this error message is relative to
+     * @param reason  a human-readable string describing why the error happened
+     * @param winners a list of Strings with the usernames of the winning players
+     * @return a {@link JsonObject} containing the end message
+     */
+    public static JsonObject buildEndMessage(long gameId, String reason, List<String> winners) {
+        JsonObject msg = new JsonObject();
+        msg.addProperty("gameId", gameId);
+        msg.addProperty("type", "END");
+        msg.addProperty("reason", reason);
+
+        JsonArray winnersArr = new JsonArray();
+        winners.forEach(winnersArr::add);
+        msg.add("winners", winnersArr);
+
+        return msg;
+    }
+
+    /**
+     * Creates a "left" message relative to a game.
+     *
+     * @param gameId the id of the game this ping message is relative to
+     * @return a {@link JsonObject} containing the "left" message
+     */
+    public static JsonObject buildLeftMessage(long gameId) {
+        JsonObject ret = new JsonObject();
+        ret.addProperty("type", "LEFT");
         ret.addProperty("gameId", gameId);
         return ret;
     }

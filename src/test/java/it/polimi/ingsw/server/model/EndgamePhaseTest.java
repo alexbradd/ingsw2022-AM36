@@ -2,6 +2,7 @@ package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.enums.PieceColor;
 import it.polimi.ingsw.enums.TowerColor;
+
 import it.polimi.ingsw.server.model.exceptions.NoTowersException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

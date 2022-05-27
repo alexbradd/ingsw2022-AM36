@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import it.polimi.ingsw.server.Server;
+import it.polimi.ingsw.server.controller.MatchRegistry;
 import it.polimi.ingsw.server.controller.Messages;
 
 import java.io.BufferedReader;
@@ -14,6 +15,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 /**
  * Thread that handles IO with a client's {@link Socket}, spawned by {@link Server}. It provides basic IO operations for
@@ -26,6 +28,11 @@ public class Dispatcher implements Runnable {
     private final static Runnable NOOP_CB = () -> {
     };
     /**
+     * NOOP {@code BiConsumer} callback. More elegant than checking for null on call.
+     */
+    private final static BiConsumer<JsonObject, Dispatcher> NOOP_CONSUMER = (o, d) -> {
+    };
+    /**
      * The {@link Socket} associated to this Dispatcher.
      */
     private final Socket socket;
@@ -33,6 +40,17 @@ public class Dispatcher implements Runnable {
      * Callback called on client disconnection. By default, it doesn't do anything.
      */
     private Runnable onDisconnect;
+
+    /**
+     *
+     */
+    public final BiConsumer<JsonObject, Dispatcher> onReceiveDefault =
+            (o, d) -> MatchRegistry.getInstance().executeCommand(this, o);
+
+/**
+     *
+     */
+    private BiConsumer<JsonObject, Dispatcher> onReceive = onReceiveDefault;
 
     /**
      * Creates a new Dispatcher object wrapping the given {@link Socket}.
@@ -60,7 +78,7 @@ public class Dispatcher implements Runnable {
             while (s.isConnected()) {
                 Optional<JsonObject> obj = receive();
                 if (obj.isPresent())
-                    System.out.println(obj.get()); // FIXME: temporary until GameRegistry is up
+                    onReceive.accept(obj.get(), this);
                 else
                     send(Messages.buildErrorMessage("Malformed JSON"));
             }
@@ -83,6 +101,16 @@ public class Dispatcher implements Runnable {
      */
     public void setOnDisconnect(Runnable callback) {
         onDisconnect = Objects.requireNonNullElse(callback, NOOP_CB);
+    }
+
+    /**
+     * Sets the onReceive callback to the provided {@code BiConsumer}. If null is passed, the
+     * default NOOP callback will be assigned.
+     *
+     * @param callback the new callback to use
+     */
+    public void setOnReceive(BiConsumer<JsonObject, Dispatcher> callback) {
+        onReceive = Objects.requireNonNullElse(callback, NOOP_CONSUMER);
     }
 
     /**

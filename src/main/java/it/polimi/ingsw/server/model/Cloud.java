@@ -28,7 +28,7 @@ class Cloud implements StudentContainerInterface {
      * Cloud constructor.
      * There are no students present on the cloud initially.
      *
-     * @param maxSize maximumm cloud size
+     * @param maxSize maximum cloud size
      * @throws IllegalArgumentException maxSize can't be <= 0
      */
     Cloud(int maxSize) throws IllegalArgumentException {
