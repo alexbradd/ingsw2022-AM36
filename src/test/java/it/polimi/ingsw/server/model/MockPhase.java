@@ -3,12 +3,16 @@ package it.polimi.ingsw.server.model;
 /**
  * Mocks a phase.
  */
-class MockPhase extends Phase {
+public class MockPhase extends Phase {
     private final Table table;
 
     MockPhase(Table t) {
         super(GameParameters.twoPlayerGame(true));
         this.table = t;
+    }
+
+    public MockPhase() {
+        this(new Table());
     }
 
     MockPhase(Phase old) {
