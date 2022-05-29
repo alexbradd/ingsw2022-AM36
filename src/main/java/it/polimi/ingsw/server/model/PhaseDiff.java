@@ -37,7 +37,7 @@ public class PhaseDiff implements Jsonable {
      *
      * @return the map of attributes
      */
-    HashMap<String, JsonPrimitive> getAttributes() {
+    public HashMap<String, JsonPrimitive> getAttributes() {
         return new HashMap<>(attributes);
     }
 
@@ -46,7 +46,7 @@ public class PhaseDiff implements Jsonable {
      *
      * @return the map of entity updates
      */
-    HashMap<String, List<Jsonable>> getEntityUpdates() {
+    public HashMap<String, List<Jsonable>> getEntityUpdates() {
         return new HashMap<>(entityUpdates);
     }
 

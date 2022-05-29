@@ -369,7 +369,7 @@ public abstract class Phase {
      * @return a new {@link PhaseDiff}
      * @throws IllegalArgumentException if any argument is null
      */
-    PhaseDiff compare(Phase other) {
+    public PhaseDiff compare(Phase other) {
         if (other == null) throw new IllegalArgumentException("other shouldn't be null");
         PhaseDiff diff = new PhaseDiff();
 
