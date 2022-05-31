@@ -126,7 +126,7 @@ public class Dispatcher implements Runnable {
     public void send(JsonObject toWrite) {
         if (toWrite == null) throw new IllegalArgumentException("toWrite shouldn't be null");
         try {
-            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true, StandardCharsets.UTF_8);
             writer.println(toWrite);
             writer.println("");
         } catch (IOException e) {
