@@ -188,10 +188,12 @@ class SynchronousMatch extends Match {
         }
 
         UserCommandType type = command.getType();
+        String username = command.getUsername();
+
         if (type.equals(UserCommandType.JOIN))
-            addDispatcher(dispatcher);
+            addDispatcher(dispatcher, username);
         if (type.equals(UserCommandType.LEAVE))
-            removeDispatcher(dispatcher);
+            removeDispatcher(dispatcher, username);
 
         for (Dispatcher d : new ArrayList<>(getDispatchers()))
             d.send(res);

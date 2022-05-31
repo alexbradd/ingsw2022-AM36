@@ -4,8 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import it.polimi.ingsw.server.Server;
-import it.polimi.ingsw.server.controller.MatchRegistry;
-import it.polimi.ingsw.server.controller.Messages;
+import it.polimi.ingsw.server.controller.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -86,6 +85,8 @@ public class Dispatcher implements Runnable {
             System.out.println("Error while doing IO to socket: " + e);
         } catch (ClientDisconnectedException e) {
             System.out.println("Client disconnected...");
+        } catch (Throwable e) {
+            e.printStackTrace();
         } finally {
             System.out.println("Executing callback...");
             onDisconnect.run();
@@ -160,5 +161,15 @@ public class Dispatcher implements Runnable {
         } catch (IOException e) {
             System.out.println("Error while doing IO to socket: " + e);
         }
+    }
+
+    public void setPlayingState(Match match) {
+        setOnReceive(new InMatchCallback());
+        setOnDisconnect(new DisconnectCallback(match));
+    }
+
+    public void setIdleState() {
+        setOnReceive(null);
+        setOnDisconnect(null);
     }
 }

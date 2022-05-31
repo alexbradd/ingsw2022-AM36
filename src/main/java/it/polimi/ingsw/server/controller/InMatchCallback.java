@@ -24,10 +24,18 @@ public class InMatchCallback implements BiConsumer<JsonObject, Dispatcher> {
      */
     @Override
     public void accept(JsonObject jsonObject, Dispatcher dispatcher) {
+        String type;
+        try {
+            type = Messages.extractString(jsonObject, "type");
+        } catch (IllegalArgumentException e) {
+            dispatcher.send(Messages.buildErrorMessage("Message has no 'type' attribute."));
+            return;
+        }
 
-        String type = jsonObject.get("type").getAsString();
-        if (type.equals("CREATE") || type.equals("JOIN"))
+        if (type.equals("CREATE") || type.equals("JOIN")) {
             dispatcher.send(Messages.buildErrorMessage("Already inside a game on this client."));
+            return;
+        }
 
         MatchRegistry.getInstance().executeCommand(dispatcher, jsonObject);
     }

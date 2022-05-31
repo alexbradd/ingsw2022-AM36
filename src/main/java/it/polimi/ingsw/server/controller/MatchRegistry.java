@@ -96,10 +96,12 @@ public class MatchRegistry {
             type = Messages.extractString(jsonCommand, "type");
         } catch (Exception e) {
             dispatcher.send(Messages.buildErrorMessage("Message has no 'type' attribute."));
+            return;
         }
 
         assert type != null;
         switch (type) {
+            case "PONG" -> dispatchPong(dispatcher, jsonCommand);
             case "FETCH" -> fetchMatches(dispatcher);
             case "CREATE" -> createMatch(dispatcher, jsonCommand);
             default -> sendCommandToMatch(dispatcher, jsonCommand);
@@ -107,6 +109,20 @@ public class MatchRegistry {
     }
 
     //executeCommand() helpers
+
+    private void dispatchPong(Dispatcher dispatcher, JsonObject jsonCommand) {
+        long gameId;
+        try {
+            gameId = Messages.extractNumber(jsonCommand, "id");
+            get(gameId).getPinger().notifyResponse(dispatcher);
+
+        } catch (NoSuchElementException e) {
+        dispatcher.send(Messages.buildErrorMessage("No game with such ID."));
+
+        } catch (IllegalArgumentException e) {
+            dispatcher.send(Messages.buildErrorMessage("Wrong PONG message format."));
+        }
+    }
 
     /**
      * Helper method for fetching all active {@link Match}es and sending back to the {@link Dispatcher} the formatted
@@ -134,8 +150,10 @@ public class MatchRegistry {
      * @param command    the {@code JsonObject} representing the {@code CREATE} command
      */
     private void createMatch(Dispatcher dispatcher, JsonObject command) {
-        if (!isValidCreate(command))
+        if (!isValidCreate(command)) {
             dispatcher.send(Messages.buildErrorMessage("Syntax error in the CREATE message."));
+            return;
+        }
 
         JsonObject arguments = command.get("arguments")
                 .getAsJsonArray()
@@ -153,9 +171,10 @@ public class MatchRegistry {
         int gameId = chooseGameId();
 
         JsonObject joinCommandObj = convertToJoin(command, gameId);
-        create(gameId, nPlayers, isExpertMode);
-        dispatcher.setOnReceive(new InMatchCallback());
+        Match newlyCreatedMatch = create(gameId, nPlayers, isExpertMode);
 
+        dispatcher.setOnReceive(new InMatchCallback());
+        dispatcher.setOnDisconnect(new DisconnectCallback(newlyCreatedMatch));
         executeCommand(dispatcher, joinCommandObj);
     }
 
@@ -192,9 +211,11 @@ public class MatchRegistry {
         int nPlayers;
         try {
             type = Messages.extractString(command, "type");
-            nPlayers = (int) Messages.extractNumber(command, "nPlayers");
-            Messages.extractBoolean(command, "expertMode");
+            JsonObject args = Messages.extractArray(command, "arguments", 1).get(0).getAsJsonObject();
+            nPlayers = (int) Messages.extractNumber(args, "nPlayers");
+            Messages.extractBoolean(args, "expert");
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
 
@@ -290,11 +311,40 @@ public class MatchRegistry {
     void terminate(long id) throws NoSuchElementException {
         Match m = get(id);
 
-        for (Dispatcher d : m.getDispatchers())
-            m.removeDispatcher(d);
+        m.getDispatchersAndNames().forEach(
+                t -> t.consume((dispatcher, username) -> {
+                    dispatcher.setOnDisconnect(null);
+                    m.removeDispatcher(dispatcher, username);
+                })
+        );
         matches.remove(m);
     }
 
+    /**
+     * Method for killing the {@link Match} with the specified ID. An END message is sent to all connected dispatchers
+     * with the specified reason.
+     *
+     * @param id     the id of the {@link Match}
+     * @param reason a {@code String} that specifies why the {@link Match} has been terminated
+     * @throws NoSuchElementException if a {@link Match} with the corresponding ID does not exist in the registry
+     */
+    void terminate(long id, String reason) throws NoSuchElementException {
+        Match m = get(id);
+
+        m.getDispatchersAndNames().forEach(
+                t -> t.consume((dispatcher, username) -> {
+                    dispatcher.setOnDisconnect(null);
+                    dispatcher.setOnReceive(null);
+                    dispatcher.send(Messages.buildEndMessage(m.getId(), reason, new ArrayList<>()));
+                    m.removeDispatcher(dispatcher, username);
+                })
+        );
+        matches.remove(m);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "GameRegistry{" +

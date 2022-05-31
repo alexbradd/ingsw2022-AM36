@@ -3,6 +3,7 @@ package it.polimi.ingsw.server.controller;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
+import it.polimi.ingsw.server.controller.commands.UserCommandType;
 import it.polimi.ingsw.server.model.Game;
 import it.polimi.ingsw.server.net.Dispatcher;
 
@@ -11,6 +12,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * This class represents a single match operated by the server. It has a unique identifier, the corresponding model's
@@ -22,7 +26,25 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @see CommandManager
  * @see Pinger
  */
-class Match {
+public class Match {
+    /**
+     * The time interval, expressed in milliseconds, for the {@link Pinger} to wait for receiving PONG messages.
+     */
+    private final static long WAIT_PONG_TIME = 1000;
+    /**
+     * The time interval, expressed in milliseconds, for new {@link Pinger} instances to be created.
+     */
+    private final static long PING_RATE = 5000;
+
+    /**
+     * A regex pattern that matches acceptable usernames. It corresponds to an alpha-numerical username between 1 and 30
+     * characters long.
+     */
+    private final static Pattern usernamePattern = Pattern.compile("^[a-zA-Z0-9]{1,30}$");
+
+    private final static String usernameRegexMsg = "pick a username between 1 and 30 characters long, that contains" +
+            " only uppercase letters, lowercase letters and numbers";
+
     /**
      * The unique identifier of the Match.
      */
@@ -32,9 +54,10 @@ class Match {
      */
     private final Game game;
     /**
-     * A list containing all the {@link Dispatcher}s that are currently connected to the game.
+     * A list containing all the {@link Dispatcher}s that are currently connected to the game, bounded to their in-game
+     * username.
      */
-    private final List<Dispatcher> dispatcherList;
+    private final List<Tuple<Dispatcher, String>> dispatcherList;
     /**
      * A {@link BlockingQueue} containing all the {@link UserCommand}s to be executed (via a {@link CommandManager} on a
      * separate thread), paired with the {@link Dispatcher} that "requested" the execution of such command.
@@ -64,7 +87,7 @@ class Match {
         this.dispatcherList = new ArrayList<>();
 
         new Thread(new CommandManager(this)).start();
-        //new Thread(this::runPinger).start();  // TODO: finish Pinger implementation and testing
+        new Thread(this::runPinger).start();
 
         System.out.println("NEW MATCH CREATED [ID: " + id + "]");
     }
@@ -93,6 +116,12 @@ class Match {
      * @return the list of connected {@link Dispatcher}s
      */
     List<Dispatcher> getDispatchers() {
+        return dispatcherList.stream()
+                .map(Tuple::getFirst)
+                .collect(Collectors.toList());
+    }
+
+    List<Tuple<Dispatcher, String>> getDispatchersAndNames() {
         return new ArrayList<>(dispatcherList);
     }
 
@@ -113,11 +142,18 @@ class Match {
      * @throws IllegalArgumentException if {@code dispatcher == null} or if dispatcher is already connected to this
      *                                  Match
      */
-    synchronized void addDispatcher(Dispatcher dispatcher) throws IllegalArgumentException {
+    synchronized void addDispatcher(Dispatcher dispatcher, String username) throws IllegalArgumentException {
         if (dispatcher == null) throw new IllegalArgumentException("dispatcher must not be null.");
-        if (dispatcherList.contains(dispatcher))
+        if (username == null) throw new IllegalArgumentException("username must not be null.");
+
+        Matcher usernameMatcher = usernamePattern.matcher(username);
+        if (!usernameMatcher.matches()) throw new IllegalArgumentException("Wrong username: " + usernameRegexMsg);
+
+        if (getDispatchers().contains(dispatcher))
             throw new IllegalArgumentException("This socket is already connected to this Match.");
-        dispatcherList.add(dispatcher);
+
+
+        dispatcherList.add(new Tuple<>(dispatcher, username));
     }
 
     /**
@@ -127,13 +163,21 @@ class Match {
      * @param dispatcher the {@link Dispatcher} instance to be removed
      * @throws IllegalArgumentException if {@code dispatcher == null} or if dispatcher is not connected to this Match
      */
-    synchronized void removeDispatcher(Dispatcher dispatcher) throws IllegalArgumentException {
+    synchronized void removeDispatcher(Dispatcher dispatcher, String username) throws IllegalArgumentException {
         if (dispatcher == null) throw new IllegalArgumentException("dispatcher must not be null.");
-        if (!dispatcherList.contains(dispatcher))
+        if (username == null) throw new IllegalArgumentException("username must not be null");
+        if (!isCorrectUsername(dispatcher, username))
+            throw new IllegalArgumentException("This username isn't bound to this socket.");
+        if (!getDispatchers().contains(dispatcher))
             throw new IllegalArgumentException("This socket is not connected to this Match.");
-        dispatcherList.remove(dispatcher);
 
+        dispatcherList.removeIf(tuple -> tuple.getFirst().equals(dispatcher));
         dispatcher.setOnReceive(dispatcher.onReceiveDefault);
+    }
+
+    private boolean isCorrectUsername(Dispatcher dispatcher, String username) {
+        return dispatcherList.stream()
+                .anyMatch(t -> t.getFirst().equals(dispatcher) && t.getSecond().equals(username));
     }
 
     /**
@@ -145,6 +189,9 @@ class Match {
      * @param dispatcher the requesting {@link Dispatcher}
      */
     void executeUserCommand(UserCommand command, Dispatcher dispatcher) {
+        if (!isCorrectUsername(dispatcher, command.getUsername()) && !command.getType().equals(UserCommandType.JOIN))
+            throw new IllegalArgumentException("Wrong username.");
+
         try {
             commands.put(new Tuple<>(command, dispatcher));
         } catch (InterruptedException e) {
@@ -155,8 +202,18 @@ class Match {
     /**
      * Method that executes the {@link Pinger} task at a fixed rate.
      */
-    private void runPinger() {
-        new Timer().scheduleAtFixedRate(new Pinger(new ArrayList<>(dispatcherList), this), 0, 5000);
+    synchronized private void runPinger() {
+        pinger = new Pinger(this, WAIT_PONG_TIME);
+        new Timer().scheduleAtFixedRate(pinger, 0, PING_RATE);
+    }
+
+    /**
+     * Getter for the {@link Pinger} instance.
+     *
+     * @return the {@link Pinger} instance.
+     */
+    synchronized public Pinger getPinger() {
+        return pinger;
     }
 
     /**

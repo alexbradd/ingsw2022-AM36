@@ -2,6 +2,7 @@ package it.polimi.ingsw.server.model;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import it.polimi.ingsw.enums.*;
 import it.polimi.ingsw.functional.Tuple;
@@ -28,7 +29,7 @@ import java.util.Optional;
  * @see EndgamePhase
  */
 public abstract class Phase {
-
+    private final static String notSupportedErrMsg = "Action not supported in this game phase.";
     /**
      * The game's parameters.
      */
@@ -83,7 +84,7 @@ public abstract class Phase {
      * @throws UnsupportedOperationException if this operation is not supported by the current phase of the game
      */
     Table getTable() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -93,7 +94,7 @@ public abstract class Phase {
      * @return this phase's current player.
      */
     Player getCurrentPlayer() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -107,7 +108,7 @@ public abstract class Phase {
      *                                       specified player's turn
      */
     public Player authorizePlayer(String username) throws InvalidPlayerException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -121,7 +122,7 @@ public abstract class Phase {
      * @throws InvalidPhaseUpdateException if the index is out of bounds
      */
     public Phase addToIsland(Player player, int index, Student student) throws InvalidPhaseUpdateException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -134,7 +135,7 @@ public abstract class Phase {
      * @throws IllegalArgumentException    if any parameter is null
      */
     public Tuple<? extends Phase, Student> getFromEntrance(Player player, PieceColor color) throws InvalidPhaseUpdateException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -147,7 +148,7 @@ public abstract class Phase {
      * @throws InvalidPhaseUpdateException if the Hall cannot contain any more students of that color
      */
     public Phase addToHall(Player player, Student student) throws InvalidPhaseUpdateException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -158,7 +159,7 @@ public abstract class Phase {
      * @throws IllegalArgumentException if any parameter is null
      */
     public Phase markStudentMove(Player player) throws InvalidPhaseUpdateException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -171,7 +172,7 @@ public abstract class Phase {
      * @throws InvalidPhaseUpdateException   if the mage has already been chosen by another player
      */
     public Phase chooseMageDeck(Player player, Mage mage) throws InvalidPhaseUpdateException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -185,7 +186,7 @@ public abstract class Phase {
      * @throws InvalidPhaseUpdateException   if this assistant has already been played by the player
      */
     public Phase playAssistant(Player player, AssistantType assistant) throws InvalidPhaseUpdateException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -199,7 +200,7 @@ public abstract class Phase {
      * @throws InvalidPhaseUpdateException   if the number of steps is invalid (see game rules)
      */
     public Phase moveMn(Player player, int steps) throws InvalidPhaseUpdateException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -216,7 +217,7 @@ public abstract class Phase {
      *                                            to play the character card (see game rules)
      */
     public Phase playCharacter(Player player, CharacterType character, CharacterStep... steps) throws InvalidPhaseUpdateException, InvalidCharacterParameterException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -241,7 +242,7 @@ public abstract class Phase {
      * @throws InvalidPhaseUpdateException   if the specified id has already been picked this round
      */
     public Phase drainCloud(Player player, int id) throws InvalidPhaseUpdateException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -255,7 +256,7 @@ public abstract class Phase {
      * @throws InvalidPhaseUpdateException   if the maximum number of players has already joined the game
      */
     public Phase addPlayer(String username) throws InvalidPhaseUpdateException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -268,7 +269,7 @@ public abstract class Phase {
      * @throws InvalidPhaseUpdateException   if the specified player is not taking part in this game
      */
     public Phase removePlayer(String username) throws InvalidPhaseUpdateException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(notSupportedErrMsg);
     }
 
     /**
@@ -591,8 +592,10 @@ public abstract class Phase {
     private void addCloudToArrayList(Cloud c, ArrayList<Jsonable> js, int i) {
         js.add(() -> {
             JsonElement j = c.toJson();
-            j.getAsJsonObject().addProperty("id", i);
-            return j;
+            JsonObject outer = new JsonObject();
+            outer.addProperty("id", i);
+            outer.add("students", j);
+            return outer;
         });
     }
 }
