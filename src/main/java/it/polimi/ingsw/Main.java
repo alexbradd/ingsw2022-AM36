@@ -3,6 +3,7 @@ package it.polimi.ingsw;
 import it.polimi.ingsw.client.Client;
 import it.polimi.ingsw.server.Server;
 
+import java.io.File;
 import java.net.UnknownHostException;
 
 /**
@@ -79,6 +80,17 @@ public class Main {
                             options.setAddress(args[i + 1]);
                             i++;
                         } catch (UnknownHostException e) {
+                            throw ParameterParsingException.invalidParameter(args[i + 1], args[i]);
+                        }
+                    else
+                        throw ParameterParsingException.missingParameter(args[i]);
+                    break;
+                case "--persistence-store":
+                    if (i + 1 < args.length)
+                        try {
+                            options.setPersistenceStore(new File(args[i + 1]));
+                            i++;
+                        } catch (IllegalArgumentException e) {
                             throw ParameterParsingException.invalidParameter(args[i + 1], args[i]);
                         }
                     else
