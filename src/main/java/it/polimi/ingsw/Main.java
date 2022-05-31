@@ -69,7 +69,7 @@ public class Main {
                             options.setPort(Integer.parseInt(args[i + 1]));
                             i++;
                         } catch (IllegalArgumentException e) {
-                            throw ParameterParsingException.invalidParameter(args[i + 1], args[i]);
+                            throw ParameterParsingException.invalidParameter(args[i + 1], args[i], e.getMessage());
                         }
                     else
                         throw ParameterParsingException.missingParameter(args[i]);
@@ -80,7 +80,7 @@ public class Main {
                             options.setAddress(args[i + 1]);
                             i++;
                         } catch (UnknownHostException e) {
-                            throw ParameterParsingException.invalidParameter(args[i + 1], args[i]);
+                            throw ParameterParsingException.invalidParameter(args[i + 1], args[i], e.getMessage());
                         }
                     else
                         throw ParameterParsingException.missingParameter(args[i]);
@@ -91,7 +91,7 @@ public class Main {
                             options.setPersistenceStore(new File(args[i + 1]));
                             i++;
                         } catch (IllegalArgumentException e) {
-                            throw ParameterParsingException.invalidParameter(args[i + 1], args[i]);
+                            throw ParameterParsingException.invalidParameter(args[i + 1], args[i], e.getMessage());
                         }
                     else
                         throw ParameterParsingException.missingParameter(args[i]);

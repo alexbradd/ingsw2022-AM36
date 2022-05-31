@@ -30,8 +30,9 @@ public class ParameterParsingException extends Exception {
      * @param option           the option for which the parameter is
      * @return a correctly formatted ParameterParsingException
      */
-    static ParameterParsingException invalidParameter(String invalidParameter, String option) {
-        return new ParameterParsingException("Badly formatted parameter for " + option + ": " + invalidParameter);
+    static ParameterParsingException invalidParameter(String invalidParameter, String option, String why) {
+        return new ParameterParsingException("Badly formatted parameter for " +
+                option + ": " + invalidParameter + ". Reason: " + why);
     }
 
     /**
