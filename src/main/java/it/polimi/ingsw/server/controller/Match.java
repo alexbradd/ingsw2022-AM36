@@ -24,6 +24,14 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 class Match {
     /**
+     * The time interval, expressed in milliseconds, for the {@link Pinger} to wait for receiving PONG messages.
+     */
+    private final static long WAIT_PONG_TIME = 1000;
+    /**
+     * The time interval, expressed in milliseconds, for new {@link Pinger} instances to be created.
+     */
+    private final static long PING_RATE = 5000;
+    /**
      * The unique identifier of the Match.
      */
     private final long id;
@@ -64,7 +72,7 @@ class Match {
         this.dispatcherList = new ArrayList<>();
 
         new Thread(new CommandManager(this)).start();
-        //new Thread(this::runPinger).start();  // TODO: finish Pinger implementation and testing
+        new Thread(this::runPinger).start();
 
         System.out.println("NEW MATCH CREATED [ID: " + id + "]");
     }
@@ -155,8 +163,18 @@ class Match {
     /**
      * Method that executes the {@link Pinger} task at a fixed rate.
      */
-    private void runPinger() {
-        new Timer().scheduleAtFixedRate(new Pinger(new ArrayList<>(dispatcherList), this), 0, 5000);
+    synchronized private void runPinger() {
+        pinger = new Pinger(this, WAIT_PONG_TIME);
+        new Timer().scheduleAtFixedRate(pinger, 0, PING_RATE);
+    }
+
+    /**
+     * Getter for the {@link Pinger} instance.
+     *
+     * @return the {@link Pinger} instance.
+     */
+    synchronized public Pinger getPinger() {
+        return pinger;
     }
 
     /**
