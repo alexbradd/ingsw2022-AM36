@@ -129,7 +129,7 @@ public class Messages {
      */
     public static boolean asBoolean(JsonElement elem) {
         if (elem == null) throw new IllegalArgumentException("elem shouldn't be null");
-        if (!elem.isJsonPrimitive() || !elem.getAsJsonPrimitive().isNumber())
+        if (!elem.isJsonPrimitive() || !elem.getAsJsonPrimitive().isBoolean())
             throw new IllegalArgumentException(elem + " is not a valid boolean");
         return elem.getAsBoolean();
     }

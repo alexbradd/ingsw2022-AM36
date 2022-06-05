@@ -96,6 +96,7 @@ public class MatchRegistry {
             type = Messages.extractString(jsonCommand, "type");
         } catch (Exception e) {
             dispatcher.send(Messages.buildErrorMessage("Message has no 'type' attribute."));
+            return;
         }
 
         assert type != null;
@@ -112,13 +113,13 @@ public class MatchRegistry {
     private void dispatchPong(Dispatcher dispatcher, JsonObject jsonCommand) {
         long gameId;
         try {
-            gameId = Messages.extractNumber(jsonCommand, "type");
+            gameId = Messages.extractNumber(jsonCommand, "id");
             get(gameId).getPinger().notifyResponse(dispatcher);
 
         } catch (NoSuchElementException e) {
-        dispatcher.send(Messages.buildErrorMessage("Wrong game ID."));
+        dispatcher.send(Messages.buildErrorMessage("No game with such ID."));
 
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             dispatcher.send(Messages.buildErrorMessage("Wrong PONG message format."));
         }
     }
@@ -149,8 +150,10 @@ public class MatchRegistry {
      * @param command    the {@code JsonObject} representing the {@code CREATE} command
      */
     private void createMatch(Dispatcher dispatcher, JsonObject command) {
-        if (!isValidCreate(command))
+        if (!isValidCreate(command)) {
             dispatcher.send(Messages.buildErrorMessage("Syntax error in the CREATE message."));
+            return;
+        }
 
         JsonObject arguments = command.get("arguments")
                 .getAsJsonArray()
@@ -208,9 +211,11 @@ public class MatchRegistry {
         int nPlayers;
         try {
             type = Messages.extractString(command, "type");
-            nPlayers = (int) Messages.extractNumber(command, "nPlayers");
-            Messages.extractBoolean(command, "expertMode");
+            JsonObject args = Messages.extractArray(command, "arguments", 1).get(0).getAsJsonObject();
+            nPlayers = (int) Messages.extractNumber(args, "nPlayers");
+            Messages.extractBoolean(args, "expert");
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
 
@@ -306,10 +311,12 @@ public class MatchRegistry {
     void terminate(long id) throws NoSuchElementException {
         Match m = get(id);
 
-        for (Dispatcher d : m.getDispatchers()) {
-            d.setOnDisconnect(null);
-            m.removeDispatcher(d);
-        }
+        m.getDispatchersAndNames().forEach(
+                t -> t.consume((dispatcher, username) -> {
+                    dispatcher.setOnDisconnect(null);
+                    m.removeDispatcher(dispatcher, username);
+                })
+        );
         matches.remove(m);
     }
 
@@ -324,11 +331,14 @@ public class MatchRegistry {
     void terminate(long id, String reason) throws NoSuchElementException {
         Match m = get(id);
 
-        for (Dispatcher d : m.getDispatchers()) {
-            d.setOnDisconnect(null);
-            d.send(Messages.buildEndMessage(m.getId(), reason, new ArrayList<>()));
-            m.removeDispatcher(d);
-        }
+        m.getDispatchersAndNames().forEach(
+                t -> t.consume((dispatcher, username) -> {
+                    dispatcher.setOnDisconnect(null);
+                    dispatcher.setOnReceive(null);
+                    dispatcher.send(Messages.buildEndMessage(m.getId(), reason, new ArrayList<>()));
+                    m.removeDispatcher(dispatcher, username);
+                })
+        );
         matches.remove(m);
     }
 

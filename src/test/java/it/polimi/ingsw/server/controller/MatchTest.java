@@ -45,17 +45,28 @@ class MatchTest {
     @DisplayName("Adding and removal of dispatcher")
     void dispatchersTest() {
         assertAll("adding dispatchers",
-                () -> m.addDispatcher(d1),
-                () -> m.addDispatcher(d2));
+                () -> m.addDispatcher(d1, "alice"),
+                () -> m.addDispatcher(d2, "bob"));
 
         assertIterableEquals(List.of(d1, d2), m.getDispatchers());
-        assertThrows(IllegalArgumentException.class, () -> m.addDispatcher(d1));
+        assertThrows(IllegalArgumentException.class, () -> m.addDispatcher(d1, "carl"));
+
+        assertThrows(IllegalArgumentException.class, () -> m.addDispatcher(d1, null));
+        assertThrows(IllegalArgumentException.class, () -> m.addDispatcher(d1, ""));
+        assertThrows(IllegalArgumentException.class, () -> m.addDispatcher(d1, "°~°"));
+
+
+        assertThrows(IllegalArgumentException.class, () -> m.removeDispatcher(null, "alice"));
+        assertThrows(IllegalArgumentException.class, () -> m.removeDispatcher(d1, null));
+        assertThrows(IllegalArgumentException.class, () -> m.removeDispatcher(d1, "trudy"));
+        assertThrows(IllegalArgumentException.class, () -> m.removeDispatcher(d3, "a"));
+
 
         assertAll("removing dispatchers",
-                () -> m.removeDispatcher(d1),
-                () -> m.removeDispatcher(d2));
+                () -> m.removeDispatcher(d1, "alice"),
+                () -> m.removeDispatcher(d2, "bob"));
 
         assertIterableEquals(new ArrayList<>(), m.getDispatchers());
-        assertThrows(IllegalArgumentException.class, () -> m.removeDispatcher(d2));
+        assertThrows(IllegalArgumentException.class, () -> m.removeDispatcher(d2, "bob"));
     }
 }

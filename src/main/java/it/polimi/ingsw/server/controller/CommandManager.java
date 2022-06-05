@@ -68,28 +68,53 @@ public class CommandManager implements Runnable {
         Dispatcher sender = command.getSecond();
         Game g = match.getGame();
         PhaseDiff diff;
+        JsonObject update = new JsonObject();
+
         JsonObject res;
 
         try {
             diff = g.executeUserCommand(command.getFirst());
-            res = diff.toJson().getAsJsonObject();
-
         } catch (Exception exc) {
             res = Messages.buildErrorMessage(match.getId(), exc.getMessage());
             sender.send(res);
+            return;
         }
+        res = diff.toJson().getAsJsonObject();
+        update.addProperty("type", "UPDATE");
+        update.addProperty("id", match.getId());
+        update.add("update", res);
 
         UserCommandType type = command.getFirst().getType();
-        if (type.equals(UserCommandType.JOIN))
-            match.addDispatcher(sender);
+        String username = command.getFirst().getUsername();
+        Dispatcher d = command.getSecond();
 
+        if (type.equals(UserCommandType.JOIN)) {
+            try {
+                match.addDispatcher(sender, username);
+            } catch (IllegalArgumentException e) {
+                sender.send(Messages.buildErrorMessage(match.getId(), e.getMessage()));
+            }
+
+            d.setPlayingState(match);
+        }
         else if (type.equals(UserCommandType.LEAVE)) {
-            match.removeDispatcher(sender);
+            try {
+                match.removeDispatcher(sender, username);
+            } catch (IllegalArgumentException e) {
+                sender.send(Messages.buildErrorMessage(match.getId(), e.getMessage()));
+            }
             sender.send(Messages.buildLeftMessage(match.getId()));
+
+            d.setIdleState();
+
+            if (match.getDispatchers().isEmpty()) {
+                MatchRegistry.getInstance().terminate(match.getId());
+                return;
+            }
         }
 
-        for (Dispatcher d : new ArrayList<>(match.getDispatchers()))
-            d.send(res);
+        for (Dispatcher dispatcher : match.getDispatchers())
+            dispatcher.send(update);
     }
 
     /**
