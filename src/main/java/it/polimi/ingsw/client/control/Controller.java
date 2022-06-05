@@ -92,7 +92,7 @@ public class Controller {
                 view = cli;
             } else {
                 GUI gui = new GUI(this);
-                //new Thread(() -> {Application.launch(GUI.class);}).start();
+                gui.launch();
                 view = gui;
             }
             view.showMainMenu();

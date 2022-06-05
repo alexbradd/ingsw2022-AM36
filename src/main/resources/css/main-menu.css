@@ -1,0 +1,16 @@
+.ery-join {
+    -fx-border-style: solid;
+    -fx-border-color: transparent transparent lightgrey transparent;
+    -fx-padding: 5px;
+}
+
+.ery-scroll {
+    -fx-border-style: solid;
+    -fx-border-radius: 10px;
+    -fx-border-color: lightgrey;
+    -fx-padding: 5px;
+}
+
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
