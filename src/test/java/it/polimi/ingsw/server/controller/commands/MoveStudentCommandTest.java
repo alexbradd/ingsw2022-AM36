@@ -1,7 +1,7 @@
 package it.polimi.ingsw.server.controller.commands;
 
 import com.google.gson.*;
-import it.polimi.ingsw.server.model.enums.PieceColor;
+import it.polimi.ingsw.enums.PieceColor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

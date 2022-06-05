@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.server.model.Assistant;
 import it.polimi.ingsw.server.model.Phase;
 import it.polimi.ingsw.server.model.Player;
-import it.polimi.ingsw.server.model.enums.Mage;
+import it.polimi.ingsw.enums.Mage;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
 

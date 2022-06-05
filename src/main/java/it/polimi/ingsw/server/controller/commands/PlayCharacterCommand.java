@@ -6,7 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import it.polimi.ingsw.server.model.CharacterStep;
 import it.polimi.ingsw.server.model.Phase;
 import it.polimi.ingsw.server.model.Player;
-import it.polimi.ingsw.server.model.enums.CharacterType;
+import it.polimi.ingsw.enums.CharacterType;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;

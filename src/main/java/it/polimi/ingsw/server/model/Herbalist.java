@@ -3,7 +3,7 @@ package it.polimi.ingsw.server.model;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.functional.Tuple;
-import it.polimi.ingsw.server.model.enums.CharacterType;
+import it.polimi.ingsw.enums.CharacterType;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
@@ -93,7 +93,7 @@ class Herbalist extends Character {
      */
     @Override
     Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        checkEffectParameters(phase, steps, 1);
+        checkEffectParameters(phase, steps);
         int islandIndex = steps[0].getParameterAsIslandIndex("island", phase);
         if (getNumOfBlocks() == 0)
             throw new InvalidPhaseUpdateException("no more blocks on this card");

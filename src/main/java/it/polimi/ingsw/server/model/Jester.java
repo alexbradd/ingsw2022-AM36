@@ -1,8 +1,8 @@
 package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.functional.Tuple;
-import it.polimi.ingsw.server.model.enums.CharacterType;
-import it.polimi.ingsw.server.model.enums.PieceColor;
+import it.polimi.ingsw.enums.CharacterType;
+import it.polimi.ingsw.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
@@ -50,7 +50,7 @@ class Jester extends StudentStoreCharacter {
      */
     @Override
     Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        checkEffectParameters(phase, steps, 0);
+        checkEffectParameters(phase, steps);
         List<Tuple<PieceColor, PieceColor>> colors = fromStepToTuple(steps);
         return super.doEffect(phase, steps)
                 .throwMap(t -> {
@@ -86,7 +86,7 @@ class Jester extends StudentStoreCharacter {
      */
     private List<Tuple<PieceColor, PieceColor>> fromStepToTuple(CharacterStep[] steps) throws InvalidCharacterParameterException {
         List<Tuple<PieceColor, PieceColor>> colors = new ArrayList<>(2);
-        for (int i = 0; i < 3 && i < steps.length; i++) {
+        for (int i = 0; i < getCharacterType().getMaxSteps() && i < steps.length; i++) {
             PieceColor card = steps[i].getParameterAsColor("card");
             PieceColor entrance = steps[i].getParameterAsColor("entrance");
             colors.add(new Tuple<>(card, entrance));

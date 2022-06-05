@@ -1,8 +1,8 @@
 package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.functional.Tuple;
-import it.polimi.ingsw.server.model.enums.CharacterType;
-import it.polimi.ingsw.server.model.enums.PieceColor;
+import it.polimi.ingsw.enums.CharacterType;
+import it.polimi.ingsw.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
@@ -49,7 +49,7 @@ class Thief extends Character {
      */
     @Override
     Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        checkEffectParameters(phase, steps, 1);
+        checkEffectParameters(phase, steps);
         PieceColor color = steps[0].getParameterAsColor("color");
         return super.doEffect(phase, steps)
                 .map((actionPhase, character) -> {

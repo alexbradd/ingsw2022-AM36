@@ -2,8 +2,8 @@ package it.polimi.ingsw.server.model;
 
 import it.polimi.ingsw.functional.ThrowingBiFunction;
 import it.polimi.ingsw.functional.Tuple;
-import it.polimi.ingsw.server.model.enums.CharacterType;
-import it.polimi.ingsw.server.model.enums.PieceColor;
+import it.polimi.ingsw.enums.CharacterType;
+import it.polimi.ingsw.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
@@ -76,7 +76,7 @@ class PriestAndPrincess extends StudentStoreCharacter {
      */
     @Override
     Tuple<ActionPhase, Character> doEffect(ActionPhase phase, CharacterStep... steps) throws InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        checkEffectParameters(phase, steps, 1);
+        checkEffectParameters(phase, steps);
         if (behaviour == Behaviour.PRIEST)
             return doPriest(super.doEffect(phase, steps), steps);
         else

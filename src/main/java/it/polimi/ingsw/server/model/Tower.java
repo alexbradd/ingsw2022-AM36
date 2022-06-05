@@ -1,6 +1,6 @@
 package it.polimi.ingsw.server.model;
 
-import it.polimi.ingsw.server.model.enums.TowerColor;
+import it.polimi.ingsw.enums.TowerColor;
 
 /**
  * The class that models a tower. It has a color (an entry of the {@link TowerColor} enum) that distinguishes it from

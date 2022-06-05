@@ -2,7 +2,7 @@ package it.polimi.ingsw.server.model;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.server.model.enums.PieceColor;
+import it.polimi.ingsw.enums.PieceColor;
 
 import java.util.Objects;
 import java.util.Optional;

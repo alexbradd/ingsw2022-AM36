@@ -3,7 +3,7 @@ package it.polimi.ingsw.server.model;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.functional.Tuple;
-import it.polimi.ingsw.server.model.enums.CharacterType;
+import it.polimi.ingsw.enums.CharacterType;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
@@ -125,17 +125,17 @@ abstract class Character implements Jsonable {
     /**
      * Helper for validating parameters in subclasses: check for nullity and length of the step array
      *
-     * @param phase        the ActionPhase to check
-     * @param steps        the CharacterStep array to check
-     * @param minimumSteps the minimum number of steps that {@code steps} should have
+     * @param phase the ActionPhase to check
+     * @param steps the CharacterStep array to check
      * @throws IllegalArgumentException           in case of nullity
      * @throws InvalidCharacterParameterException if the length of {@code steps} is less than {@code minimumSteps}
      */
-    void checkEffectParameters(ActionPhase phase, CharacterStep[] steps, int minimumSteps) throws InvalidCharacterParameterException {
+    void checkEffectParameters(ActionPhase phase, CharacterStep[] steps) throws InvalidCharacterParameterException {
         if (phase == null) throw new IllegalArgumentException("phase shouldn't be null");
         if (steps == null) throw new IllegalArgumentException("steps shouldn't be null");
-        if (steps.length < minimumSteps)
-            throw new InvalidCharacterParameterException("Too few parameters: at least " + minimumSteps + " expected");
+        if (steps.length < getCharacterType().getMinSteps())
+            throw new InvalidCharacterParameterException("Too few parameters: at least " +
+                    getCharacterType().getMinSteps() + " expected");
         for (CharacterStep s : steps)
             if (s == null) throw new IllegalArgumentException("Step shouldn't be null");
     }

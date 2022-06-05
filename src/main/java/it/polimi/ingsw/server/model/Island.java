@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.functional.Tuple;
-import it.polimi.ingsw.server.model.enums.TowerColor;
+import it.polimi.ingsw.enums.TowerColor;
 
 import java.util.*;
 import java.util.function.Function;
