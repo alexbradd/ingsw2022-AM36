@@ -306,8 +306,7 @@ public abstract class Phase {
         if (other == null) throw new IllegalArgumentException("other shouldn't be null");
         PhaseDiff diff = new PhaseDiff();
 
-        if (!Objects.equals(this.getName(), other.getName()))
-            diff.addAttribute("phase", new JsonPrimitive(this.getName()));
+        diff.addAttribute("phase", new JsonPrimitive(this.getName()));
 
         calculatePlayerListDiff(other, diff);
         calculateProfessorDiff(other, diff);
