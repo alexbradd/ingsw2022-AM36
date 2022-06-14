@@ -3,11 +3,11 @@ package it.polimi.ingsw.server.model;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.enums.AssistantType;
 import it.polimi.ingsw.enums.CharacterType;
 import it.polimi.ingsw.enums.Mage;
 import it.polimi.ingsw.enums.PieceColor;
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
@@ -296,7 +296,10 @@ public abstract class Phase {
     }
 
     /**
-     * Calculates a {@link PhaseDiff} from this Phase and the given one
+     * Calculates a {@link PhaseDiff} from this Phase and the given one. If any differences are found, the data from
+     * this instance is saved into the diff.
+     * <p>
+     * Note: The phase's name will always be included, event if the two objects have the same one.
      *
      * @param other the Phase to compare against
      * @return a new {@link PhaseDiff}
@@ -306,8 +309,7 @@ public abstract class Phase {
         if (other == null) throw new IllegalArgumentException("other shouldn't be null");
         PhaseDiff diff = new PhaseDiff();
 
-        if (!Objects.equals(this.getName(), other.getName()))
-            diff.addAttribute("phase", new JsonPrimitive(this.getName()));
+        diff.addAttribute("phase", new JsonPrimitive(this.getName()));
 
         calculatePlayerListDiff(other, diff);
         calculateProfessorDiff(other, diff);
