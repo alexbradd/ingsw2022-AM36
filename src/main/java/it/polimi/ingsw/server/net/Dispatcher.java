@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Thread that handles IO with a client's {@link Socket}, spawned by {@link Server}. It provides basic IO operations for
@@ -24,13 +25,7 @@ public class Dispatcher implements Runnable {
     /**
      * NOOP callback. More elegant than checking for null on call.
      */
-    private final static Runnable NOOP_CB = () -> {
-    };
-    /**
-     * NOOP {@code BiConsumer} callback. More elegant than checking for null on call.
-     */
-    private final static BiConsumer<JsonObject, Dispatcher> NOOP_CONSUMER = (o, d) -> {
-    };
+    private final static Runnable NOOP_CB = () -> {};
     /**
      * The {@link Socket} associated to this Dispatcher.
      */
@@ -41,15 +36,15 @@ public class Dispatcher implements Runnable {
     private Runnable onDisconnect;
 
     /**
-     *
+     * The default callback for {@link #onReceive}. It routes the command to the {@link MatchRegistry} instance.
      */
-    public final BiConsumer<JsonObject, Dispatcher> onReceiveDefault =
-            (o, d) -> MatchRegistry.getInstance().executeCommand(this, o);
+    public final Consumer<JsonObject> onReceiveDefault =
+            (o) -> MatchRegistry.getInstance().executeCommand(this, o);
 
-/**
-     *
+    /**
+     * Callback called after a message from a client arrives.
      */
-    private BiConsumer<JsonObject, Dispatcher> onReceive = onReceiveDefault;
+    private Consumer<JsonObject> onReceive;
 
     /**
      * Creates a new Dispatcher object wrapping the given {@link Socket}.
@@ -61,6 +56,7 @@ public class Dispatcher implements Runnable {
         if (socket == null) throw new IllegalArgumentException("socket shouldn't be null");
         this.socket = socket;
         this.onDisconnect = NOOP_CB;
+        this.onReceive = onReceiveDefault;
     }
 
     /**
@@ -77,7 +73,7 @@ public class Dispatcher implements Runnable {
             while (s.isConnected()) {
                 Optional<JsonObject> obj = receive();
                 if (obj.isPresent())
-                    onReceive.accept(obj.get(), this);
+                    onReceive.accept(obj.get());
                 else
                     send(Messages.buildErrorMessage("Malformed JSON"));
             }
@@ -110,8 +106,8 @@ public class Dispatcher implements Runnable {
      *
      * @param callback the new callback to use
      */
-    public void setOnReceive(BiConsumer<JsonObject, Dispatcher> callback) {
-        onReceive = Objects.requireNonNullElse(callback, NOOP_CONSUMER);
+    public void setOnReceive(Consumer<JsonObject> callback) {
+        onReceive = Objects.requireNonNullElse(callback, onReceiveDefault);
     }
 
     /**
@@ -164,7 +160,7 @@ public class Dispatcher implements Runnable {
     }
 
     public void setPlayingState(Match match) {
-        setOnReceive(new InMatchCallback());
+        setOnReceive(new InMatchCallback(this));
         setOnDisconnect(new DisconnectCallback(match));
     }
 
