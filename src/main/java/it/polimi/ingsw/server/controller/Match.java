@@ -10,6 +10,7 @@ import it.polimi.ingsw.server.net.Dispatcher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
@@ -35,16 +36,16 @@ public class Match {
      * The time interval, expressed in milliseconds, for new {@link Pinger} instances to be created.
      */
     private final static long PING_RATE = 5000;
-
     /**
      * A regex pattern that matches acceptable usernames. It corresponds to an alpha-numerical username between 1 and 30
      * characters long.
      */
     private final static Pattern usernamePattern = Pattern.compile("^[a-zA-Z0-9]{1,30}$");
-
+    /**
+     * A string describing the regex pattern used for validating usernames.
+     */
     private final static String usernameRegexMsg = "pick a username between 1 and 30 characters long, that contains" +
             " only uppercase letters, lowercase letters and numbers";
-
     /**
      * The unique identifier of the Match.
      */
@@ -67,12 +68,26 @@ public class Match {
      * The corresponding {@link Pinger} instance.
      */
     private Pinger pinger;
+    /**
+     * A thread that runs the {@link #runPinger()} method.
+     */
+    private final Thread pingThread;
+    /**
+     * A thread that runs the {@link CommandManager#run()} method.
+     */
+    private final Thread commandThread;
+    /**
+     * Whether this match has ended or not.
+     */
+    private volatile boolean ended;
 
     /**
      * The default constructor.
      *
      * @param id   the id of the Match
      * @param game the {@link Game} instance corresponding to the Match
+     * @throws IllegalArgumentException  if the {@link Game} passed is null
+     * @throws IndexOutOfBoundsException if the {@code id} is negative
      */
     Match(int id, Game game) {
         if (id < 0)
@@ -85,9 +100,12 @@ public class Match {
         this.game = game;
         this.commands = new LinkedBlockingQueue<>();
         this.dispatcherList = new ArrayList<>();
+        this.ended = false;
 
-        new Thread(new CommandManager(this)).start();
-        new Thread(this::runPinger).start();
+        this.pingThread = new Thread(this::runPinger);
+        this.commandThread = new Thread(new CommandManager(this));
+        pingThread.start();
+        commandThread.start();
 
         System.out.println("NEW MATCH CREATED [ID: " + id + "]");
     }
@@ -135,6 +153,21 @@ public class Match {
     }
 
     /**
+     * Getter for the ended attribute.
+     * @return if the match has ended or not
+     */
+    boolean hasEnded() {
+        return ended;
+    }
+
+    /**
+     * Sets the match to ended.
+     */
+    void setEnded() {
+        ended = true;
+    }
+
+    /**
      * Adds a {@link Dispatcher} instance to the currently connected Dispatchers list. This means this Dispatcher is now
      * "connected" to this Match.
      *
@@ -151,7 +184,6 @@ public class Match {
 
         if (getDispatchers().contains(dispatcher))
             throw new IllegalArgumentException("This socket is already connected to this Match.");
-
 
         dispatcherList.add(new Tuple<>(dispatcher, username));
     }
@@ -175,6 +207,14 @@ public class Match {
         dispatcher.setOnReceive(dispatcher.onReceiveDefault);
     }
 
+    /**
+     * Helper method that checks whether the {@code dispatcher} and the {@code username} passed correspond to a entry
+     * in the {@link #dispatcherList}. If not, then the client probably tried to send a message with another username.
+     *
+     * @param dispatcher the {@link Dispatcher} instance
+     * @param username   a string representing the player's username
+     * @return whether the {@code username} is actually bound to the {@code dispatcher}
+     */
     private boolean isCorrectUsername(Dispatcher dispatcher, String username) {
         return dispatcherList.stream()
                 .anyMatch(t -> t.getFirst().equals(dispatcher) && t.getSecond().equals(username));
@@ -200,11 +240,32 @@ public class Match {
     }
 
     /**
+     * It sends the specified {@link JsonObject} message to all the dispatchers connected to the Match.
+     *
+     * @param message the message to send
+     */
+    void sendBroadcast(JsonObject message) {
+        for (Dispatcher dispatcher : getDispatchers())
+            dispatcher.send(message);
+    }
+
+    /**
      * Method that executes the {@link Pinger} task at a fixed rate.
      */
     synchronized private void runPinger() {
         pinger = new Pinger(this, WAIT_PONG_TIME);
-        new Timer().scheduleAtFixedRate(pinger, 0, PING_RATE);
+        Timer t = new Timer();
+        t.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (ended) {
+                    t.cancel();
+                    return;
+                }
+                pinger = new Pinger(Match.this, WAIT_PONG_TIME);
+                pinger.run();
+            }
+        }, 0, PING_RATE);
     }
 
     /**
@@ -230,6 +291,9 @@ public class Match {
         return j;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "match " + id +

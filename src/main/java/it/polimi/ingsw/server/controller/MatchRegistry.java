@@ -13,6 +13,8 @@ import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import static it.polimi.ingsw.server.controller.Messages.*;
+
 /**
  * This class keeps track of all the matches that are currently active. It is a singleton. It manages all the
  * game-related {@link UserCommand}s in the following way:
@@ -78,7 +80,7 @@ public class MatchRegistry {
     }
 
     /**
-     * This method manages a command, expressed as a JSON object (gson {@code JsonObject}), and decides whether to
+     * This method manages a command, expressed as a JSON object (gson's {@link JsonObject}), and decides whether to
      * process the response directly (in case of a {@code FETCH} or {@code CREATE} command) or to route it to a specific
      * {@link Match} (in case of another {@code type} attribute (see net protocol docs).
      *
@@ -91,15 +93,14 @@ public class MatchRegistry {
     public void executeCommand(Dispatcher dispatcher, JsonObject jsonCommand) {
         System.out.println("NEW COMMAND: " + jsonCommand.toString());
 
-        String type = null;
+        String type;
         try {
-            type = Messages.extractString(jsonCommand, "type");
+            type = extractString(jsonCommand, "type");
         } catch (Exception e) {
-            dispatcher.send(Messages.buildErrorMessage("Message has no 'type' attribute."));
+            dispatcher.send(buildErrorMessage("Message has no 'type' attribute."));
             return;
         }
 
-        assert type != null;
         switch (type) {
             case "PONG" -> dispatchPong(dispatcher, jsonCommand);
             case "FETCH" -> fetchMatches(dispatcher);
@@ -110,17 +111,23 @@ public class MatchRegistry {
 
     //executeCommand() helpers
 
-    private void dispatchPong(Dispatcher dispatcher, JsonObject jsonCommand) {
+    /**
+     * Helper method for dispatching a {@code PONG} message to the {@link Match} instance with the specified {@code id}.
+     *
+     * @param dispatcher the player's {@link Dispatcher}
+     * @param command    the {@code JsonObject} representing the {@code PONG} command
+     */
+    private void dispatchPong(Dispatcher dispatcher, JsonObject command) {
         long gameId;
         try {
-            gameId = Messages.extractNumber(jsonCommand, "id");
+            gameId = extractNumber(command, "id");
             get(gameId).getPinger().notifyResponse(dispatcher);
 
         } catch (NoSuchElementException e) {
-        dispatcher.send(Messages.buildErrorMessage("No game with such ID."));
+            dispatcher.send(buildErrorMessage("No game with such ID."));
 
         } catch (IllegalArgumentException e) {
-            dispatcher.send(Messages.buildErrorMessage("Wrong PONG message format."));
+            dispatcher.send(buildErrorMessage("Wrong PONG message format."));
         }
     }
 
@@ -150,76 +157,48 @@ public class MatchRegistry {
      * @param command    the {@code JsonObject} representing the {@code CREATE} command
      */
     private void createMatch(Dispatcher dispatcher, JsonObject command) {
-        if (!isValidCreate(command)) {
-            dispatcher.send(Messages.buildErrorMessage("Syntax error in the CREATE message."));
+        boolean isExpertMode;
+        int nPlayers;
+
+        try {
+            isExpertMode = isExpertMode(command);
+            nPlayers = getNPlayers(command);
+        } catch (IllegalArgumentException e) {
+            dispatcher.send(buildErrorMessage("Syntax error in the CREATE message."));
             return;
         }
 
-        JsonObject arguments = command.get("arguments")
-                .getAsJsonArray()
-                .get(0)
-                .getAsJsonObject();
-
-        boolean isExpertMode = arguments
-                .get("expert")
-                .getAsBoolean();
-
-        int nPlayers = arguments
-                .get("nPlayers")
-                .getAsInt();
+        if (!(nPlayers == 2 || nPlayers == 3)) {
+            dispatcher.send(buildErrorMessage("Unsupported number of players."));
+            return;
+        }
 
         int gameId = chooseGameId();
 
         JsonObject joinCommandObj = convertToJoin(command, gameId);
         Match newlyCreatedMatch = create(gameId, nPlayers, isExpertMode);
-
-        dispatcher.setOnReceive(new InMatchCallback());
-        dispatcher.setOnDisconnect(new DisconnectCallback(newlyCreatedMatch));
+        dispatcher.setPlayingState(newlyCreatedMatch);
         executeCommand(dispatcher, joinCommandObj);
     }
 
     /**
      * Helper method for routing a command to the corresponding {@link Match} instance.
      *
-     * @param dispatcher  the player's {@link Dispatcher}
-     * @param jsonCommand the {@code JsonObject} representing the match-specific command
+     * @param dispatcher the player's {@link Dispatcher}
+     * @param command    the {@code JsonObject} representing the match-specific command
      */
-    private void sendCommandToMatch(Dispatcher dispatcher, JsonObject jsonCommand) {
+    private void sendCommandToMatch(Dispatcher dispatcher, JsonObject command) {
         try {
-            UserCommand command = Parser.parse(jsonCommand);
-            Match m = get(command.getGameId());
-            m.executeUserCommand(command, dispatcher);
+            UserCommand parsedCommand = Parser.parse(command);
+            Match m = get(parsedCommand.getGameId());
+            m.executeUserCommand(parsedCommand, dispatcher);
 
         } catch (IllegalArgumentException e) {
-            dispatcher.send(Messages.buildErrorMessage(e.getMessage()));
+            dispatcher.send(buildErrorMessage(e.getMessage()));
 
         } catch (NoSuchElementException e) {
-            dispatcher.send(Messages.buildErrorMessage("Wrong game ID."));
+            dispatcher.send(buildErrorMessage("Wrong game ID."));
         }
-    }
-
-    /**
-     * Helper method. Returns true if and only if the specified {@code JsonObject} command is a syntactically valid
-     * {@code CREATE} JSON command.
-     *
-     * @param command the command to be tested
-     * @return {@code true <==> command} is a valid {@code CREATE} JSON command
-     * @see Messages
-     */
-    private boolean isValidCreate(JsonObject command) {
-        String type;
-        int nPlayers;
-        try {
-            type = Messages.extractString(command, "type");
-            JsonObject args = Messages.extractArray(command, "arguments", 1).get(0).getAsJsonObject();
-            nPlayers = (int) Messages.extractNumber(args, "nPlayers");
-            Messages.extractBoolean(args, "expert");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return type.equals("CREATE") && (nPlayers == 2 || nPlayers == 3);
     }
 
     /**
@@ -242,23 +221,6 @@ public class MatchRegistry {
         return i;
     }
 
-    /**
-     * Helper method that converts a {@code CREATE} command into a {@code JOIN} command to the same
-     * {@link Match} (both expressed as {@code JsonObject}).
-     *
-     * @param createCommand the command to be converted
-     * @param gameId        the ID of the game to join
-     * @return the converted command
-     */
-    private JsonObject convertToJoin(JsonObject createCommand, int gameId) {
-        JsonObject joinCommand = createCommand.deepCopy();
-        joinCommand.remove("type");
-        joinCommand.remove("arguments");
-        joinCommand.addProperty("type", "JOIN");
-        joinCommand.addProperty("gameId", gameId);
-        return joinCommand;
-    }
-
     // getters
 
     /**
@@ -268,7 +230,7 @@ public class MatchRegistry {
      * @return the corresponding {@link Match} instance
      * @throws NoSuchElementException if there is no Match in the registry with the specified ID
      */
-    Match get(long id) throws NoSuchElementException {
+    synchronized Match get(long id) throws NoSuchElementException {
         for (Match m : getInstance().matches)
             if (m.getId() == id)
                 return m;
@@ -295,9 +257,9 @@ public class MatchRegistry {
      * @param isExpertMode if the game is an expert mode game
      * @return the newly created Match
      */
-    Match create(int id, int nPlayers, boolean isExpertMode) {
+    synchronized Match create(int id, int nPlayers, boolean isExpertMode) {
         Match m = matchSupplier.apply(id, new Game(nPlayers, isExpertMode));
-        matches.add(m);     // FIXME: add synchronization for accessing matches
+        matches.add(m);
         return m;
     }
 
@@ -308,16 +270,19 @@ public class MatchRegistry {
      * @param id the id of the {@link Match}
      * @throws NoSuchElementException if a {@link Match} with the corresponding ID does not exist in the registry
      */
-    void terminate(long id) throws NoSuchElementException {
+    synchronized void terminate(long id) throws NoSuchElementException {
         Match m = get(id);
 
         m.getDispatchersAndNames().forEach(
                 t -> t.consume((dispatcher, username) -> {
-                    dispatcher.setOnDisconnect(null);
+                    dispatcher.setIdleState();
                     m.removeDispatcher(dispatcher, username);
                 })
         );
         matches.remove(m);
+        m.setEnded();
+
+        System.out.println("MATCH TERMINATED [ID: " + m.getId() + "]");
     }
 
     /**
@@ -328,18 +293,20 @@ public class MatchRegistry {
      * @param reason a {@code String} that specifies why the {@link Match} has been terminated
      * @throws NoSuchElementException if a {@link Match} with the corresponding ID does not exist in the registry
      */
-    void terminate(long id, String reason) throws NoSuchElementException {
+    synchronized void terminate(long id, String reason) throws NoSuchElementException {
         Match m = get(id);
 
         m.getDispatchersAndNames().forEach(
                 t -> t.consume((dispatcher, username) -> {
-                    dispatcher.setOnDisconnect(null);
-                    dispatcher.setOnReceive(null);
-                    dispatcher.send(Messages.buildEndMessage(m.getId(), reason, new ArrayList<>()));
+                    dispatcher.setIdleState();
+                    dispatcher.send(buildEndMessage(m.getId(), reason, new ArrayList<>()));
                     m.removeDispatcher(dispatcher, username);
                 })
         );
         matches.remove(m);
+        m.setEnded();
+
+        System.out.println("MATCH TERMINATED [ID: " + m.getId() + "]");
     }
 
     /**

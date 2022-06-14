@@ -94,7 +94,8 @@ public class Messages {
     }
 
     /**
-     * Utility static method that converts a JsonElement into a Number, specifically a long.
+     * Utility static method that converts a JsonElement into a Number, specifically a long. This method works even if
+     * the value is expressed as a string in JSON.
      *
      * @param elem the JsonElement to convert
      * @return the Number contained inside the JsonElement
@@ -102,9 +103,13 @@ public class Messages {
      */
     public static long asNumber(JsonElement elem) {
         if (elem == null) throw new IllegalArgumentException("elem shouldn't be null");
-        if (!elem.isJsonPrimitive() || !elem.getAsJsonPrimitive().isNumber())
-            throw new IllegalArgumentException(elem + " is not a valid number");
-        return elem.getAsLong();
+        if (!elem.isJsonPrimitive())
+            throw new IllegalArgumentException(elem + " is not a valid JSON primitive");
+
+        if (elem.getAsJsonPrimitive().isNumber() || elem.getAsJsonPrimitive().isString())
+            return elem.getAsLong();
+        else
+            throw new IllegalArgumentException("Cannot extract a number from " + elem);
     }
 
     /**
@@ -121,7 +126,8 @@ public class Messages {
     }
 
     /**
-     * Utility static method that converts a JsonElement into a boolean.
+     * Utility static method that converts a JsonElement into a boolean. This method works even if the value is
+     * expressed as a string in JSON.
      *
      * @param elem the JsonElement to convert
      * @return the boolean contained inside the JsonElement
@@ -129,9 +135,20 @@ public class Messages {
      */
     public static boolean asBoolean(JsonElement elem) {
         if (elem == null) throw new IllegalArgumentException("elem shouldn't be null");
-        if (!elem.isJsonPrimitive() || !elem.getAsJsonPrimitive().isBoolean())
-            throw new IllegalArgumentException(elem + " is not a valid boolean");
-        return elem.getAsBoolean();
+        if (!elem.isJsonPrimitive())
+            throw new IllegalArgumentException(elem + " is not a valid JSON primitive");
+
+        if (elem.getAsJsonPrimitive().isBoolean())
+            return elem.getAsBoolean();
+        else if (elem.getAsJsonPrimitive().isString()) {
+            String val = elem.getAsString();
+            return switch (val.toLowerCase()) {
+                case "true" -> true;
+                case "false" -> false;
+                default -> throw new IllegalArgumentException("Wrong string value: expected 'true' or 'false' in " + elem);
+            };
+        }
+        throw new IllegalArgumentException("Cannot extract a boolean from " + elem);
     }
 
     /**
@@ -195,7 +212,7 @@ public class Messages {
     }
 
     /**
-     * Creates a "left" message relative to a game.
+     * Creates a "{@code LEFT}" message relative to a game.
      *
      * @param gameId the id of the game this ping message is relative to
      * @return a {@link JsonObject} containing the "left" message
@@ -205,5 +222,69 @@ public class Messages {
         ret.addProperty("type", "LEFT");
         ret.addProperty("gameId", gameId);
         return ret;
+    }
+
+    /**
+     * Reads the value of the field {@code expert} inside a formatted {@code CREATE} command (see protocol docs).
+     *
+     * @param createCommand a {@link JsonObject} representing the command
+     * @return the value of the {@code expert} field
+     * @throws IllegalArgumentException if the command passed is null
+     */
+    public static boolean isExpertMode(JsonObject createCommand) throws IllegalArgumentException {
+        if (createCommand == null) throw new IllegalArgumentException("Create command must not be null");
+
+        JsonObject args = Messages.extractArray(createCommand, "arguments", 1)
+                .get(0)
+                .getAsJsonObject();
+        return extractBoolean(args, "expert");
+    }
+
+    /**
+     * Reads the value of the field {@code nPlayers} inside a formatted {@code CREATE} command (see protocol docs).
+     *
+     * @param createCommand a {@link JsonObject} representing the command
+     * @return the value of the {@code nPlayers} field
+     * @throws IllegalArgumentException if the command passed is null
+     */
+    public static int getNPlayers(JsonObject createCommand) throws IllegalArgumentException {
+        if (createCommand == null) throw new IllegalArgumentException("Create command must not be null");
+
+        JsonObject args = Messages.extractArray(createCommand, "arguments", 1)
+                .get(0)
+                .getAsJsonObject();
+        return (int) extractNumber(args, "nPlayers");
+    }
+
+    /**
+     * Converts a {@code CREATE} command into a {@code JOIN} command to the same
+     * {@link Match} (both expressed as {@code JsonObject}).
+     *
+     * @param createCommand the command to be converted
+     * @param gameId        the ID of the game to join
+     * @return the converted command
+     */
+    public static JsonObject convertToJoin(JsonObject createCommand, int gameId) {
+        JsonObject joinCommand = createCommand.deepCopy();
+        joinCommand.remove("type");
+        joinCommand.remove("arguments");
+        joinCommand.addProperty("type", "JOIN");
+        joinCommand.addProperty("gameId", gameId);
+        return joinCommand;
+    }
+
+    /**
+     * Creates a {@code UPDATE} message given the {@code update} field (see protocol docs) and the match ID.
+     *
+     * @param diffJson a {@link JsonObject} representing the game update
+     * @param gameId   the ID of the match
+     * @return a {@link JsonObject} representing the {@code UPDATE} message
+     */
+    public static JsonObject buildUpdateMessage(JsonObject diffJson, long gameId) {
+        JsonObject update = new JsonObject();
+        update.addProperty("type", "UPDATE");
+        update.addProperty("id", gameId);
+        update.add("update", diffJson);
+        return update;
     }
 }

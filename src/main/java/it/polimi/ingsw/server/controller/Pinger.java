@@ -4,7 +4,6 @@ import it.polimi.ingsw.server.net.Dispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
 
 /**
  * This class represents a {@code TimerTask} that sends "PING" messages to all the {@link Dispatcher}s that are
@@ -15,7 +14,7 @@ import java.util.TimerTask;
  * @see Match
  * @see Dispatcher
  */
-public class Pinger extends TimerTask {
+public class Pinger {
     /**
      * A {@code String} representing the reason of the possible termination of the {@link Match}.
      */
@@ -25,7 +24,7 @@ public class Pinger extends TimerTask {
      */
     private final List<Dispatcher> dispatchers;
     /**
-     * The {@link Match} instance this {@code Pinger} is relative to.
+     * The {@link Match} instance this {@code Pinger} is related to.
      */
     private final Match match;
     /**
@@ -45,9 +44,10 @@ public class Pinger extends TimerTask {
     }
 
     /**
-     * {@inheritDoc}
+     * Main method of the class, it sends {@code PING} messages to all the connected {@link Dispatcher}s and waits for
+     * them to respond (through {@link #notifyResponse(Dispatcher)}). After {@link #timeoutInMillis} has passed, if some
+     * client hasn't responded, it closes the match.
      */
-    @Override
     synchronized public void run() {
         System.out.println(this);
 
@@ -75,6 +75,9 @@ public class Pinger extends TimerTask {
         dispatchers.remove(dispatcher);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "PING [MATCH: " + match.getId() + "]";
