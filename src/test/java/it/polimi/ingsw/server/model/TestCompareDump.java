@@ -299,9 +299,9 @@ public class TestCompareDump {
         PhaseDiff diff = p2.compare(p1);
 
         assertFalse(diff.getAttributes().isEmpty());
-        assertEquals(1, diff.getEntityUpdates().keySet().size());
-        assertNotNull(diff.getEntityUpdates().get("motherNature"));
-        assertEquals(1, diff.getAttributes().size());
+        assertTrue(diff.getEntityUpdates().isEmpty());
+        assertNotNull(diff.getAttributes().get("motherNature"));
+        assertEquals(2, diff.getAttributes().size());
         assertEquals(MockPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
     }
 

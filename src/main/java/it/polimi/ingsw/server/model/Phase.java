@@ -307,7 +307,7 @@ public abstract class Phase {
         addEntityUpdateListToDiff(diff, getTable().getBoards(), DiffKeys.BOARDS);
         addEntityUpdateListToDiff(diff, createIslandIdArray(getTable().getIslandList()), DiffKeys.ISLAND_LIST);
         addEntityUpdateListToDiff(diff, getTable().getIslandList(), DiffKeys.ISLANDS);
-        addEntityUpdateListToDiff(diff, List.of(getTable().getMotherNature()), DiffKeys.MOTHER_NATURE);
+        addAttributeToDiff(diff, getTable().getMotherNature().toJson(), DiffKeys.MOTHER_NATURE);
         addAttributeToDiff(diff, new JsonPrimitive(hasPlayedCharacter()), DiffKeys.HAS_PLAYED_CHARACTER);
         addEntityUpdateListToDiff(diff, getTable().getCharacters(), DiffKeys.CHARACTERS);
         addAttributeToDiff(diff, new JsonPrimitive(getTable().getSack().size() == 0), DiffKeys.IS_SACK_EMPTY);
@@ -518,7 +518,7 @@ public abstract class Phase {
         MotherNature thisMn = this.getTable().getMotherNature(),
                 otherMn = other.getTable().getMotherNature();
         if (!Objects.equals(thisMn, otherMn))
-            addEntityUpdateListToDiff(acc, List.of(otherMn), DiffKeys.MOTHER_NATURE);
+            addAttributeToDiff(acc, otherMn.toJson(), DiffKeys.MOTHER_NATURE);
     }
 
     /**
