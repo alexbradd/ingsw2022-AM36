@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server.model;
 
 import com.google.gson.JsonPrimitive;
+import it.polimi.ingsw.enums.DiffKeys;
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
 
 import java.util.Objects;
@@ -63,5 +64,15 @@ abstract class IteratedPhase extends Phase {
         if (username == null) throw new IllegalArgumentException("username cannot be null");
         if (!current.getUsername().equals(username)) throw new InvalidPlayerException();
         return getCurrentPlayer();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    PhaseDiff dump() {
+        PhaseDiff prev = super.dump();
+        prev.addAttribute(DiffKeys.CURRENT_PLAYER.toString(), new JsonPrimitive(getCurrentPlayer().getUsername()));
+        return prev;
     }
 }

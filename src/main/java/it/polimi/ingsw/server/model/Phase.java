@@ -3,10 +3,7 @@ package it.polimi.ingsw.server.model;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import it.polimi.ingsw.enums.AssistantType;
-import it.polimi.ingsw.enums.CharacterType;
-import it.polimi.ingsw.enums.Mage;
-import it.polimi.ingsw.enums.PieceColor;
+import it.polimi.ingsw.enums.*;
 import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
@@ -296,6 +293,59 @@ public abstract class Phase {
     }
 
     /**
+     * Dumps all this Phase's information into a {@link PhaseDiff}. It is conceptually equivalent to diffing with an
+     * empty Phase.
+     *
+     * @return a new {@link PhaseDiff}
+     */
+    PhaseDiff dump() {
+        PhaseDiff diff = new PhaseDiff();
+
+        addAttributeToDiff(diff, new JsonPrimitive(this.getName()), DiffKeys.PHASE);
+        addEntityUpdateListToDiff(diff, getTable().getPlayers(), DiffKeys.PLAYER_LIST);
+        addEntityUpdateListToDiff(diff, getTable().getProfessors(), DiffKeys.PROFESSORS);
+        addEntityUpdateListToDiff(diff, getTable().getBoards(), DiffKeys.BOARDS);
+        addEntityUpdateListToDiff(diff, createIslandIdArray(getTable().getIslandList()), DiffKeys.ISLAND_LIST);
+        addEntityUpdateListToDiff(diff, getTable().getIslandList(), DiffKeys.ISLANDS);
+        addEntityUpdateListToDiff(diff, List.of(getTable().getMotherNature()), DiffKeys.MOTHER_NATURE);
+        addAttributeToDiff(diff, new JsonPrimitive(hasPlayedCharacter()), DiffKeys.HAS_PLAYED_CHARACTER);
+        addEntityUpdateListToDiff(diff, getTable().getCharacters(), DiffKeys.CHARACTERS);
+        addAttributeToDiff(diff, new JsonPrimitive(getTable().getSack().size() == 0), DiffKeys.IS_SACK_EMPTY);
+
+        ArrayList<Jsonable> clouds = new ArrayList<>();
+        for (int i = 0; i < getTable().getClouds().size(); i++)
+            addCloudToArrayList(getTable().getClouds().get(i), clouds, i);
+        addEntityUpdateListToDiff(diff, clouds, DiffKeys.CLOUDS);
+
+        return diff;
+    }
+
+    /**
+     * Helper method that adds a copy of the given list of {@link Jsonable} to a {@link PhaseDiff} with the given key
+     * as entity updates.
+     *
+     * @param diff the {@link PhaseDiff}
+     * @param list the {@link List} of {@link Jsonable}
+     * @param key  a value from {@link DiffKeys}
+     */
+    private void addEntityUpdateListToDiff(PhaseDiff diff, List<? extends Jsonable> list, DiffKeys key) {
+        if (list.size() > 0)
+            diff.addEntityUpdate(key.toString(), new ArrayList<>(list));
+    }
+
+    /**
+     * Helper method that adds the given {@link JsonPrimitive} to a {@link PhaseDiff} with the given key
+     * as an attribute.
+     *
+     * @param diff      the {@link PhaseDiff}
+     * @param primitive the {@link JsonPrimitive}
+     * @param key       a value from {@link DiffKeys}
+     */
+    private void addAttributeToDiff(PhaseDiff diff, JsonPrimitive primitive, DiffKeys key) {
+        diff.addAttribute(key.toString(), primitive);
+    }
+
+    /**
      * Calculates a {@link PhaseDiff} from this Phase and the given one. If any differences are found, the data from
      * the argument instance is saved into the diff.
      * <p>
@@ -309,13 +359,13 @@ public abstract class Phase {
         if (other == null) throw new IllegalArgumentException("other shouldn't be null");
         PhaseDiff diff = new PhaseDiff();
 
-        diff.addAttribute("phase", new JsonPrimitive(other.getName()));
+        addAttributeToDiff(diff, new JsonPrimitive(other.getName()), DiffKeys.PHASE);
 
         calculatePlayerListDiff(other, diff);
         calculateCurrentPlayerDiff(other, diff);
         calculateProfessorDiff(other, diff);
         calculateBoardsDiff(other, diff);
-        calculateIslandDiff(other, diff);
+        calculateIslandListDiff(other, diff);
         calculateMotherNatureDiff(other, diff);
         calculateCharactersDiff(other, diff);
         calculateSackDiff(other, diff);
@@ -334,7 +384,7 @@ public abstract class Phase {
         List<Player> thisPlayers = this.getTable().getPlayers(),
                 otherPlayers = other.getTable().getPlayers();
         if (!Objects.deepEquals(thisPlayers, otherPlayers))
-            acc.addEntityUpdate("playerList", new ArrayList<>(otherPlayers));
+            addEntityUpdateListToDiff(acc, otherPlayers, DiffKeys.PLAYER_LIST);
     }
 
     /**
@@ -356,10 +406,10 @@ public abstract class Phase {
             otherPlayer = other.getCurrentPlayer();
             thisPlayer = this.getCurrentPlayer();
             if (!Objects.equals(thisPlayer, otherPlayer))
-                acc.addAttribute("currentPlayer", new JsonPrimitive(otherPlayer.getUsername()));
+                addAttributeToDiff(acc, new JsonPrimitive(otherPlayer.getUsername()), DiffKeys.CURRENT_PLAYER);
         } catch (UnsupportedOperationException ignored) {
             if (otherPlayer != null)
-                acc.addAttribute("currentPlayer", new JsonPrimitive(otherPlayer.getUsername()));
+                addAttributeToDiff(acc, new JsonPrimitive(otherPlayer.getUsername()), DiffKeys.CURRENT_PLAYER);
         }
     }
 
@@ -380,8 +430,7 @@ public abstract class Phase {
             if (thisProf.isEmpty() || !otherProf.equals(thisProf.get()))
                 js.add(otherProf);
         }
-        if (js.size() > 0)
-            acc.addEntityUpdate("professors", js);
+        addEntityUpdateListToDiff(acc, js, DiffKeys.PROFESSORS);
     }
 
     /**
@@ -401,8 +450,7 @@ public abstract class Phase {
             if (thisB.isEmpty() || !otherB.equals(thisB.get()))
                 js.add(otherB);
         }
-        if (js.size() > 0)
-            acc.addEntityUpdate("boards", js);
+        addEntityUpdateListToDiff(acc, js, DiffKeys.BOARDS);
     }
 
     /**
@@ -414,34 +462,31 @@ public abstract class Phase {
      * @param other the Phase to compare to
      * @param acc   the PhaseDiff into which to put the difference, if there is one
      */
-    private void calculateIslandDiff(Phase other, PhaseDiff acc) {
+    private void calculateIslandListDiff(Phase other, PhaseDiff acc) {
         List<Island> thisIslands = this.getTable().getIslandList(),
                 otherIslands = other.getTable().getIslandList();
-        if (thisIslands.size() != otherIslands.size()) dumpIslandList(otherIslands, acc);
-        else calculateIslandsDiff(thisIslands, otherIslands, acc);
+        if (thisIslands.size() != otherIslands.size()) {
+            addEntityUpdateListToDiff(acc, createIslandIdArray(otherIslands), DiffKeys.ISLAND_LIST);
+            addEntityUpdateListToDiff(acc, otherIslands, DiffKeys.ISLANDS);
+        } else
+            calculateIslandsDiff(thisIslands, otherIslands, acc);
     }
 
     /**
-     * Dumps all islands into the given PhaseDiff together with an array of array representing the distribution of
-     * ids inside the list
+     * Creates the array of island ids saved in the diffs from the given list of islands
      *
-     * @param islandList the island list to dump
-     * @param acc        the phase diff to dump the islands into
+     * @param islandList the list of islands
+     * @return a list of {@link Jsonable}
      */
-    private void dumpIslandList(List<Island> islandList, PhaseDiff acc) {
+    private List<Jsonable> createIslandIdArray(List<Island> islandList) {
         ArrayList<Jsonable> ids = new ArrayList<>();
-        ArrayList<Jsonable> islands = new ArrayList<>();
-        for (Island island : islandList) {
-            ids.add(() -> {
-                JsonArray id = new JsonArray();
-                for (int i : island.getIds())
-                    id.add(i);
-                return id;
-            });
-            islands.add(island);
-        }
-        acc.addEntityUpdate("islandList", ids);
-        acc.addEntityUpdate("islands", islands);
+        islandList.forEach(i -> ids.add(() -> {
+            JsonArray idArray = new JsonArray();
+            for (int id : i.getIds())
+                idArray.add(id);
+            return idArray;
+        }));
+        return ids;
     }
 
     /**
@@ -460,8 +505,7 @@ public abstract class Phase {
             if (thisI.isEmpty() || !otherI.equals(thisI.get()))
                 js.add(otherI);
         }
-        if (js.size() > 0)
-            acc.addEntityUpdate("islands", js);
+        addEntityUpdateListToDiff(acc, js, DiffKeys.ISLANDS);
     }
 
     /**
@@ -473,11 +517,8 @@ public abstract class Phase {
     private void calculateMotherNatureDiff(Phase other, PhaseDiff acc) {
         MotherNature thisMn = this.getTable().getMotherNature(),
                 otherMn = other.getTable().getMotherNature();
-        if (!Objects.equals(thisMn, otherMn)) {
-            ArrayList<Jsonable> mn = new ArrayList<>();
-            mn.add(otherMn);
-            acc.addEntityUpdate("motherNature", mn);
-        }
+        if (!Objects.equals(thisMn, otherMn))
+            addEntityUpdateListToDiff(acc, List.of(otherMn), DiffKeys.MOTHER_NATURE);
     }
 
     /**
@@ -488,7 +529,7 @@ public abstract class Phase {
      */
     private void calculateCharactersDiff(Phase other, PhaseDiff acc) {
         if (this.hasPlayedCharacter() ^ other.hasPlayedCharacter())
-            acc.addAttribute("hasPlayedCharacter", new JsonPrimitive(other.hasPlayedCharacter()));
+            addAttributeToDiff(acc, new JsonPrimitive(other.hasPlayedCharacter()), DiffKeys.HAS_PLAYED_CHARACTER);
 
         List<Character> thisCharacters = this.getTable().getCharacters(),
                 otherCharacters = other.getTable().getCharacters();
@@ -500,8 +541,7 @@ public abstract class Phase {
             if (thisC.isEmpty() || !otherC.equals(thisC.get()))
                 js.add(otherC);
         }
-        if (js.size() > 0)
-            acc.addEntityUpdate("characters", js);
+        addEntityUpdateListToDiff(acc, js, DiffKeys.CHARACTERS);
     }
 
     /**
@@ -514,7 +554,7 @@ public abstract class Phase {
         boolean thisEmpty = this.getTable().getSack().size() == 0,
                 otherEmpty = other.getTable().getSack().size() == 0;
         if ((thisEmpty) ^ (otherEmpty))
-            acc.addAttribute("isSackEmpty", new JsonPrimitive(otherEmpty));
+            addAttributeToDiff(acc, new JsonPrimitive(otherEmpty), DiffKeys.IS_SACK_EMPTY);
     }
 
     /**
@@ -538,7 +578,7 @@ public abstract class Phase {
             }
         }
         if (js.size() > 0)
-            acc.addEntityUpdate("clouds", js);
+            addEntityUpdateListToDiff(acc, js, DiffKeys.CLOUDS);
     }
 
     /**

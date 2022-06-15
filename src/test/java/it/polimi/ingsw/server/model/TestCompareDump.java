@@ -10,11 +10,11 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test class entirely dedicated to testing {@link Phase#compare(Phase)}.
+ * Test class entirely dedicated to testing {@link Phase#compare(Phase)} and {@link Phase#dump()}.
  * <p>
  * In each test a check for the presence of the phase's name is included, in addition to whatever the test is checking.
  */
-public class TestCompare {
+public class TestCompareDump {
     /**
      * Null check
      */
@@ -381,5 +381,58 @@ public class TestCompare {
         assertEquals(1, diff.getEntityUpdates().get("clouds").size());
         assertEquals(1, diff.getAttributes().size());
         assertEquals(MockPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
+    }
+
+    /**
+     * Checks that the diff returned from dump() contains at least one element for each of the possible keys.
+     */
+    @Test
+    void dump() {
+        Player ann = new Player("ann");
+        Table t1 = new Table()
+                .addPlayer(ann, 5, 5, TowerColor.BLACK)
+                .updateBoardOf(ann, b -> {
+                    ArrayList<Assistant> d = new ArrayList<>();
+                    d.add(new Assistant(AssistantType.CAT, Mage.MAGE));
+                    d.add(new Assistant(AssistantType.ELEPHANT, Mage.MAGE));
+                    return b.receiveDeck(Mage.MAGE, d)
+                            .playAssistant(AssistantType.CAT)
+                            .receiveCoin()
+                            .updateEntrance(c -> c.add(new Student(PieceColor.BLUE)))
+                            .updateHall(c -> c.add(new Student(PieceColor.BLUE)));
+                })
+                .updateProfessors(ps -> {
+                    ps.replaceAll(p -> new Professor(p.getColor(), ann));
+                    return ps;
+                })
+                .updateIslandList(is -> {
+                    is.replaceAll(i -> i
+                            .updateStudents(c -> c.add(new Student(PieceColor.RED)))
+                            .updateTowers(ts -> {
+                                ts.add(new Tower(TowerColor.BLACK, ann));
+                                return ts;
+                            })
+                            .pushBlock(new BlockCard(CharacterType.HERBALIST)));
+                    return is;
+                })
+                .updateCharacters(cs -> {
+                    cs.add(new Herbalist());
+                    cs.add(new Innkeeper());
+                    return cs;
+                })
+                .updateClouds(cs -> {
+                    cs.add(new Cloud(2).add(new Student(PieceColor.GREEN)));
+                    return cs;
+                })
+                .updateSack(s -> s.add(new Student(PieceColor.PINK)));
+        Table finalT = t1;
+        t1 = t1.updateMotherNature(__ -> new MotherNature(finalT.getIslandList(), 0));
+        MockActionPhase p = new MockActionPhase(t1, ann);
+
+        PhaseDiff diff = p.dump();
+        assertFalse(diff.getEntityUpdates().isEmpty());
+        assertFalse(diff.getAttributes().isEmpty());
+        for (DiffKeys key : DiffKeys.values())
+            assertTrue(diff.getEntityUpdates().containsKey(key.toString()) || diff.getAttributes().containsKey(key.toString()));
     }
 }
