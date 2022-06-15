@@ -64,23 +64,4 @@ abstract class IteratedPhase extends Phase {
         if (!current.getUsername().equals(username)) throw new InvalidPlayerException();
         return getCurrentPlayer();
     }
-
-    /**
-     * Calculates a {@link PhaseDiff} from this Phase and the given one
-     *
-     * @param other the Phase to compare against
-     * @return a new {@link PhaseDiff}
-     * @throws IllegalArgumentException if any argument is null
-     */
-    @Override
-    PhaseDiff compare(Phase other) {
-        PhaseDiff prev = super.compare(other);
-        try {
-            if (!Objects.equals(this.getCurrentPlayer(), other.getCurrentPlayer()))
-                prev.addAttribute("currentPlayer", new JsonPrimitive(this.getCurrentPlayer().getUsername()));
-        } catch (UnsupportedOperationException ignored) {
-            prev.addAttribute("currentPlayer", new JsonPrimitive(this.getCurrentPlayer().getUsername()));
-        }
-        return prev;
-    }
 }

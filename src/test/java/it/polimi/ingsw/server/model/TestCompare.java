@@ -123,7 +123,7 @@ public class TestCompare {
         MockPhase p1 = new MockPhase(t1);
         MockPhase p2 = new MockPhase(t2);
 
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
         assertTrue(diff.getEntityUpdates().isEmpty());
         assertEquals(1, diff.getAttributes().size());
         assertEquals(MockPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
@@ -149,7 +149,7 @@ public class TestCompare {
             }
         };
         MockPhase op = new MockPhase(t);
-        PhaseDiff diff = p.compare(op);
+        PhaseDiff diff = op.compare(p);
 
         assertTrue(diff.getEntityUpdates().isEmpty());
         assertEquals(ann.getUsername(), diff.getAttributes().get("currentPlayer").getAsString());
@@ -167,7 +167,7 @@ public class TestCompare {
         MockPhase p1 = new MockPhase(withPlayer);
         MockPhase p2 = new MockPhase(t);
 
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
 
         assertFalse(diff.getAttributes().isEmpty());
         assertFalse(diff.getEntityUpdates().isEmpty());
@@ -198,7 +198,7 @@ public class TestCompare {
         });
         MockPhase p1 = new MockPhase(withProfessors);
         MockPhase p2 = new MockPhase(t);
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
 
         assertFalse(diff.getAttributes().isEmpty());
         assertFalse(diff.getEntityUpdates().isEmpty());
@@ -219,7 +219,7 @@ public class TestCompare {
         Table updatedBoard = t.updateBoardOf(ann, b -> b.updateEntrance(e -> e.add(new Student(PieceColor.RED))));
         MockPhase p1 = new MockPhase(updatedBoard);
         MockPhase p2 = new MockPhase(t);
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
 
         assertFalse(diff.getAttributes().isEmpty());
         assertFalse(diff.getEntityUpdates().isEmpty());
@@ -275,7 +275,7 @@ public class TestCompare {
         });
         MockPhase p1 = new MockPhase(t);
         MockPhase p2 = new MockPhase(islands);
-        PhaseDiff diff = p2.compare(p1);
+        PhaseDiff diff = p1.compare(p2);
 
         assertFalse(diff.getAttributes().isEmpty());
         assertEquals(2, diff.getEntityUpdates().keySet().size());
@@ -296,7 +296,7 @@ public class TestCompare {
         Table pos2 = t.updateMotherNature(__ -> new MotherNature(t.getIslandList(), 1));
         MockPhase p1 = new MockPhase(pos1);
         MockPhase p2 = new MockPhase(pos2);
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
 
         assertFalse(diff.getAttributes().isEmpty());
         assertEquals(1, diff.getEntityUpdates().keySet().size());
@@ -329,7 +329,7 @@ public class TestCompare {
         MockActionPhase p1 = new MockActionPhase(t, ann);
         MockActionPhase p2 = (MockActionPhase) p1.playCharacter(ann, CharacterType.CENTAUR);
 
-        PhaseDiff diff = p2.compare(p1);
+        PhaseDiff diff = p1.compare(p2);
 
         assertEquals(2, diff.getAttributes().keySet().size());
         assertEquals(2, diff.getEntityUpdates().keySet().size());
@@ -349,7 +349,7 @@ public class TestCompare {
         Table withSack = t.updateSack(s -> s.add(new Student(PieceColor.BLUE)));
         MockPhase p1 = new MockPhase(withSack);
         MockPhase p2 = new MockPhase(t);
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
 
         assertFalse(diff.getAttributes().isEmpty());
         assertTrue(diff.getEntityUpdates().isEmpty());
@@ -374,7 +374,7 @@ public class TestCompare {
         MockPhase p1 = new MockPhase(t);
         MockPhase p2 = new MockPhase(drained);
 
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
 
         assertFalse(diff.getAttributes().isEmpty());
         assertEquals(1, diff.getEntityUpdates().keySet().size());
