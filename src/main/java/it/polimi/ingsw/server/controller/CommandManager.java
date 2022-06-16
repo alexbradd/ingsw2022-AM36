@@ -6,7 +6,11 @@ import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.controller.commands.UserCommandType;
 import it.polimi.ingsw.server.model.Game;
 import it.polimi.ingsw.server.model.PhaseDiff;
+import it.polimi.ingsw.server.model.Player;
 import it.polimi.ingsw.server.net.Dispatcher;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.server.controller.Messages.*;
 
@@ -101,6 +105,9 @@ public class CommandManager implements Runnable {
 
         JsonObject update = buildUpdateMessage(diff.toJson().getAsJsonObject(), match.getId());
         match.sendBroadcast(update);
+
+        if (g.isEnded())
+            sendWinMessage(g.getWinners());
     }
 
     /**
@@ -134,6 +141,21 @@ public class CommandManager implements Runnable {
         }
         dispatcher.send(buildLeftMessage(match.getId()));
         dispatcher.setIdleState();
+    }
+
+    /**
+     * Helper method that sends the {@code END} message to all connected players, specifying that a winner has been
+     * found and sending out the winner(s) list (see protocol docs).
+     *
+     * @param winners a list of players that have won the game
+     */
+    private void sendWinMessage(List<Player> winners) {
+        List<String> winnersNames = winners.stream()
+                .map(Player::getUsername)
+                .collect(Collectors.toList());
+
+        JsonObject message = buildEndMessage(match.getId(), "A winner has been found.", winnersNames);
+        match.sendBroadcast(message);
     }
 }
 

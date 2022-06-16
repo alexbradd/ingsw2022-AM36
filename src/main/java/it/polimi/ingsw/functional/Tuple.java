@@ -76,6 +76,12 @@ public class Tuple<T, V> {
         return mapper.apply(this.getFirst(), this.getSecond());
     }
 
+    /**
+     * Feeds the values to the given {@link BiConsumer}, the first one to the first parameter and the second one to the
+     * second.
+     * @param consumer the consumer
+     * @throws IllegalArgumentException if {@code consumer} is null
+     */
     public void consume(BiConsumer<T, V> consumer) {
         if (consumer == null) throw new IllegalArgumentException("consumer shouldn't be null");
         consumer.accept(this.getFirst(), this.getSecond());

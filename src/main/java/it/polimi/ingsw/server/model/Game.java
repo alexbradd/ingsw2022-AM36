@@ -6,6 +6,8 @@ import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterExceptio
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
 
+import java.util.List;
+
 /**
  * This class is the main class of the game model, representing an instance of a game. Its state is contained inside the
  * {@link #currentPhase} attribute. Its main method is {@link #executeUserCommand(UserCommand)}, that allows updating
@@ -54,7 +56,7 @@ public class Game {
     public PhaseDiff executeUserCommand(UserCommand command) throws InvalidPlayerException, InvalidCharacterParameterException, InvalidPhaseUpdateException {
         Phase oldPhase = currentPhase;
         updatePhase(command);
-        return currentPhase.compare(oldPhase);
+        return oldPhase.compare(currentPhase);
     }
 
     /**
@@ -83,9 +85,27 @@ public class Game {
     /**
      * Whether this {@code Game} has expert rules or not.
      *
-     * @return Whether this {@code Game} has expert rules or not
+     * @return whether this {@code Game} has expert rules or not
      */
     public boolean isExpertMode() {
         return currentPhase.parameters.isExpertMode();
+    }
+
+    /**
+     * Whether this {@code Game} has ended or not.
+     *
+     * @return whether this {@code Game} has ended or not
+     */
+    public boolean isEnded() {
+        return currentPhase.isFinal();
+    }
+
+    /**
+     * Returns a List<{@link Player}> containing the winners of the game.
+     *
+     * @return a List<{@link Player}> containing the winners of the game
+     */
+    public List<Player> getWinners() {
+        return currentPhase.getWinners();
     }
 }
