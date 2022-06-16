@@ -19,6 +19,9 @@ public class GameParameters {
      */
     private final int nStudentsInSack = 2;
 
+    /**
+     * Default constructor.
+     */
     private GameParameters(int nPlayers, int nStudentsEntrance, int nStudentsMovable, int nTowers, boolean expertMode) {
         this.nPlayers = nPlayers;
         this.nStudentsEntrance = nStudentsEntrance;
@@ -90,7 +93,14 @@ public class GameParameters {
         return nTowers;
     }
 
-    public int getnIslands() { return nIslands; }
+    /**
+     * Returns the number of islands on the table at the beginning of the game.
+     *
+     * @return the number of islands on the table at the beginning of the game
+     */
+    public int getnIslands() {
+        return nIslands;
+    }
 
     /**
      * Return true if this match is being played in expertMode
@@ -101,6 +111,11 @@ public class GameParameters {
         return expertMode;
     }
 
+    /**
+     * Returns the number of students of each color to place on the Islands during game initialization.
+     *
+     * @return the number of students of each color to place on the Islands during game initialization
+     */
     public int getnStudentsInSack() {
         return nStudentsInSack;
     }

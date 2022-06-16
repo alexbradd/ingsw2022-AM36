@@ -1,0 +1,75 @@
+// example game scenario
+
+// fetch
+{"type":"FETCH"}
+
+// CREATE
+{"username": "ann", "type": "CREATE", "arguments": [{"nPlayers": 2, "expert": true}]}
+{"username": "ann2", "type": "CREATE", "arguments": [{"nPlayers": 3, "expert": false}]}
+
+// JOIN
+{"gameId": 0, "username": "bob", "type": "JOIN"}
+{"gameId": 0, "username": "bob", "type": "JOIN"}
+
+{"gameId": 1, "username": "bob2", "type": "JOIN"}
+
+// LEAVE
+{"gameId": 1, "username": "bob2", "type": "LEAVE"}
+
+// CHOOSE MAGE
+{
+  "gameId": 0,
+  "username": "ann",
+  "type": "CHOOSE_MAGE",
+  "arguments": ["FAIRY"]
+}
+
+{
+  "gameId": 0,
+  "username": "bob",
+  "type": "CHOOSE_MAGE",
+  "arguments": ["KING"]
+}
+
+// PLAY ASSISTANT
+
+{
+  "gameId": 0,
+  "username": "ann",
+  "type": "PLAY_ASSISTANTS",
+  "arguments": ["CAT"]
+}
+
+{
+  "gameId": 0,
+  "username": "bob",
+  "type": "PLAY_ASSISTANTS",
+  "arguments": ["SNAKE"]
+}
+
+// MOVE STUDENTS
+{
+  "gameId": 0,
+  "username": "ann",
+  "type": "MOVE_STUDENT",
+  "arguments": [
+    {
+      "source": "ENTRANCE",
+      "destination": "HALL",
+      "color": "RED"
+    }
+  ]
+}
+
+{
+  "gameId": 0,
+  "username": "ann",
+  "type": "MOVE_STUDENT",
+  "arguments": [
+    {
+      "source": "ENTRANCE",
+      "destination": "HALL",
+      "color": "YELLOW"
+    }
+  ]
+}

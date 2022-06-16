@@ -62,7 +62,8 @@ abstract class IteratedPhase extends Phase {
 
     public Player authorizePlayer(String username) throws InvalidPlayerException {
         if (username == null) throw new IllegalArgumentException("username cannot be null");
-        if (!current.getUsername().equals(username)) throw new InvalidPlayerException();
+        if (!current.getUsername().equals(username))
+            throw new InvalidPlayerException("It is not " + username + "'s turn");
         return getCurrentPlayer();
     }
 
