@@ -10,9 +10,11 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test class entirely dedicated to testing {@link Phase#compare(Phase)}
+ * Test class entirely dedicated to testing {@link Phase#compare(Phase)} and {@link Phase#dump()}.
+ * <p>
+ * In each test a check for the presence of the phase's name is included, in addition to whatever the test is checking.
  */
-public class TestCompare {
+public class TestCompareDump {
     /**
      * Null check
      */
@@ -29,8 +31,10 @@ public class TestCompare {
         MockPhase p = new MockPhase(new Table());
         PhaseDiff diff = p.compare(p);
 
-        assertTrue(diff.getAttributes().isEmpty());
+        assertFalse(diff.getAttributes().isEmpty());
         assertTrue(diff.getEntityUpdates().isEmpty());
+        assertEquals(1, diff.getAttributes().size());
+        assertEquals(MockPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
     }
 
     /**
@@ -119,9 +123,10 @@ public class TestCompare {
         MockPhase p1 = new MockPhase(t1);
         MockPhase p2 = new MockPhase(t2);
 
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
         assertTrue(diff.getEntityUpdates().isEmpty());
-        assertTrue(diff.getAttributes().isEmpty());
+        assertEquals(1, diff.getAttributes().size());
+        assertEquals(MockPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
     }
 
     /**
@@ -144,7 +149,7 @@ public class TestCompare {
             }
         };
         MockPhase op = new MockPhase(t);
-        PhaseDiff diff = p.compare(op);
+        PhaseDiff diff = op.compare(p);
 
         assertTrue(diff.getEntityUpdates().isEmpty());
         assertEquals(ann.getUsername(), diff.getAttributes().get("currentPlayer").getAsString());
@@ -162,15 +167,17 @@ public class TestCompare {
         MockPhase p1 = new MockPhase(withPlayer);
         MockPhase p2 = new MockPhase(t);
 
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
 
-        assertTrue(diff.getAttributes().isEmpty());
+        assertFalse(diff.getAttributes().isEmpty());
         assertFalse(diff.getEntityUpdates().isEmpty());
         assertEquals(2, diff.getEntityUpdates().keySet().size());
         assertEquals(1, diff.getEntityUpdates().get("playerList").size());
         assertEquals(ann, diff.getEntityUpdates().get("playerList").get(0));
         assertEquals(1, diff.getEntityUpdates().get("boards").size());
         assertEquals(withPlayer.getBoardOf(ann), diff.getEntityUpdates().get("boards").get(0));
+        assertEquals(1, diff.getAttributes().size());
+        assertEquals(MockPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
     }
 
     /**
@@ -191,13 +198,15 @@ public class TestCompare {
         });
         MockPhase p1 = new MockPhase(withProfessors);
         MockPhase p2 = new MockPhase(t);
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
 
-        assertTrue(diff.getAttributes().isEmpty());
+        assertFalse(diff.getAttributes().isEmpty());
         assertFalse(diff.getEntityUpdates().isEmpty());
         assertEquals(1, diff.getEntityUpdates().keySet().size());
         assertEquals(1, diff.getEntityUpdates().get("professors").size());
         assertEquals(prof, diff.getEntityUpdates().get("professors").get(0));
+        assertEquals(1, diff.getAttributes().size());
+        assertEquals(MockPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
     }
 
     /**
@@ -210,13 +219,15 @@ public class TestCompare {
         Table updatedBoard = t.updateBoardOf(ann, b -> b.updateEntrance(e -> e.add(new Student(PieceColor.RED))));
         MockPhase p1 = new MockPhase(updatedBoard);
         MockPhase p2 = new MockPhase(t);
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
 
-        assertTrue(diff.getAttributes().isEmpty());
+        assertFalse(diff.getAttributes().isEmpty());
         assertFalse(diff.getEntityUpdates().isEmpty());
         assertEquals(1, diff.getEntityUpdates().keySet().size());
         assertEquals(1, diff.getEntityUpdates().get("boards").size());
         assertEquals(updatedBoard.getBoardOf(ann), diff.getEntityUpdates().get("boards").get(0));
+        assertEquals(1, diff.getAttributes().size());
+        assertEquals(MockPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
     }
 
     /**
@@ -235,9 +246,11 @@ public class TestCompare {
         MockPhase p2 = new MockPhase(islands);
         PhaseDiff diff = p2.compare(p1);
 
-        assertTrue(diff.getAttributes().isEmpty());
+        assertFalse(diff.getAttributes().isEmpty());
         assertEquals(1, diff.getEntityUpdates().keySet().size());
         assertEquals(1, diff.getEntityUpdates().get("islands").size());
+        assertEquals(1, diff.getAttributes().size());
+        assertEquals(MockPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
     }
 
     /**
@@ -262,12 +275,14 @@ public class TestCompare {
         });
         MockPhase p1 = new MockPhase(t);
         MockPhase p2 = new MockPhase(islands);
-        PhaseDiff diff = p2.compare(p1);
+        PhaseDiff diff = p1.compare(p2);
 
-        assertTrue(diff.getAttributes().isEmpty());
+        assertFalse(diff.getAttributes().isEmpty());
         assertEquals(2, diff.getEntityUpdates().keySet().size());
         assertEquals(11, diff.getEntityUpdates().get("islands").size());
         assertNotNull(diff.getEntityUpdates().get("islandList"));
+        assertEquals(1, diff.getAttributes().size());
+        assertEquals(MockPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
     }
 
     /**
@@ -281,11 +296,13 @@ public class TestCompare {
         Table pos2 = t.updateMotherNature(__ -> new MotherNature(t.getIslandList(), 1));
         MockPhase p1 = new MockPhase(pos1);
         MockPhase p2 = new MockPhase(pos2);
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
 
-        assertTrue(diff.getAttributes().isEmpty());
-        assertEquals(1, diff.getEntityUpdates().keySet().size());
-        assertNotNull(diff.getEntityUpdates().get("motherNature"));
+        assertFalse(diff.getAttributes().isEmpty());
+        assertTrue(diff.getEntityUpdates().isEmpty());
+        assertNotNull(diff.getAttributes().get("motherNature"));
+        assertEquals(2, diff.getAttributes().size());
+        assertEquals(MockPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
     }
 
     /**
@@ -312,11 +329,12 @@ public class TestCompare {
         MockActionPhase p1 = new MockActionPhase(t, ann);
         MockActionPhase p2 = (MockActionPhase) p1.playCharacter(ann, CharacterType.CENTAUR);
 
-        PhaseDiff diff = p2.compare(p1);
+        PhaseDiff diff = p1.compare(p2);
 
-        assertEquals(1, diff.getAttributes().keySet().size());
+        assertEquals(2, diff.getAttributes().keySet().size());
         assertEquals(2, diff.getEntityUpdates().keySet().size());
         assertTrue(diff.getAttributes().get("hasPlayedCharacter").getAsBoolean());
+        assertEquals(MockActionPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
         assertEquals(1, diff.getEntityUpdates().get("characters").size());
         assertEquals(1, diff.getEntityUpdates().get("boards").size());
     }
@@ -331,12 +349,13 @@ public class TestCompare {
         Table withSack = t.updateSack(s -> s.add(new Student(PieceColor.BLUE)));
         MockPhase p1 = new MockPhase(withSack);
         MockPhase p2 = new MockPhase(t);
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
 
         assertFalse(diff.getAttributes().isEmpty());
         assertTrue(diff.getEntityUpdates().isEmpty());
-        assertEquals(1, diff.getAttributes().keySet().size());
+        assertEquals(2, diff.getAttributes().keySet().size());
         assertFalse(diff.getAttributes().get("isSackEmpty").getAsBoolean());
+        assertEquals(MockPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
     }
 
     /**
@@ -355,10 +374,65 @@ public class TestCompare {
         MockPhase p1 = new MockPhase(t);
         MockPhase p2 = new MockPhase(drained);
 
-        PhaseDiff diff = p1.compare(p2);
+        PhaseDiff diff = p2.compare(p1);
 
-        assertTrue(diff.getAttributes().isEmpty());
+        assertFalse(diff.getAttributes().isEmpty());
         assertEquals(1, diff.getEntityUpdates().keySet().size());
         assertEquals(1, diff.getEntityUpdates().get("clouds").size());
+        assertEquals(1, diff.getAttributes().size());
+        assertEquals(MockPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
+    }
+
+    /**
+     * Checks that the diff returned from dump() contains at least one element for each of the possible keys.
+     */
+    @Test
+    void dump() {
+        Player ann = new Player("ann");
+        Table t1 = new Table()
+                .addPlayer(ann, 5, 5, TowerColor.BLACK)
+                .updateBoardOf(ann, b -> {
+                    ArrayList<Assistant> d = new ArrayList<>();
+                    d.add(new Assistant(AssistantType.CAT, Mage.MAGE));
+                    d.add(new Assistant(AssistantType.ELEPHANT, Mage.MAGE));
+                    return b.receiveDeck(Mage.MAGE, d)
+                            .playAssistant(AssistantType.CAT)
+                            .receiveCoin()
+                            .updateEntrance(c -> c.add(new Student(PieceColor.BLUE)))
+                            .updateHall(c -> c.add(new Student(PieceColor.BLUE)));
+                })
+                .updateProfessors(ps -> {
+                    ps.replaceAll(p -> new Professor(p.getColor(), ann));
+                    return ps;
+                })
+                .updateIslandList(is -> {
+                    is.replaceAll(i -> i
+                            .updateStudents(c -> c.add(new Student(PieceColor.RED)))
+                            .updateTowers(ts -> {
+                                ts.add(new Tower(TowerColor.BLACK, ann));
+                                return ts;
+                            })
+                            .pushBlock(new BlockCard(CharacterType.HERBALIST)));
+                    return is;
+                })
+                .updateCharacters(cs -> {
+                    cs.add(new Herbalist());
+                    cs.add(new Innkeeper());
+                    return cs;
+                })
+                .updateClouds(cs -> {
+                    cs.add(new Cloud(2).add(new Student(PieceColor.GREEN)));
+                    return cs;
+                })
+                .updateSack(s -> s.add(new Student(PieceColor.PINK)));
+        Table finalT = t1;
+        t1 = t1.updateMotherNature(__ -> new MotherNature(finalT.getIslandList(), 0));
+        MockActionPhase p = new MockActionPhase(t1, ann);
+
+        PhaseDiff diff = p.dump();
+        assertFalse(diff.getEntityUpdates().isEmpty());
+        assertFalse(diff.getAttributes().isEmpty());
+        for (DiffKeys key : DiffKeys.values())
+            assertTrue(diff.getEntityUpdates().containsKey(key.toString()) || diff.getAttributes().containsKey(key.toString()));
     }
 }

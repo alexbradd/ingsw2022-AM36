@@ -113,7 +113,7 @@ class MotherNature implements Jsonable {
      * {@inheritDoc}
      */
     @Override
-    public JsonElement toJson() {
+    public JsonPrimitive toJson() {
         return new JsonPrimitive(current.getIds().get(0));
     }
 }

@@ -80,6 +80,7 @@ abstract class ActionPhase extends IteratedPhase {
      *
      * @return true if the current {@link Player} has already played a character during this phase.
      */
+    @Override
     boolean hasPlayedCharacter() {
         return playedCharacter;
     }

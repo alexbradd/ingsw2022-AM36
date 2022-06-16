@@ -6,7 +6,6 @@ import it.polimi.ingsw.enums.TowerColor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.function.Function;
 
 /**
@@ -74,7 +73,7 @@ class Table {
 
     /**
      * Creates a new Table. Every list/container is initialized and empty except for the islands and professors. Mother
-     * Nature is also placed at random on the list of islands.
+     * Nature is placed on the first island. The random positioning will be done inside the correct phase of the game.
      */
     Table() {
         this.sack = new StudentContainer();
@@ -82,8 +81,7 @@ class Table {
         this.islandList = new ArrayList<>(START_ISLANDS);
         for (int i = 0; i < START_ISLANDS; i++)
             this.islandList.add(new Island(i));
-        int mnStartingPos = new Random().nextInt(START_ISLANDS);
-        this.motherNature = new MotherNature(this.islandList, mnStartingPos);
+        this.motherNature = new MotherNature(this.islandList, 0);
         this.professors = new ArrayList<>(PieceColor.values().length);
         for (PieceColor c : PieceColor.values())
             this.professors.add(new Professor(c));

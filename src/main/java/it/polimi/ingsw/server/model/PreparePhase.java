@@ -1,9 +1,9 @@
 package it.polimi.ingsw.server.model;
 
-import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.enums.AssistantType;
 import it.polimi.ingsw.enums.Mage;
 import it.polimi.ingsw.enums.PieceColor;
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.exceptions.EmptyContainerException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
@@ -12,6 +12,7 @@ import it.polimi.ingsw.server.model.iterators.ClockWiseIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Function;
 
 /**
@@ -138,6 +139,7 @@ class PreparePhase extends IteratedPhase {
      * different steps of the initialization process follows, when possible, the real order of the preparation of the
      * game (see game rules). More in details:
      * <ul>
+     *     <li>Mother nature is placed randomly on one of the islands</li>
      *     <li>{@link GameParameters#getnStudentsInSack()} of each color are added to the {@code Sack}</li>
      *     <li>These students are distributed randomly on the {@code List<Island>}</li>
      *     <li>The remaining students are added to the {@code Sack}</li>
@@ -153,6 +155,7 @@ class PreparePhase extends IteratedPhase {
      */
     private PreparePhase setupTable(PreparePhase phase) {
         PreparePhase standard = phase
+                .randomlyPlaceMotherNature()
                 .fillSack(parameters.getnStudentsInSack())
                 .putStudentsOnIslands()
                 .fillSack(parameters.getnStudentsOfColor() - parameters.getnStudentsInSack())
@@ -163,6 +166,18 @@ class PreparePhase extends IteratedPhase {
         return parameters.isExpertMode()
                 ? standard.distributeCoins().pickCharacters().executeCharacterHook()
                 : standard;
+    }
+
+    /**
+     * Helper that places Mother nature on a random island.
+     *
+     * @return the new updated {@code PreparePhase}
+     */
+    private PreparePhase randomlyPlaceMotherNature() {
+        PreparePhase newPhase = new PreparePhase(this);
+        int mnStartingPos = new Random().nextInt(parameters.getnIslands());
+        return newPhase.updateTable(
+                t -> t.updateMotherNature(mn -> new MotherNature(t.getIslandList(), mnStartingPos)));
     }
 
     /**

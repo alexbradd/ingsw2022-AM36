@@ -126,6 +126,19 @@ class LobbyPhase extends Phase {
         return table;
     }
 
+    /**
+     * Calculates a {@link PhaseDiff} from this LobbyPhase and the given one. All the entities of the passed Phase are
+     * returned into the diff since this Phase does not guarantee that all players could be present.
+     *
+     * @param other the Phase to compare against
+     * @return a new {@link PhaseDiff}
+     * @throws IllegalArgumentException if any argument is null
+     */
+    @Override
+    PhaseDiff compare(Phase other) {
+        return other.dump();
+    }
+
     // equals and hash
 
     /**

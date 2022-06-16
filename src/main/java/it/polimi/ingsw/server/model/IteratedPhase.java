@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server.model;
 
 import com.google.gson.JsonPrimitive;
+import it.polimi.ingsw.enums.DiffKeys;
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
 
 import java.util.Objects;
@@ -66,21 +67,12 @@ abstract class IteratedPhase extends Phase {
     }
 
     /**
-     * Calculates a {@link PhaseDiff} from this Phase and the given one
-     *
-     * @param other the Phase to compare against
-     * @return a new {@link PhaseDiff}
-     * @throws IllegalArgumentException if any argument is null
+     * {@inheritDoc}
      */
     @Override
-    PhaseDiff compare(Phase other) {
-        PhaseDiff prev = super.compare(other);
-        try {
-            if (!Objects.equals(this.getCurrentPlayer(), other.getCurrentPlayer()))
-                prev.addAttribute("currentPlayer", new JsonPrimitive(this.getCurrentPlayer().getUsername()));
-        } catch (UnsupportedOperationException ignored) {
-            prev.addAttribute("currentPlayer", new JsonPrimitive(this.getCurrentPlayer().getUsername()));
-        }
+    PhaseDiff dump() {
+        PhaseDiff prev = super.dump();
+        prev.addAttribute(DiffKeys.CURRENT_PLAYER.toString(), new JsonPrimitive(getCurrentPlayer().getUsername()));
         return prev;
     }
 }
