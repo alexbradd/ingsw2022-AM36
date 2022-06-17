@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.*?>
+<StackPane fx:id="rootPane" prefHeight="720.0" prefWidth="1280.0" stylesheets="@../css/common.css"
+           xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="it.polimi.ingsw.client.view.gui.scene.LobbyPhaseSceneController">
+    <Pane prefHeight="200.0" prefWidth="200.0" styleClass="ery-background"/>
+    <VBox alignment="CENTER" maxHeight="420.0" maxWidth="785.0" minHeight="0.0" minWidth="0.0" prefHeight="420.0"
+          prefWidth="785.0">
+        <padding>
+            <Insets top="50.0"/>
+        </padding>
+        <Label text="Waiting for other players...">
+            <styleClass>
+                <String fx:value="ery-label"/>
+                <String fx:value="ery-big-label"/>
+            </styleClass>
+            <VBox.margin>
+                <Insets bottom="30.0"/>
+            </VBox.margin>
+        </Label>
+        <Label text="Players joined:">
+            <styleClass>
+                <String fx:value="ery-label"/>
+                <String fx:value="slightly-bigger"/>
+            </styleClass>
+            <VBox.margin>
+                <Insets bottom="10.0"/>
+            </VBox.margin>
+        </Label>
+        <HBox fx:id="usernameList" alignment="CENTER" prefWidth="200.0" spacing="20.0">
+            <VBox.margin>
+                <Insets bottom="20.0"/>
+            </VBox.margin>
+            <Label text="Player 1">
+                <styleClass>
+                    <String fx:value="ery-label"/>
+                    <String fx:value="slightly-bigger"/>
+                </styleClass>
+            </Label>
+            <Label layoutX="385.0" layoutY="52.0" text="Player 2">
+                <styleClass>
+                    <String fx:value="ery-label"/>
+                    <String fx:value="slightly-bigger"/>
+                </styleClass>
+            </Label>
+            <Label layoutX="411.0" layoutY="29.0" text="Player 3">
+                <styleClass>
+                    <String fx:value="ery-label"/>
+                    <String fx:value="slightly-bigger"/>
+                </styleClass>
+            </Label>
+        </HBox>
+        <Button mnemonicParsing="false" onMouseClicked="#onLeaveButtonClicked" styleClass="ery-important-button"
+                text="Leave"/>
+    </VBox>
+    <StackPane fx:id="waitingResponsePane" prefHeight="150.0" prefWidth="200.0" visible="false">
+        <Pane prefHeight="200.0" prefWidth="200.0" styleClass="ery-modal-background"/>
+        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+            <Label text="Waiting server response">
+                <styleClass>
+                    <String fx:value="ery-big-label"/>
+                    <String fx:value="ery-label"/>
+                </styleClass>
+            </Label>
+            <ProgressIndicator/>
+        </VBox>
+    </StackPane>
+    <StackPane fx:id="modalPane" prefHeight="150.0" prefWidth="200.0" visible="false">
+        <Pane prefHeight="200.0" prefWidth="200.0" styleClass="ery-modal-background"/>
+        <BorderPane fx:id="endGamePane" prefHeight="200.0" prefWidth="200.0" styleClass="ery-modal">
+            <center>
+                <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                    <Label fx:id="endGameText" alignment="CENTER" layoutY="35.0" prefHeight="130.0" prefWidth="350.0"
+                           text="Sample end game message, llooooong" textAlignment="CENTER" wrapText="true"
+                           AnchorPane.topAnchor="35.0">
+                        <styleClass>
+                            <String fx:value="ery-label-inverted"/>
+                            <String fx:value="slightly-bigger"/>
+                        </styleClass>
+                    </Label>
+                    <Button layoutX="222.0" layoutY="14.0" mnemonicParsing="false"
+                            onMouseClicked="#onEndGameCloseClicked" text="To main menu"/>
+                </AnchorPane>
+            </center>
+        </BorderPane>
+        <BorderPane fx:id="errorPane" layoutX="475.0" layoutY="270.0" prefHeight="200.0" prefWidth="200.0"
+                    styleClass="ery-modal">
+            <center>
+                <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                    <Label fx:id="errorText" alignment="CENTER" layoutY="35.0" prefHeight="130.0" prefWidth="350.0"
+                           text="Sample error message, loooong" textAlignment="CENTER" wrapText="true"
+                           AnchorPane.topAnchor="35.0">
+                        <styleClass>
+                            <String fx:value="ery-label-inverted"/>
+                            <String fx:value="slightly-bigger"/>
+                        </styleClass>
+                    </Label>
+                    <Button layoutX="282.0" layoutY="14.0" mnemonicParsing="false" onMouseClicked="#onErrorCloseClicked"
+                            text="Close"/>
+                </AnchorPane>
+            </center>
+        </BorderPane>
+    </StackPane>
+</StackPane>
