@@ -2,10 +2,7 @@ package it.polimi.ingsw.client.control;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.client.control.state.EndState;
-import it.polimi.ingsw.client.control.state.GameState;
-import it.polimi.ingsw.client.control.state.Lobby;
-import it.polimi.ingsw.client.control.state.State;
+import it.polimi.ingsw.client.control.state.*;
 import it.polimi.ingsw.client.view.gui.GUI;
 import it.polimi.ingsw.functional.Tuple;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -78,9 +75,20 @@ public class GUIControllerBridge {
      * Tells the controller to remove this player from the currently playing lobby
      */
     public void sendLeave() {
-        String myUsername = controller.getState().getGameInfo().getUsername();
-        long id = controller.getState().getGameInfo().getId();
+        String myUsername = getMyUsername();
+        long id = getGameId();
         controller.manageUserMessage(buildLeaveMessage(id, myUsername));
+    }
+
+    /**
+     * Tell the controller that this player has chosen the given mage
+     *
+     * @param mage the chosen mage
+     */
+    public void sendChooseMage(String mage) {
+        String myUsername = getMyUsername();
+        long id = getGameId();
+        controller.manageUserMessage(buildChooseMageMessage(id, myUsername, mage));
     }
 
     /**
@@ -97,6 +105,28 @@ public class GUIControllerBridge {
      */
     public GameState getGameState() {
         return controller.getState().getGameState();
+    }
+
+    /**
+     * Returns the current game's id
+     *
+     * @return the current game's id
+     * @throws IllegalStateException if the method is called when there is not an {@link GameInfo} available
+     */
+    public long getGameId() {
+        if (controller.getState().getGameInfo() == null) throw new IllegalStateException("No game info available");
+        return controller.getState().getGameInfo().getId();
+    }
+
+    /**
+     * Returns this player's username
+     *
+     * @return this player's username
+     * @throws IllegalStateException if the method is called when there is not an {@link GameInfo} available
+     */
+    public String getMyUsername() {
+        if (controller.getState().getGameInfo() == null) throw new IllegalStateException("No game info available");
+        return controller.getState().getGameInfo().getUsername();
     }
 
     /**
@@ -151,7 +181,7 @@ public class GUIControllerBridge {
      *
      * @param username  the username
      * @param lobbyInfo a {@link Tuple} containing the number of player and the expert mode flag
-     * @return a {@link JsonObject} representing the JOIN message
+     * @return a {@link JsonObject} representing the CREATE message
      * @throws IllegalArgumentException if any parameter is null
      */
     private static JsonObject buildCreateMessage(String username, Tuple<Integer, Boolean> lobbyInfo) {
@@ -183,6 +213,28 @@ public class GUIControllerBridge {
         return new GUIMessageBuilder("LEAVE")
                 .addGameId(id)
                 .addUsername(username)
+                .build();
+    }
+
+    /**
+     * Creates a new CHOOSE_MAGE message for the given username, game and mage.
+     *
+     * @param username the username
+     * @param id       the id of the game
+     * @param mage     the name of the chosen mage
+     * @return a {@link JsonObject} representing the CHOOSE_MAGE message
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    private static JsonObject buildChooseMageMessage(long id, String username, String mage) {
+        if (username == null) throw new IllegalArgumentException("username shouldn't be null");
+        if (mage == null) throw new IllegalArgumentException("mage shouldn't be null");
+
+        JsonArray args = new JsonArray(1);
+        args.add(mage);
+        return new GUIMessageBuilder("CHOOSE_MAGE")
+                .addGameId(id)
+                .addUsername(username)
+                .addElement("arguments", args)
                 .build();
     }
 }

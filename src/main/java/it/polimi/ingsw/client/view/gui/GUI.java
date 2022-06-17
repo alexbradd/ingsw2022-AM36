@@ -8,8 +8,10 @@ import it.polimi.ingsw.client.view.View;
 import it.polimi.ingsw.client.view.gui.events.GameEndedEvent;
 import it.polimi.ingsw.client.view.gui.events.RefreshLobbiesEvent;
 import it.polimi.ingsw.client.view.gui.events.ShowErrorEvent;
+import it.polimi.ingsw.client.view.gui.events.ToggleInputEvent;
 import it.polimi.ingsw.client.view.gui.scene.LobbyPhaseSceneBuilder;
 import it.polimi.ingsw.client.view.gui.scene.MainMenuSceneBuilder;
+import it.polimi.ingsw.client.view.gui.scene.PreparePhaseSceneBuilder;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.Event;
@@ -31,6 +33,7 @@ public class GUI implements View {
     private final MainMenuSceneBuilder mainMenu;
 
     private LobbyPhaseSceneBuilder lobbyPhase;
+    private PreparePhaseSceneBuilder preparePhase;
 
     /**
      * Creates a new GUI view given a Controller
@@ -45,6 +48,7 @@ public class GUI implements View {
         bridge = new GUIControllerBridge(this.controller);
         mainMenu = new MainMenuSceneBuilder(bridge::sendFetch, bridge::sendCreate, bridge::sendJoin);
         lobbyPhase = null;
+        preparePhase = null;
     }
 
     /**
@@ -78,14 +82,9 @@ public class GUI implements View {
      */
     @Override
     public void showGameState() {
-        createBuildersIfNecessary();
-        GameState state = bridge.getGameState();
-        GuiApplication.afterInit(instance -> {
-            switch (state.getPhase()) {
-                case "LobbyPhase" -> instance.switchSceneIfDifferent(lobbyPhase);
-                default -> System.out.println("Showing another player's turn state");
-            }
-        });
+        displayState();
+        GuiApplication.afterInit(i ->
+                i.getRoot().fireEvent(new ToggleInputEvent(ToggleInputEvent.DISABLE)));
     }
 
     /**
@@ -93,11 +92,21 @@ public class GUI implements View {
      */
     @Override
     public void showPlayerTurnGameState() {
+        displayState();
+        GuiApplication.afterInit(i ->
+                i.getRoot().fireEvent(new ToggleInputEvent(ToggleInputEvent.ENABLE)));
+    }
+
+    /**
+     * Helper method that handles the presentation logic of a game
+     */
+    private void displayState() {
         createBuildersIfNecessary();
         GameState state = bridge.getGameState();
         GuiApplication.afterInit(instance -> {
             switch (state.getPhase()) {
                 case "LobbyPhase" -> instance.switchSceneIfDifferent(lobbyPhase);
+                case "PreparePhase" -> instance.switchSceneIfDifferent(preparePhase);
                 default -> System.out.println("Showing another player's turn state");
             }
         });
@@ -112,6 +121,11 @@ public class GUI implements View {
                     bridge.hasPendingUserMessagesProperty(),
                     bridge::sendLeave,
                     bridge::toMainMenu);
+        if (preparePhase == null)
+            preparePhase = new PreparePhaseSceneBuilder(bridge.getGameState().availableMagesProperty(),
+                    bridge.hasPendingUserMessagesProperty(),
+                    bridge::sendChooseMage,
+                    bridge::toMainMenu);
     }
 
     /**
@@ -122,6 +136,7 @@ public class GUI implements View {
         GameEndedEvent ev = new GameEndedEvent(GameEndedEvent.END, bridge.getGameEndReason());
         GuiApplication.afterInit(i -> Event.fireEvent(i.getRoot(), ev));
         lobbyPhase = null;
+        preparePhase = null;
     }
 
     /**
