@@ -5,6 +5,8 @@ import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The LobbyPhase class represents the initial state of the game, in which Players are allowed to join and leave the game's lobby
@@ -15,7 +17,16 @@ import java.util.Objects;
  * @see Phase
  */
 class LobbyPhase extends Phase {
-
+    /**
+     * A regex pattern that matches acceptable usernames. It corresponds to an alpha-numerical username between 1 and 30
+     * characters long.
+     */
+    private final static Pattern usernamePattern = Pattern.compile("^[a-zA-Z0-9]{1,30}$");
+    /**
+     * A string describing the regex pattern used for validating usernames.
+     */
+    private final static String usernameRegexMsg = "pick a username between 1 and 30 characters long, that contains" +
+            " only uppercase letters, lowercase letters and numbers";
     /**
      * The game's table.
      */
@@ -52,15 +63,18 @@ class LobbyPhase extends Phase {
      */
     @Override
     public Phase addPlayer(String username) throws IllegalArgumentException, InvalidPhaseUpdateException {
-        if(username == null) {
+        if (username == null) {
             throw new IllegalArgumentException("username shouldn't be null");
         }
-        if(table.getPlayers().stream().map(Player::getUsername).toList().contains(username)) {
+        if (table.getPlayers().stream().map(Player::getUsername).toList().contains(username)) {
             throw new InvalidPhaseUpdateException("a player with the same username is already taking part in the game");
         }
-        if(table.getPlayers().size() == parameters.getnPlayers()) {
+        if (table.getPlayers().size() == parameters.getnPlayers()) {
             throw new InvalidPhaseUpdateException("maximum number of players have already joined the game");
         }
+
+        Matcher usernameMatcher = usernamePattern.matcher(username);
+        if (!usernameMatcher.matches()) throw new InvalidPhaseUpdateException("Wrong username: " + usernameRegexMsg);
 
         Player newPlayer = new Player(username);
         LobbyPhase p = new LobbyPhase(this);

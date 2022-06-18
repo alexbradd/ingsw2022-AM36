@@ -37,16 +37,6 @@ public class Match {
      */
     private final static long PING_RATE = 5000;
     /**
-     * A regex pattern that matches acceptable usernames. It corresponds to an alpha-numerical username between 1 and 30
-     * characters long.
-     */
-    private final static Pattern usernamePattern = Pattern.compile("^[a-zA-Z0-9]{1,30}$");
-    /**
-     * A string describing the regex pattern used for validating usernames.
-     */
-    private final static String usernameRegexMsg = "pick a username between 1 and 30 characters long, that contains" +
-            " only uppercase letters, lowercase letters and numbers";
-    /**
      * The unique identifier of the Match.
      */
     private final long id;
@@ -178,9 +168,6 @@ public class Match {
     synchronized void addDispatcher(Dispatcher dispatcher, String username) throws IllegalArgumentException {
         if (dispatcher == null) throw new IllegalArgumentException("dispatcher must not be null.");
         if (username == null) throw new IllegalArgumentException("username must not be null.");
-
-        Matcher usernameMatcher = usernamePattern.matcher(username);
-        if (!usernameMatcher.matches()) throw new IllegalArgumentException("Wrong username: " + usernameRegexMsg);
 
         if (getDispatchers().contains(dispatcher))
             throw new IllegalArgumentException("This socket is already connected to this Match.");
