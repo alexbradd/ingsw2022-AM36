@@ -87,6 +87,7 @@ public class CommandManager implements Runnable {
             diff = g.executeUserCommand(command.getFirst());
         } catch (Exception exc) {
             sender.send(buildErrorMessage(match.getId(), exc.getMessage()));
+            terminateIfEmpty();
             return;
         }
 
@@ -97,10 +98,7 @@ public class CommandManager implements Runnable {
             addPlayer(sender, username);
         } else if (type.equals(UserCommandType.LEAVE)) {
             removePlayer(sender, username);
-            if (match.getDispatchers().isEmpty()) {
-                MatchRegistry.getInstance().terminate(match.getId());
-                return;
-            }
+            terminateIfEmpty();
         }
 
         JsonObject update = buildUpdateMessage(diff.toJson().getAsJsonObject(), match.getId());
@@ -108,6 +106,11 @@ public class CommandManager implements Runnable {
 
         if (g.isEnded())
             sendWinMessage(g.getWinners());
+    }
+
+    private void terminateIfEmpty() {
+        if (match.getDispatchers().isEmpty())
+            MatchRegistry.getInstance().terminate(match.getId());
     }
 
     /**

@@ -176,9 +176,8 @@ public class MatchRegistry {
         int gameId = chooseGameId();
 
         JsonObject joinCommandObj = convertToJoin(command, gameId);
-        Match newlyCreatedMatch = create(gameId, nPlayers, isExpertMode);
-        dispatcher.setPlayingState(newlyCreatedMatch);
-        executeCommand(dispatcher, joinCommandObj);
+        create(gameId, nPlayers, isExpertMode);
+        sendCommandToMatch(dispatcher, joinCommandObj);
     }
 
     /**
@@ -192,10 +191,8 @@ public class MatchRegistry {
             UserCommand parsedCommand = Parser.parse(command);
             Match m = get(parsedCommand.getGameId());
             m.executeUserCommand(parsedCommand, dispatcher);
-
         } catch (IllegalArgumentException e) {
             dispatcher.send(buildErrorMessage(e.getMessage()));
-
         } catch (NoSuchElementException e) {
             dispatcher.send(buildErrorMessage("Wrong game ID."));
         }
