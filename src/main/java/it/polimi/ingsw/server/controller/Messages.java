@@ -1,9 +1,11 @@
 package it.polimi.ingsw.server.controller;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -281,10 +283,19 @@ public class Messages {
      * @return a {@link JsonObject} representing the {@code UPDATE} message
      */
     public static JsonObject buildUpdateMessage(JsonObject diffJson, long gameId) {
+        return buildUpdateMessage(diffJson, gameId, false, new ArrayList<>());
+    }
+
+    public static JsonObject buildUpdateMessage(JsonObject diffJson, long gameId, boolean rejoining, List<String> missingPlayers) {
         JsonObject update = new JsonObject();
         update.addProperty("type", "UPDATE");
         update.addProperty("id", gameId);
         update.add("update", diffJson);
+        update.addProperty("rejoining", rejoining);
+
+        JsonArray usernamesArr = new JsonArray();
+        missingPlayers.forEach(usernamesArr::add);
+        update.add("missingPlayers", usernamesArr);
         return update;
     }
 }

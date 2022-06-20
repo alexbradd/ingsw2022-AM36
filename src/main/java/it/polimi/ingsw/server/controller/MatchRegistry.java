@@ -2,8 +2,10 @@ package it.polimi.ingsw.server.controller;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import it.polimi.ingsw.server.Server;
 import it.polimi.ingsw.server.controller.commands.Parser;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
+import it.polimi.ingsw.server.controller.persistence.PersistenceManager;
 import it.polimi.ingsw.server.model.Game;
 import it.polimi.ingsw.server.net.Dispatcher;
 
@@ -19,6 +21,8 @@ import static it.polimi.ingsw.server.controller.Messages.*;
  * This class keeps track of all the matches that are currently active. It is a singleton. It manages all the
  * game-related {@link UserCommand}s in the following way:
  * <ul>
+ *     <li>if {@code type == "PONG"} then let the {@link Match} instance manage the command (the ping responses have
+ *      priority over all other messages)</li>
  *     <li>if {@code type == "FETCH"} return all the currently active matches</li>
  *     <li>if {@code type == "CREATE"}, create a new {@link Match} and then send a new {@code JOIN} command to the
  *      {@link Match}</li>
@@ -39,7 +43,6 @@ public class MatchRegistry {
      * The list of currently active {@link Match}es on this server.
      */
     private final List<Match> matches;
-
     /**
      * A supplier of {@link Match}es that is called every time a new Match has to be created. In production environment,
      * a normal {@link Match} instance should be returned, while other implementation of the Match class have been used
@@ -47,12 +50,17 @@ public class MatchRegistry {
      */
     private final BiFunction<Integer, Game, Match> matchSupplier;
 
+    private final PersistenceManager persistenceManager;
+
     /**
-     * Default constructor.
+     * Default constructor. // todo
      */
     private MatchRegistry(BiFunction<Integer, Game, Match> matchSupplier) {
         this.matches = new ArrayList<>();
         this.matchSupplier = matchSupplier;
+        this.persistenceManager = new PersistenceManager(Server.persistenceStore);
+
+        persistenceManager.forEach((id, phase) -> matches.add(new Match(id, phase)));
     }
 
     /**
@@ -77,6 +85,10 @@ public class MatchRegistry {
     public static MatchRegistry getInstance() {
         if (registryInstance == null) registryInstance = new MatchRegistry(Match::new);
         return registryInstance;
+    }
+
+    public PersistenceManager getPersistenceManager() {
+        return persistenceManager;
     }
 
     /**
@@ -281,6 +293,7 @@ public class MatchRegistry {
         );
         matches.remove(m);
         m.setEnded();
+        persistenceManager.drop(m.getId());
 
         System.out.println("MATCH TERMINATED [ID: " + m.getId() + "]");
     }
@@ -305,6 +318,7 @@ public class MatchRegistry {
         );
         matches.remove(m);
         m.setEnded();
+        persistenceManager.drop(m.getId());
 
         System.out.println("MATCH TERMINATED [ID: " + m.getId() + "]");
     }

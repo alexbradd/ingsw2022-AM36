@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server.model;
 
+import com.google.gson.JsonObject;
+import it.polimi.ingsw.server.controller.MatchRegistry;
 import it.polimi.ingsw.server.controller.commands.PlayCharacterCommand;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
@@ -39,6 +41,10 @@ public class Game {
         currentPhase = new LobbyPhase(parameters);
     }
 
+    public Game(Phase restoredPhase) {
+        currentPhase = restoredPhase;
+    }
+
     /**
      * This method allows interfacing with the {@code Game} via a {@code UserCommand}, change its internal state (its
      * {@link #currentPhase}) and return the changes expressed via a {@link PhaseDiff} object. An exception is thrown
@@ -71,6 +77,14 @@ public class Game {
      */
     private void updatePhase(UserCommand command) throws InvalidPlayerException, InvalidCharacterParameterException, InvalidPhaseUpdateException {
         currentPhase = command.execute(currentPhase);
+    }
+
+    public void commitChanges(long matchId) {
+        MatchRegistry.getInstance().getPersistenceManager().commit(matchId, currentPhase);
+    }
+
+    public PhaseDiff dumpPhase() {
+        return currentPhase.dump();
     }
 
     /**
@@ -107,5 +121,9 @@ public class Game {
      */
     public List<Player> getWinners() {
         return currentPhase.getWinners();
+    }
+
+    public List<String> getPlayerUsernames() {
+        return currentPhase.getPlayerUsernames();
     }
 }

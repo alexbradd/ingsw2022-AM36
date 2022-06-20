@@ -35,7 +35,7 @@ class MatchTest {
                 () -> new Match(-1, new Game(2, true)));
 
         assertThrows(IllegalArgumentException.class,
-                () -> new Match(0, null));
+                () -> new Match(0, (Game) null));
     }
 
     /**

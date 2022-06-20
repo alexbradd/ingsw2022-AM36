@@ -5,6 +5,7 @@ import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.controller.commands.UserCommandType;
 import it.polimi.ingsw.server.model.Game;
+import it.polimi.ingsw.server.model.Phase;
 import it.polimi.ingsw.server.net.Dispatcher;
 
 import java.util.ArrayList;
@@ -31,11 +32,11 @@ public class Match {
     /**
      * The time interval, expressed in milliseconds, for the {@link Pinger} to wait for receiving PONG messages.
      */
-    private final static long WAIT_PONG_TIME = 1000;
+    private final static long WAIT_PONG_TIME = 5000;
     /**
      * The time interval, expressed in milliseconds, for new {@link Pinger} instances to be created.
      */
-    private final static long PING_RATE = 5000;
+    private final static long PING_RATE = 10000;
     /**
      * A regex pattern that matches acceptable usernames. It corresponds to an alpha-numerical username between 1 and 30
      * characters long.
@@ -71,7 +72,7 @@ public class Match {
     /**
      * A thread that runs the {@link #runPinger()} method.
      */
-    private final Thread pingThread;
+    private final Thread pingThread = null;
     /**
      * A thread that runs the {@link CommandManager#run()} method.
      */
@@ -102,12 +103,32 @@ public class Match {
         this.dispatcherList = new ArrayList<>();
         this.ended = false;
 
-        this.pingThread = new Thread(this::runPinger);
+        //this.pingThread = new Thread(this::runPinger);
         this.commandThread = new Thread(new CommandManager(this));
-        pingThread.start();
+        //pingThread.start();
         commandThread.start();
 
         System.out.println("NEW MATCH CREATED [ID: " + id + "]");
+    }
+
+    Match(long id, Phase restoredPhase) {
+        if (id < 0)
+            throw new IndexOutOfBoundsException("id must be positive.");
+        if (restoredPhase == null)
+            throw new IllegalArgumentException("restoredPhase must not be null");
+
+        this.id = id;
+        this.game = new Game(restoredPhase);
+        this.commands = new LinkedBlockingQueue<>();
+        this.dispatcherList = new ArrayList<>();
+        this.ended = false;
+
+        //this.pingThread = new Thread(this::runPinger);
+        this.commandThread = new Thread(new CommandManager(this));
+        //pingThread.start();
+        commandThread.start();
+
+        System.out.println("RESTORED MATCH [ID: " + id + "]");
     }
 
     /**
@@ -165,6 +186,20 @@ public class Match {
      */
     void setEnded() {
         ended = true;
+    }
+
+    boolean isRejoiningState() {
+        return !getMissingPlayers().isEmpty();
+    }
+
+    List<String> getMissingPlayers() {
+        List<String> connectedUsernames = dispatcherList.stream()
+                .map(Tuple::getSecond)
+                .toList();
+
+        return game.getPlayerUsernames().stream()
+                .filter(u -> !connectedUsernames.contains(u))
+                .toList();
     }
 
     /**

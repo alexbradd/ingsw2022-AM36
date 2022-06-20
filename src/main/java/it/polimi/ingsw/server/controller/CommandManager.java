@@ -77,34 +77,50 @@ public class CommandManager implements Runnable {
      * @param command a Tuple representing an element of the queue of commands ({@link UserCommand}, {@link Dispatcher})
      */
     void manageCommand(Tuple<UserCommand, Dispatcher> command) {
-        System.out.println("EXECUTING GAME COMMAND (ID: " + match.getId() + "): " + command.getFirst().getModificationMessage());
-
-        Dispatcher sender = command.getSecond();
-        Game g = match.getGame();
-
-        PhaseDiff diff;
-        try {
-            diff = g.executeUserCommand(command.getFirst());
-        } catch (Exception exc) {
-            sender.send(buildErrorMessage(match.getId(), exc.getMessage()));
-            return;
-        }
+        System.out.println("EXECUTING GAME COMMAND [ID: " + match.getId() + "]: " + command.getFirst().getModificationMessage());
 
         UserCommandType type = command.getFirst().getType();
         String username = command.getFirst().getUsername();
+        Game g = match.getGame();
+        Dispatcher sender = command.getSecond();
+        boolean rejoining = match.isRejoiningState();
+
+        PhaseDiff diff = null;
+        if (!rejoining) {
+            try {
+                diff = g.executeUserCommand(command.getFirst());
+            } catch (Exception exc) {
+                sender.send(buildErrorMessage(match.getId(), exc.getMessage()));
+                return;
+            }
+        }
 
         if (type.equals(UserCommandType.JOIN)) {
-            addPlayer(sender, username);
+            try {
+                addPlayer(sender, username);
+            } catch (NotMissingPlayerException e) {
+                sender.send(buildErrorMessage(match.getId(), "A player with such username was not taking part in the game."));
+                return;
+            }
         } else if (type.equals(UserCommandType.LEAVE)) {
             removePlayer(sender, username);
-            if (match.getDispatchers().isEmpty()) {
+            if (match.getDispatchers().isEmpty() && !rejoining) {
                 MatchRegistry.getInstance().terminate(match.getId());
                 return;
             }
         }
 
-        JsonObject update = buildUpdateMessage(diff.toJson().getAsJsonObject(), match.getId());
+        JsonObject update;
+        if (!rejoining) {
+            update = buildUpdateMessage(diff.toJson().getAsJsonObject(), match.getId());
+        } else {
+            JsonObject dump = g.dumpPhase().toJson().getAsJsonObject();
+            update = buildUpdateMessage(dump, match.getId(), match.isRejoiningState(), match.getMissingPlayers());
+        }
         match.sendBroadcast(update);
+
+        // persistence
+        new Thread(() -> match.getGame().commitChanges(match.getId())).start();
 
         if (g.isEnded())
             sendWinMessage(g.getWinners());
@@ -116,13 +132,18 @@ public class CommandManager implements Runnable {
      *
      * @param dispatcher the {@link Dispatcher} instance of the player
      * @param username   the player's username
+     * @throws
      */
-    private void addPlayer(Dispatcher dispatcher, String username) {
+    private void addPlayer(Dispatcher dispatcher, String username) throws NotMissingPlayerException {
+        if (match.isRejoiningState() && !match.getMissingPlayers().contains(username))
+            throw new NotMissingPlayerException();
+
         try {
             match.addDispatcher(dispatcher, username);
         } catch (IllegalArgumentException e) {
             dispatcher.send(buildErrorMessage(match.getId(), e.getMessage()));
         }
+
         dispatcher.setPlayingState(match);
     }
 
