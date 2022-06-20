@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server.controller;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.controller.commands.UserCommandType;
@@ -90,6 +91,7 @@ public class CommandManager implements Runnable {
             terminateIfEmpty();
             return;
         }
+        diff.addAttribute("cause", new JsonPrimitive(command.getFirst().getModificationMessage()));
 
         UserCommandType type = command.getFirst().getType();
         String username = command.getFirst().getUsername();
