@@ -135,11 +135,10 @@ public class Dispatcher implements Runnable {
                 } else
                     msg.append(read).append('\n');
             }
-            throw new ClientDisconnectedException();
         } catch (IOException e) {
             System.out.println("Error while doing IO to socket: " + e);
         }
-        return Optional.empty();
+        throw new ClientDisconnectedException();
     }
 
     /**
