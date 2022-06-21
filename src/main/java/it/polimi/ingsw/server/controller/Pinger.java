@@ -4,6 +4,7 @@ import it.polimi.ingsw.server.net.Dispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * This class represents a {@code TimerTask} that sends "PING" messages to all the {@link Dispatcher}s that are
@@ -14,7 +15,7 @@ import java.util.List;
  * @see Match
  * @see Dispatcher
  */
-public class Pinger {
+public class Pinger implements Runnable {
     /**
      * A {@code String} representing the reason of the possible termination of the {@link Match}.
      */
@@ -48,6 +49,7 @@ public class Pinger {
      * them to respond (through {@link #notifyResponse(Dispatcher)}). After {@link #timeoutInMillis} has passed, if some
      * client hasn't responded, it closes the match.
      */
+    @Override
     synchronized public void run() {
         System.out.println(this);
 
@@ -62,7 +64,11 @@ public class Pinger {
 
         if (!dispatchers.isEmpty()) {
             System.out.println("A player timed out. (match " + match.getId() + ")");
-            MatchRegistry.getInstance().terminate(match.getId(), TERM_REASON);
+            try {
+                MatchRegistry.getInstance().terminate(match.getId(), TERM_REASON);
+            } catch (NoSuchElementException e) {
+                System.out.println("Match already terminated...");
+            }
         }
     }
 
