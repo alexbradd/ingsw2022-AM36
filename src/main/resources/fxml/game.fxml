@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="rootPane" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/18"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="it.polimi.ingsw.client.view.gui.scene.GameSceneController">
+    <children>
+        <Pane prefHeight="200.0" prefWidth="200.0" styleClass="ery-background"/>
+        <BorderPane>
+            <center>
+                <TabPane prefHeight="200.0" prefWidth="200.0" side="LEFT" tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                        <Tab closable="false" text="Table">
+                            <content>
+                                <StackPane fx:id="tablePane">
+                                    <children>
+                                        <HBox alignment="CENTER">
+                                            <children>
+                                                <Group fx:id="islandsGroup"/>
+                                                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0"
+                                                      spacing="5.0">
+                                                    <children>
+                                                        <ImageView fx:id="sackImage" fitHeight="120.0" fitWidth="120.0"
+                                                                   pickOnBounds="true" preserveRatio="true">
+                                                            <image>
+                                                                <Image url="@../img/sack/full.png"/>
+                                                            </image>
+                                                        </ImageView>
+                                                        <FlowPane fx:id="cloudPane" alignment="CENTER"
+                                                                  columnHalignment="CENTER" hgap="5.0" vgap="5.0"/>
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                        </StackPane>
+                     </content>
+                  </Tab>
+                  <Tab closable="false" text="Boards">
+                      <content>
+                          <ScrollPane fitToWidth="true" prefHeight="200.0" prefWidth="200.0">
+                              <content>
+                                  <VBox fx:id="boardsPane">
+                                      <children>
+                                          <VBox fx:id="boardList" prefHeight="150.0" prefWidth="200.0"/>
+                                          <HBox fx:id="assistantList" alignment="CENTER" prefHeight="200.0"
+                                                prefWidth="200.0" spacing="10.0">
+                                              <padding>
+                                                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+                                              </padding>
+                                          </HBox>
+                                      </children>
+                                  </VBox>
+                              </content>
+                          </ScrollPane>
+                      </content>
+                  </Tab>
+               </tabs>
+            </TabPane>
+         </center>
+         <bottom>
+             <AnchorPane prefHeight="35.0" prefWidth="1280.0" style="-fx-background-color: lightgray;"
+                         BorderPane.alignment="CENTER">
+                 <children>
+                     <HBox alignment="CENTER_LEFT" layoutX="20.0" layoutY="114.0" prefHeight="35.0" prefWidth="500.0"
+                           AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+                         <children>
+                             <ListView fx:id="causeLogListView" maxHeight="-Infinity" prefHeight="25.0"
+                                       HBox.hgrow="ALWAYS"/>
+                         </children>
+                     </HBox>
+                     <HBox alignment="CENTER_RIGHT" prefHeight="35.0" prefWidth="200.0" AnchorPane.rightAnchor="0.0">
+                         <children>
+                             <Label fx:id="currentPlayer" text="Ann">
+                                 <styleClass>
+                                     <String fx:value="ery-label-inverted"/>
+                                     <String fx:value="slightly-bigger"/>
+                                 </styleClass>
+                        </Label>
+                        <Label layoutX="174.0" layoutY="19.0" text="'s turn">
+                            <styleClass>
+                                <String fx:value="ery-label-inverted"/>
+                                <String fx:value="slightly-bigger"/>
+                            </styleClass>
+                        </Label>
+                     </children>
+                  </HBox>
+               </children>
+               <padding>
+                   <Insets left="5.0" right="5.0"/>
+               </padding>
+            </AnchorPane>
+         </bottom>
+      </BorderPane>
+      <StackPane fx:id="waitingResponsePane" prefHeight="150.0" prefWidth="200.0" visible="false">
+         <children>
+             <Pane prefHeight="200.0" prefWidth="200.0" styleClass="ery-modal-background"/>
+            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <Label text="Waiting server response">
+                      <styleClass>
+                          <String fx:value="ery-big-label"/>
+                          <String fx:value="ery-label"/>
+                      </styleClass>
+                  </Label>
+                   <ProgressIndicator/>
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
+      <StackPane fx:id="modalPane" prefHeight="150.0" prefWidth="200.0" visible="false">
+          <children>
+              <Pane prefHeight="200.0" prefWidth="200.0" styleClass="ery-modal-background"/>
+              <BorderPane fx:id="moveStudentDialog" maxHeight="200.0" prefHeight="200.0" prefWidth="200.0"
+                          styleClass="ery-modal" visible="false">
+                  <top>
+                      <HBox alignment="CENTER_RIGHT" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+                          <children>
+                              <Label fx:id="studentColorLabel" text="Student color"/>
+                              <Button mnemonicParsing="false" onMouseClicked="#closeModalAction" text="Cancel">
+                                  <HBox.margin>
+                                      <Insets/>
+                                  </HBox.margin>
+                              </Button>
+                          </children>
+                      </HBox>
+                  </top>
+                  <center>
+                      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="4.0"
+                            BorderPane.alignment="CENTER">
+                          <children>
+                              <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                  <children>
+                                      <Label text="Move student to:">
+                                          <HBox.margin>
+                                              <Insets/>
+                                          </HBox.margin>
+                                      </Label>
+                                      <ChoiceBox fx:id="moveStudentChoiceBox" prefWidth="150.0"/>
+                                  </children>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                  <children>
+                                      <Label text="Island index: "/>
+                                      <Spinner fx:id="islandIndexSpinner"/>
+                                  </children>
+                              </HBox>
+                              <HBox alignment="CENTER">
+                                  <children>
+                                      <Button fx:id="moveStudentButton" mnemonicParsing="false" text="Move"/>
+                                  </children>
+                                  <VBox.margin>
+                                      <Insets/>
+                                  </VBox.margin>
+                                  <padding>
+                                      <Insets right="5.0"/>
+                                  </padding>
+                              </HBox>
+                          </children>
+                      </VBox>
+                  </center>
+                  <padding>
+                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                  </padding>
+              </BorderPane>
+              <BorderPane fx:id="moveMnDialog" layoutX="475.0" layoutY="270.0" maxHeight="200.0" prefHeight="200.0"
+                          prefWidth="200.0" styleClass="ery-modal" visible="false">
+                  <top>
+                      <HBox alignment="CENTER_RIGHT" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+                          <children>
+                              <Label text="Move Mother Nature"/>
+                              <Button mnemonicParsing="false" onMouseClicked="#closeModalAction" text="Cancel">
+                                  <HBox.margin>
+                                      <Insets/>
+                                  </HBox.margin>
+                              </Button>
+                          </children>
+                      </HBox>
+                  </top>
+                  <center>
+                      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="4.0"
+                            BorderPane.alignment="CENTER">
+                          <children>
+                              <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                  <children>
+                                      <Label text="Number  of steps:">
+                                          <HBox.margin>
+                                              <Insets/>
+                                          </HBox.margin>
+                                      </Label>
+                                      <Spinner fx:id="motherNatureSpinner"/>
+                                  </children>
+                              </HBox>
+                              <HBox alignment="CENTER">
+                                  <children>
+                                      <Button fx:id="moveMnButton" mnemonicParsing="false" text="Move"/>
+                                  </children>
+                                  <VBox.margin>
+                                      <Insets/>
+                                  </VBox.margin>
+                                  <padding>
+                                      <Insets right="5.0"/>
+                                  </padding>
+                              </HBox>
+                          </children>
+                      </VBox>
+                  </center>
+                  <padding>
+                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                  </padding>
+              </BorderPane>
+              <BorderPane fx:id="errorEndDialog" prefHeight="200.0" prefWidth="200.0" styleClass="ery-modal">
+                  <top>
+                      <HBox alignment="TOP_RIGHT" prefWidth="200.0" BorderPane.alignment="CENTER">
+                          <children>
+                              <Button fx:id="modalButton" mnemonicParsing="false" text="Button"/>
+                          </children>
+                      </HBox>
+                  </top>
+                  <padding>
+                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                  </padding>
+               <center>
+                  <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <Label fx:id="modalTitle" text="Modal title">
+                            <styleClass>
+                                <String fx:value="ery-label-inverted"/>
+                                <String fx:value="ery-big-label"/>
+                            </styleClass>
+                           <VBox.margin>
+                               <Insets bottom="15.0"/>
+                           </VBox.margin>
+                        </Label>
+                         <Label fx:id="modalText" alignment="TOP_CENTER" layoutX="10.0" layoutY="10.0"
+                                prefHeight="104.0" prefWidth="340.0" text="Modal text" wrapText="true">
+                             <styleClass>
+                                 <String fx:value="ery-label-inverted"/>
+                                 <String fx:value="slightly-bigger"/>
+                             </styleClass>
+                         </Label>
+                     </children>
+                     <padding>
+                         <Insets top="5.0"/>
+                     </padding>
+                  </VBox>
+               </center>
+            </BorderPane>
+         </children>
+      </StackPane>
+   </children>
+    <stylesheets>
+        <URL value="@../css/common.css"/>
+        <URL value="@../css/game.css"/>
+    </stylesheets>
+</StackPane>

@@ -9,6 +9,7 @@ import it.polimi.ingsw.client.view.gui.events.GameEndedEvent;
 import it.polimi.ingsw.client.view.gui.events.RefreshLobbiesEvent;
 import it.polimi.ingsw.client.view.gui.events.ShowErrorEvent;
 import it.polimi.ingsw.client.view.gui.events.ToggleInputEvent;
+import it.polimi.ingsw.client.view.gui.scene.GameSceneBuilder;
 import it.polimi.ingsw.client.view.gui.scene.LobbyPhaseSceneBuilder;
 import it.polimi.ingsw.client.view.gui.scene.MainMenuSceneBuilder;
 import it.polimi.ingsw.client.view.gui.scene.PreparePhaseSceneBuilder;
@@ -28,12 +29,15 @@ import java.util.function.Consumer;
  * through {@link GuiApplication#afterInit(Consumer)}, which is a wrapper for {@link Platform#runLater(Runnable)}.
  */
 public class GUI implements View {
+    private final static String WIN_REASON = "A winner has been found.";
+
     private final Controller controller;
     private final GUIControllerBridge bridge;
     private final MainMenuSceneBuilder mainMenu;
 
     private LobbyPhaseSceneBuilder lobbyPhase;
     private PreparePhaseSceneBuilder preparePhase;
+    private GameSceneBuilder gameScene;
 
     /**
      * Creates a new GUI view given a Controller
@@ -49,6 +53,7 @@ public class GUI implements View {
         mainMenu = new MainMenuSceneBuilder(bridge::sendFetch, bridge::sendCreate, bridge::sendJoin);
         lobbyPhase = null;
         preparePhase = null;
+        gameScene = null;
     }
 
     /**
@@ -107,7 +112,7 @@ public class GUI implements View {
             switch (state.getPhase()) {
                 case "LobbyPhase" -> instance.switchSceneIfDifferent(lobbyPhase);
                 case "PreparePhase" -> instance.switchSceneIfDifferent(preparePhase);
-                default -> System.out.println("Showing another player's turn state");
+                default -> instance.switchSceneIfDifferent(gameScene);
             }
         });
     }
@@ -126,6 +131,8 @@ public class GUI implements View {
                     bridge.hasPendingUserMessagesProperty(),
                     bridge::sendChooseMage,
                     bridge::toMainMenu);
+        if (gameScene == null)
+            gameScene = new GameSceneBuilder(bridge::toMainMenu, bridge);
     }
 
     /**
@@ -133,10 +140,14 @@ public class GUI implements View {
      */
     @Override
     public void showEndGameState() {
-        GameEndedEvent ev = new GameEndedEvent(GameEndedEvent.END, bridge.getGameEndReason());
+        String reason = bridge.getGameEndReason();
+        GameEndedEvent ev = reason.equals(WIN_REASON)
+                ? new GameEndedEvent(GameEndedEvent.WIN, reason, bridge.getWinners())
+                : new GameEndedEvent(GameEndedEvent.END, reason);
         GuiApplication.afterInit(i -> Event.fireEvent(i.getRoot(), ev));
         lobbyPhase = null;
         preparePhase = null;
+        gameScene = null;
     }
 
     /**
