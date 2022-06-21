@@ -1,7 +1,5 @@
 package it.polimi.ingsw.server.model;
 
-import com.google.gson.JsonObject;
-import it.polimi.ingsw.server.controller.MatchRegistry;
 import it.polimi.ingsw.server.controller.commands.PlayCharacterCommand;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
@@ -41,6 +39,12 @@ public class Game {
         currentPhase = new LobbyPhase(parameters);
     }
 
+    /**
+     * A constructor that allows to create a {@code Game} in a precise state, specified by the given {@link Phase}
+     * passed via parameter. The game parameters are the ones specified inside the {@code Phase}.
+     *
+     * @param restoredPhase the {@code Phase} from which the {@code Game} will resume
+     */
     public Game(Phase restoredPhase) {
         currentPhase = restoredPhase;
     }
@@ -61,28 +65,24 @@ public class Game {
      */
     public PhaseDiff executeUserCommand(UserCommand command) throws InvalidPlayerException, InvalidCharacterParameterException, InvalidPhaseUpdateException {
         Phase oldPhase = currentPhase;
-        updatePhase(command);
+        currentPhase = command.execute(currentPhase);
         return oldPhase.compare(currentPhase);
     }
 
     /**
-     * This method contains all the operation to be done before and after updating the {@code currentPhase}, along with
-     * the update itself.
+     * Getter for the current {@link Phase} of the {@code Game}.
      *
-     * @param command the {@link UserCommand} to execute
-     * @throws InvalidPlayerException             if it is not the specified player's turn
-     * @throws InvalidCharacterParameterException if the parameters passed are wrong for the specified character (in
-     *                                            case of a {@link PlayCharacterCommand})
-     * @throws InvalidPhaseUpdateException        if this command leads to a wrong game state
+     * @return the current {@code Phase} of the {@code Game}
      */
-    private void updatePhase(UserCommand command) throws InvalidPlayerException, InvalidCharacterParameterException, InvalidPhaseUpdateException {
-        currentPhase = command.execute(currentPhase);
+    public Phase getPhase() {
+        return currentPhase;
     }
 
-    public void commitChanges(long matchId) {
-        MatchRegistry.getInstance().getPersistenceManager().commit(matchId, currentPhase);
-    }
-
+    /**
+     * Returns a dump of the {@link #currentPhase}.
+     *
+     * @return a dump of the {@link #currentPhase}
+     */
     public PhaseDiff dumpPhase() {
         return currentPhase.dump();
     }
@@ -123,6 +123,11 @@ public class Game {
         return currentPhase.getWinners();
     }
 
+    /**
+     * Returns a {@code List<String>} containing all the usernames of the players that are assumed to take part in this
+     * {@code Game}.
+     * @return the list of usernames
+     */
     public List<String> getPlayerUsernames() {
         return currentPhase.getPlayerUsernames();
     }

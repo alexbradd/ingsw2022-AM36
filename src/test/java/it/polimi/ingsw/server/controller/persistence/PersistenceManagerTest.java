@@ -35,6 +35,7 @@ class PersistenceManagerTest {
         rootHandlers.put("isDirectory", args -> true);
         rootHandlers.put("canRead", args -> true);
         rootHandlers.put("canWrite", args -> true);
+
     }
 
     /**

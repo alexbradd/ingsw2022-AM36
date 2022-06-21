@@ -50,12 +50,15 @@ public class MatchRegistry {
      */
     private final BiFunction<Integer, Game, Match> matchSupplier;
 
+    /**
+     * A {@link PersistenceManager} instance responsible for all the saving/loading operations from disk of the server.
+     */
     private final PersistenceManager persistenceManager;
 
     /**
      * Default constructor. // todo
      */
-    private MatchRegistry(BiFunction<Integer, Game, Match> matchSupplier) {
+    protected MatchRegistry(BiFunction<Integer, Game, Match> matchSupplier) {
         this.matches = new ArrayList<>();
         this.matchSupplier = matchSupplier;
         this.persistenceManager = new PersistenceManager(Server.persistenceStore);
@@ -87,6 +90,11 @@ public class MatchRegistry {
         return registryInstance;
     }
 
+    /**
+     * Getter for the {@link #persistenceManager}
+     *
+     * @return {@link #persistenceManager}
+     */
     public PersistenceManager getPersistenceManager() {
         return persistenceManager;
     }
@@ -184,7 +192,6 @@ public class MatchRegistry {
             dispatcher.send(buildErrorMessage("Unsupported number of players."));
             return;
         }
-
         int gameId = chooseGameId();
 
         JsonObject joinCommandObj = convertToJoin(command, gameId);

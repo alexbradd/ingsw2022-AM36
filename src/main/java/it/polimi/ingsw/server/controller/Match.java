@@ -72,7 +72,7 @@ public class Match {
     /**
      * A thread that runs the {@link #runPinger()} method.
      */
-    private final Thread pingThread = null;
+    private final Thread pingThread;
     /**
      * A thread that runs the {@link CommandManager#run()} method.
      */
@@ -103,14 +103,21 @@ public class Match {
         this.dispatcherList = new ArrayList<>();
         this.ended = false;
 
-        //this.pingThread = new Thread(this::runPinger);
+        this.pingThread = new Thread(this::runPinger);
         this.commandThread = new Thread(new CommandManager(this));
-        //pingThread.start();
+        pingThread.start();
         commandThread.start();
 
         System.out.println("NEW MATCH CREATED [ID: " + id + "]");
     }
 
+    /**
+     * A constructor that creates a new {@code Match} instance connected to a {@link Game} instance that is in the
+     * specified {@link Phase}.
+     *
+     * @param id            the id of the Match
+     * @param restoredPhase the {@link Phase} of the {@link Game} instance
+     */
     Match(long id, Phase restoredPhase) {
         if (id < 0)
             throw new IndexOutOfBoundsException("id must be positive.");
@@ -123,9 +130,9 @@ public class Match {
         this.dispatcherList = new ArrayList<>();
         this.ended = false;
 
-        //this.pingThread = new Thread(this::runPinger);
+        this.pingThread = new Thread(this::runPinger);
         this.commandThread = new Thread(new CommandManager(this));
-        //pingThread.start();
+        pingThread.start();
         commandThread.start();
 
         System.out.println("RESTORED MATCH [ID: " + id + "]");
@@ -160,6 +167,10 @@ public class Match {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Getter for the {@link #dispatcherList}.
+     * @return the {@link #dispatcherList} (shallow copy)
+     */
     List<Tuple<Dispatcher, String>> getDispatchersAndNames() {
         return new ArrayList<>(dispatcherList);
     }
@@ -175,6 +186,7 @@ public class Match {
 
     /**
      * Getter for the ended attribute.
+     *
      * @return if the match has ended or not
      */
     boolean hasEnded() {
@@ -188,10 +200,21 @@ public class Match {
         ended = true;
     }
 
+    /**
+     * Whether the Match is in {@code rejoining} state or not.
+     * @return whether the Match is in {@code rejoining} state or not
+     */
     boolean isRejoiningState() {
         return !getMissingPlayers().isEmpty();
     }
 
+    /**
+     * Returns the list of usernames of the "missing" players, i.e. the players that appear inside the {@link Game}
+     * instance's state but are not associated to any of the {@link Dispatcher}s connected to the {@code Match}. This
+     * list is empty if the game is not in a {@code rejoining} state.
+     *
+     * @return a list of usernames of the "missing" players
+     */
     List<String> getMissingPlayers() {
         List<String> connectedUsernames = dispatcherList.stream()
                 .map(Tuple::getSecond)
@@ -243,7 +266,7 @@ public class Match {
     }
 
     /**
-     * Helper method that checks whether the {@code dispatcher} and the {@code username} passed correspond to a entry
+     * Helper method that checks whether the {@code dispatcher} and the {@code username} passed correspond to an entry
      * in the {@link #dispatcherList}. If not, then the client probably tried to send a message with another username.
      *
      * @param dispatcher the {@link Dispatcher} instance

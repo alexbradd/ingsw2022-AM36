@@ -2,16 +2,15 @@ package it.polimi.ingsw.server.controller;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import it.polimi.ingsw.server.Server;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.controller.commands.UserCommandType;
 import it.polimi.ingsw.server.model.Game;
 import it.polimi.ingsw.server.model.PhaseDiff;
 import it.polimi.ingsw.server.net.Dispatcher;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -23,12 +22,18 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 /**
  * Test class for the {@link MatchRegistry}.
  */
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MatchRegistryTest {
 
     private final Dispatcher d1 = new Dispatcher(new Socket());
     private final Dispatcher d2 = new Dispatcher(new Socket());
     private final Dispatcher d3 = new Dispatcher(new Socket());
+
+    @BeforeAll
+    public void setUp() {
+        new File("./target/eryantis-store").mkdirs();
+        Server.persistenceStore = new File("./target/eryantis-store");
+    }
 
     /**
      * Resets the singleton instance field before every test.
@@ -93,19 +98,6 @@ class MatchRegistryTest {
 
         assertIterableEquals(List.of(d2),
                 MatchRegistry.getInstance().get(0).getDispatchers());
-    }
-
-    /**
-     * Test for the terminate() method.
-     */
-    @Test
-    void terminateTest() {
-        MatchRegistry.getInstance().create(0, 2, true);
-        assertEquals(1, MatchRegistry.getInstance().getAll().size());
-
-        MatchRegistry.getInstance().terminate(0);
-        assertEquals(0, MatchRegistry.getInstance().getAll().size());
-
     }
 
     /**

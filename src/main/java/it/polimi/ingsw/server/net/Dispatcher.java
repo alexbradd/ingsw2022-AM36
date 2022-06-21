@@ -14,7 +14,6 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -148,7 +147,7 @@ public class Dispatcher implements Runnable {
      * @param toWrite the object to write to the Socket
      * @throws IllegalArgumentException if {@code toWrite} is null
      */
-    public void send(JsonObject toWrite) {
+    synchronized public void send(JsonObject toWrite) {
         if (toWrite == null) throw new IllegalArgumentException("toWrite shouldn't be null");
         try {
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true, StandardCharsets.UTF_8);
