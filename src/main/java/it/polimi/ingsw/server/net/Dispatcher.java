@@ -70,7 +70,7 @@ public class Dispatcher implements Runnable {
     @Override
     public void run() {
         try (Socket s = socket) {
-            while (s.isConnected()) {
+            while (!s.isClosed()) {
                 Optional<JsonObject> obj = receive();
                 if (obj.isPresent())
                     onReceive.accept(obj.get());
