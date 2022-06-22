@@ -3,11 +3,11 @@ package it.polimi.ingsw.server.controller.commands;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import it.polimi.ingsw.enums.PieceColor;
 import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.Phase;
 import it.polimi.ingsw.server.model.Player;
 import it.polimi.ingsw.server.model.Student;
-import it.polimi.ingsw.enums.PieceColor;
 import it.polimi.ingsw.server.model.exceptions.InvalidCharacterParameterException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 import it.polimi.ingsw.server.model.exceptions.InvalidPlayerException;
@@ -90,8 +90,10 @@ public class MoveStudentCommand extends SingleArgumentCommand<MoveStudentCommand
         Player p = phase.authorizePlayer(getUsername());
         Tuple<? extends Phase, Student> t = phase.getFromEntrance(p, getArg().color);
         return switch (getArg().destination) {
-            case HALL -> t.throwMap((modifiedPhase, s) -> modifiedPhase.addToHall(p, s));
-            case ISLAND -> t.throwMap((modifiedPhase, s) -> modifiedPhase.addToIsland(p, getArg().index, s));
+            case HALL -> t.throwMap((modifiedPhase, s) -> modifiedPhase.addToHall(p, s))
+                    .markStudentMove(p);
+            case ISLAND -> t.throwMap((modifiedPhase, s) -> modifiedPhase.addToIsland(p, getArg().index, s))
+                    .markStudentMove(p);
         };
     }
 
