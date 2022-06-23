@@ -40,7 +40,7 @@ The final project will include:
 | Complete rules   | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/32) |
 | Socket           | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/45) |
 | GUI              | 🟡                                                        |
-| CLI              | 🟡                                                        |
+| CLI              | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/46) |
 | Multiple games   | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/45) |
 | Persistence      | 🟡                                                        |
 | Resilience       | 🔴                                                        |
