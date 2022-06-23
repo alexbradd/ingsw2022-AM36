@@ -68,7 +68,6 @@ public class Client {
                 StringBuilder msg = new StringBuilder();
                 while ((read = socketIn.readLine()) != null) {
                     if (read.equals("")) {
-                        System.out.println(msg);
                         JsonObject message = gson.fromJson(msg.toString(), JsonObject.class);
                         if (isPing(message))
                             writeObjectToStream(socketOut, buildPing(message.get("gameId")));
