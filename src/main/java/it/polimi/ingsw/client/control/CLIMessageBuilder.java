@@ -45,7 +45,7 @@ public class CLIMessageBuilder {
                         return buildCreateMsg(stdin, state);
                     }
                 } else if (status == Controller.Status.FETCHED_LOBBIES) {
-                    if (inputLine.equalsIgnoreCase("join")) {
+                    if (isValidJoin(inputLine, state)) {
                         return buildJoinMsg(stdin, state);
                     } else if (inputLine.equalsIgnoreCase("back")) {
                         controller.toMainMenu();
@@ -187,6 +187,8 @@ public class CLIMessageBuilder {
             try {
                 int id = Integer.parseInt(inputLine);
                 if(state.isValidLobby(id)) {
+                    state.updateGameInfo(state.getLobby(id).isExpert());
+                    state.updateGameInfo(state.getLobby(id).getNumPlayers());
                     break;
                 }
                 inputLine = stdin.nextLine();
@@ -384,6 +386,18 @@ public class CLIMessageBuilder {
     }
 
     // Input validity checks
+
+    /**
+     * Checks if the given input is a valid join message.
+     *
+     * @param joinString the join input string
+     * @param state the game's state
+     * @return {@code true} if the given input is valid, {@code false} otherwise
+     */
+    private static boolean isValidJoin(String joinString, State state) {
+        return joinString.equalsIgnoreCase("join")
+                && state.getLobbies() != null && state.getLobbies().length != 0;
+    }
 
     /**
      * Checks if the given input is a valid mage type.

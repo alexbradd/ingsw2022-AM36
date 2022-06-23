@@ -36,7 +36,7 @@ public class Professor {
     @Override
     public String toString() {
         return "   " + color + " professor, owned by " +
-                (Objects.equals(owner, "") ? "no-one" : owner) +
+                (owner == null || Objects.equals(owner, "") ? "no-one" : owner) +
                 "\n";
     }
 

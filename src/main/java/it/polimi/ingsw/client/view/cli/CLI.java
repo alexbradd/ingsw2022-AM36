@@ -71,12 +71,18 @@ public class CLI implements View, Runnable {
     public void showLobbies() {
         Lobby[] lobbies = controller.getState().getLobbies();
 
-        System.out.println("Lobbies:\n");
-        for(Lobby l : lobbies) {
-            System.out.println(l);
+        if(lobbies.length == 0) {
+            System.out.println("There are no lobbies available at the moment");
         }
+        else {
+            System.out.println("Lobbies:\n");
+            for (Lobby l : lobbies) {
+                System.out.println(l);
+            }
+        }
+
         System.out.println("Please type one of the following commands:");
-        System.out.println("* JOIN (to start joining an existing lobby)");
+        System.out.print(lobbies.length != 0 ? "* JOIN (to start joining an existing lobby)\n" : "");
         System.out.println("* BACK (to return to the main menu)");
         System.out.println();
     }
