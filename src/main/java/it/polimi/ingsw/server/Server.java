@@ -34,6 +34,7 @@ public class Server {
             while (!server.isClosed()) {
                 Socket client = server.accept();
                 System.out.println("Accepted connection, dispatching...");
+                System.out.println(ProgramOptions.staticToString());
                 threadPool.submit(new Dispatcher(client));
             }
         } catch (IOException e) {
