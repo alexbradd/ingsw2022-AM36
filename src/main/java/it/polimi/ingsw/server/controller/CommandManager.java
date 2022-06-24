@@ -32,7 +32,7 @@ public class CommandManager implements Runnable {
     /**
      * A {@link CommandStrategy} to use during the {@code rejoining} phase.
      */
-    private final static CommandStrategy REJOIN_STRATEGY = new StandardCommandStrategy();
+    private final static CommandStrategy REJOIN_STRATEGY = new RejoiningCommandStrategy();
     /**
      * The corresponding {@link Match} instance.
      */
