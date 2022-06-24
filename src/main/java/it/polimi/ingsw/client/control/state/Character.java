@@ -62,6 +62,15 @@ public class Character {
     }
 
     /**
+     * Returns the number of blocks placed on this character
+     *
+     * @return the number of blocks placed on this character
+     */
+    public int getBlocks() {
+        return blocks;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

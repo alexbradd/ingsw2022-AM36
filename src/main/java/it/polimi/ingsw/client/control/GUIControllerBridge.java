@@ -4,11 +4,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.client.control.state.*;
 import it.polimi.ingsw.client.view.gui.GUI;
+import it.polimi.ingsw.enums.CharacterType;
 import it.polimi.ingsw.functional.Tuple;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Convenience class that bridges the {@link Controller}'s raw interface with one more usable by the {@link GUI}.
@@ -148,6 +150,18 @@ public class GUIControllerBridge {
         String myUsername = controller.getState().getGameInfo().getUsername();
         long id = controller.getState().getGameInfo().getId();
         controller.manageUserMessage(buildCloudPickMessage(id, myUsername, cloudId));
+    }
+
+    /**
+     * Tells the controller that this player has invoked the given CharacterType with the given steps
+     *
+     * @param type  the CharacterType
+     * @param steps the steps for the character
+     */
+    public void sendPlayCharacter(CharacterType type, List<Map<String, String>> steps) {
+        String username = getMyUsername();
+        long id = getGameId();
+        controller.manageUserMessage(buildPlayCharacterMessage(id, username, type, steps));
     }
 
     /**
@@ -429,6 +443,45 @@ public class GUIControllerBridge {
         JsonArray args = new JsonArray(1);
         args.add(cloudId);
         return new GUIMessageBuilder("PICK_CLOUD")
+                .addGameId(id)
+                .addUsername(username)
+                .addElement("arguments", args)
+                .build();
+    }
+
+    /**
+     * Creates a new PLAY_CHARACTER message for the given username, game and character.
+     *
+     * @param username the username
+     * @param id       the id of the game
+     * @param type     the character type
+     * @param steps    a list of invocation steps. Each step is a String-String map containing the invocation parameters
+     * @return a {@link JsonObject} representing the PLAY_CHARACTER message
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    private static JsonObject buildPlayCharacterMessage(long id,
+                                                        String username,
+                                                        CharacterType type,
+                                                        List<Map<String, String>> steps) {
+        if (username == null) throw new IllegalArgumentException("username shouldn't be null");
+        if (type == null) throw new IllegalArgumentException("type shouldn't be null");
+        if (steps == null) throw new IllegalArgumentException("steps shouldn't be null");
+
+        JsonObject invocation = new JsonObject();
+        invocation.addProperty("character", type.toString());
+        if (!steps.isEmpty()) {
+            JsonArray stepArray = new JsonArray(steps.size());
+            steps.forEach(m -> {
+                JsonObject step = new JsonObject();
+                m.forEach(step::addProperty);
+                stepArray.add(step);
+            });
+            invocation.add("steps", stepArray);
+        }
+
+        JsonArray args = new JsonArray(1);
+        args.add(invocation);
+        return new GUIMessageBuilder("PLAY_CHARACTER")
                 .addGameId(id)
                 .addUsername(username)
                 .addElement("arguments", args)

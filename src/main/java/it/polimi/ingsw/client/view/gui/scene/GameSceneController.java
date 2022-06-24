@@ -2,18 +2,17 @@ package it.polimi.ingsw.client.view.gui.scene;
 
 import it.polimi.ingsw.client.control.GUIControllerBridge;
 import it.polimi.ingsw.client.control.state.Board;
+import it.polimi.ingsw.client.control.state.Character;
 import it.polimi.ingsw.client.control.state.GameState;
 import it.polimi.ingsw.client.view.gui.AssetManager;
 import it.polimi.ingsw.client.view.gui.events.GameEndedEvent;
 import it.polimi.ingsw.client.view.gui.events.ShowErrorEvent;
 import it.polimi.ingsw.client.view.gui.events.ToggleInputEvent;
-import it.polimi.ingsw.client.view.gui.scene.gamecomponents.AssistantListManager;
-import it.polimi.ingsw.client.view.gui.scene.gamecomponents.BoardListManager;
-import it.polimi.ingsw.client.view.gui.scene.gamecomponents.CloudListManager;
-import it.polimi.ingsw.client.view.gui.scene.gamecomponents.IslandListManager;
+import it.polimi.ingsw.client.view.gui.scene.gamecomponents.*;
 import it.polimi.ingsw.enums.AssistantType;
 import it.polimi.ingsw.enums.PieceColor;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.IntegerBinding;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WeakChangeListener;
@@ -30,6 +29,7 @@ import javafx.scene.layout.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static it.polimi.ingsw.client.view.gui.GUIUtils.runLaterIfNotOnFxThread;
 
@@ -84,7 +84,15 @@ public class GameSceneController {
     @FXML
     private ImageView sackImage;
     @FXML
-    public FlowPane cloudPane;
+    private FlowPane cloudPane;
+    @FXML
+    private TilePane characterPane;
+    @FXML
+    private BorderPane characterModal;
+    @FXML
+    private HBox characterTop;
+    @FXML
+    private StackPane characterCenter;
 
     /**
      * A callback executed after the "END" dialog has been closed
@@ -139,6 +147,7 @@ public class GameSceneController {
         initAssistantListManager();
         initIslandListManager();
         initCloudListManager();
+        if (bridge.isExpertMode()) initCharacterHandling();
     }
 
     /**
@@ -199,6 +208,7 @@ public class GameSceneController {
         errorEndDialog.setVisible(true);
         moveStudentDialog.setVisible(false);
         moveMnDialog.setVisible(false);
+        characterModal.setVisible(false);
 
         modalPane.setVisible(true);
     }
@@ -221,6 +231,7 @@ public class GameSceneController {
 
         errorEndDialog.setVisible(false);
         moveMnDialog.setVisible(false);
+        characterModal.setVisible(false);
         moveStudentDialog.setVisible(true);
 
         modalPane.setVisible(true);
@@ -232,7 +243,25 @@ public class GameSceneController {
     private void showMoveMnDialog() {
         errorEndDialog.setVisible(false);
         moveStudentDialog.setVisible(false);
+        characterModal.setVisible(false);
         moveMnDialog.setVisible(true);
+
+        modalPane.setVisible(true);
+    }
+
+    /**
+     * Displays the character invocation dialog
+     *
+     * @param manager   the manager in charge of the dialog
+     * @param character the character to display the modal for
+     */
+    private void showCharacterInvocationDialog(CharacterModalManager manager, Character character) {
+        errorEndDialog.setVisible(false);
+        moveStudentDialog.setVisible(false);
+        moveMnDialog.setVisible(false);
+        characterModal.setVisible(true);
+
+        manager.showFor(character);
 
         modalPane.setVisible(true);
     }
@@ -389,6 +418,50 @@ public class GameSceneController {
                 isInteractive,
                 (__, i) -> bridge.sendPickCloud(i));
         manager.startManaging();
+    }
+
+    /**
+     * Sets up management of the character card list and the relative invocation modal
+     */
+    private void initCharacterHandling() {
+        BooleanBinding isStudentMove = state.phaseProperty().isEqualTo("StudentMovePhase");
+        BooleanBinding isMnMove = state.phaseProperty().isEqualTo("MnMovePhase");
+        BooleanBinding isCloudPick = state.phaseProperty().isEqualTo("CloudPickPhase");
+        BooleanBinding isActionPhase = isStudentMove.or(isMnMove).or(isCloudPick);
+        BooleanBinding isInteractive = isActionPhase
+                .and(state.currentPlayerProperty().isEqualTo(bridge.getMyUsername()))
+                .and(state.usedCharacterProperty().not());
+        IntegerBinding playerCoins = new IntegerBinding() {
+            {
+                super.bind(state.boardsProperty());
+            }
+
+            @Override
+            protected int computeValue() {
+                return Arrays.stream(state.getBoards())
+                        .filter(b -> Objects.equals(b.getUsername(), bridge.getMyUsername()))
+                        .map(Board::getCoins)
+                        .findFirst()
+                        .orElseThrow(IllegalStateException::new);
+            }
+        };
+
+        CharacterModalManager modalManager = new CharacterModalManager(
+                characterTop,
+                characterCenter,
+                (manager, tuple) -> {
+                    tuple.consume(bridge::sendPlayCharacter);
+                    manager.close();
+                },
+                this::closeModalAction);
+        CharacterListManager listManager = new CharacterListManager(
+                characterPane,
+                state.charactersProperty(),
+                playerCoins,
+                isInteractive,
+                (__, character) -> showCharacterInvocationDialog(modalManager, character));
+        modalManager.initialize();
+        listManager.startManaging();
     }
 
     /**

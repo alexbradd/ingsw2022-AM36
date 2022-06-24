@@ -21,6 +21,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 
 <StackPane fx:id="rootPane" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/18"
@@ -39,9 +40,11 @@
                                         <HBox alignment="CENTER">
                                             <children>
                                                 <Group fx:id="islandsGroup"/>
-                                                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0"
+                                                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="300.0"
                                                       spacing="5.0">
                                                     <children>
+                                                        <TilePane fx:id="characterPane" alignment="CENTER" hgap="2.0"
+                                                                  prefColumns="2" prefRows="2" vgap="2.0"/>
                                                         <ImageView fx:id="sackImage" fitHeight="120.0" fitWidth="120.0"
                                                                    pickOnBounds="true" preserveRatio="true">
                                                             <image>
@@ -226,6 +229,19 @@
                               </HBox>
                           </children>
                       </VBox>
+                  </center>
+                  <padding>
+                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                  </padding>
+              </BorderPane>
+              <BorderPane fx:id="characterModal" layoutX="475.0" layoutY="270.0" maxHeight="400.0" prefHeight="200.0"
+                          prefWidth="200.0" style="-fx-max-height: unset;" styleClass="ery-modal" visible="false">
+                  <top>
+                      <HBox fx:id="characterTop" alignment="CENTER_RIGHT" prefWidth="200.0" spacing="10.0"
+                            BorderPane.alignment="CENTER"/>
+                  </top>
+                  <center>
+                      <StackPane fx:id="characterCenter" BorderPane.alignment="CENTER"/>
                   </center>
                   <padding>
                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
