@@ -274,7 +274,7 @@ public class Match {
         j.addProperty("id", id);
         j.addProperty("nPlayers", game.getNPlayers());
         j.addProperty("expert", game.isExpertMode());
-
+        j.addProperty("playersConnected", dispatcherList.size());
         return j;
     }
 
