@@ -4,9 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
-import it.polimi.ingsw.server.controller.commands.UserCommandType;
 import it.polimi.ingsw.server.model.Game;
-import it.polimi.ingsw.server.model.PhaseDiff;
 import it.polimi.ingsw.server.model.Player;
 import it.polimi.ingsw.server.net.Dispatcher;
 
@@ -28,9 +26,22 @@ import static it.polimi.ingsw.server.controller.Messages.*;
  */
 public class CommandManager implements Runnable {
     /**
+     * A {@link CommandStrategy} to use during the standard phases of a {@link Match}.
+     */
+    private final static CommandStrategy DEFAULT_STRATEGY = new StandardCommandStrategy();
+    /**
+     * A {@link CommandStrategy} to use during the {@code rejoining} phase.
+     */
+    private final static CommandStrategy REJOIN_STRATEGY = new StandardCommandStrategy();
+    /**
      * The corresponding {@link Match} instance.
      */
     private final Match match;
+
+    /**
+     * The strategy to use for managing the command.
+     */
+    private CommandStrategy strategy;
 
     /**
      * The default constructor.
@@ -42,12 +53,12 @@ public class CommandManager implements Runnable {
     }
 
     /**
-     * Getter for the {@code match}.
+     * Setter for {@link #strategy}.
      *
-     * @return the {@code Match} the manager is related to
+     * @param strategy the strategy to use
      */
-    Match getMatch() {
-        return match;
+    private void setStrategy(CommandStrategy strategy) {
+        this.strategy = strategy;
     }
 
     /**
@@ -67,45 +78,34 @@ public class CommandManager implements Runnable {
     }
 
     /**
-     * Method for the management of a single command of the queue. It executes it on the {@link #match}'s {@link Game}
-     * instance; then, it does the following:
+     * Method for the management of a single command of the queue. It does the following:
      * <ul>
-     *     <li>If an exception is thrown inside the model, return a {@code ERR} message to the sender's
-     *          {@link Dispatcher}</li>
-     *     <li>Else, return a {@code UPDATE} message in broadcast</li>
+     *     <li>Chooses which strategy to use, checking if the {@code Match} is in {@code rejoining} state or not</li>
+     *     <li>Calls the {@link #strategy}'s {@code manageCommand()} method</li>
+     *     <li>Saves the {@code Game} state on disk</li>
+     *     <li>If the game is now ended, sends a {@code END} message in broadcast</li>
      * </ul>
      *
      * @param command a Tuple representing an element of the queue of commands ({@link UserCommand}, {@link Dispatcher})
+     * @see StandardCommandStrategy#manageCommand(Tuple, Match)
+     * @see RejoiningCommandStrategy#manageCommand(Tuple, Match)
      */
     void manageCommand(Tuple<UserCommand, Dispatcher> command) {
-        System.out.println("EXECUTING GAME COMMAND (ID: " + match.getId() + "): " + command.getFirst().getModificationMessage());
+        System.out.println("EXECUTING GAME COMMAND [ID: " + match.getId() + "]: " + command.getFirst().getModificationMessage());
 
-        Dispatcher sender = command.getSecond();
+        if (match.isRejoiningState())
+            setStrategy(REJOIN_STRATEGY);
+        else
+            setStrategy(DEFAULT_STRATEGY);
+
+        strategy.manageCommand(command, match);
+
+        new Thread(() -> MatchRegistry.getInstance()
+                .getPersistenceManager()
+                .commit(match.getId(), match.getGame().getPhase()))
+                .start();
+
         Game g = match.getGame();
-
-        PhaseDiff diff;
-        try {
-            diff = g.executeUserCommand(command.getFirst());
-        } catch (Exception exc) {
-            sender.send(buildErrorMessage(match.getId(), exc.getMessage()));
-            terminateIfEmpty();
-            return;
-        }
-        diff.addAttribute("cause", new JsonPrimitive(command.getFirst().getModificationMessage()));
-
-        UserCommandType type = command.getFirst().getType();
-        String username = command.getFirst().getUsername();
-
-        if (type.equals(UserCommandType.JOIN)) {
-            addPlayer(sender, username);
-        } else if (type.equals(UserCommandType.LEAVE)) {
-            removePlayer(sender, username);
-            terminateIfEmpty();
-        }
-
-        JsonObject update = buildUpdateMessage(diff.toJson().getAsJsonObject(), match.getId());
-        match.sendBroadcast(update);
-
         if (g.isEnded()) {
             sendWinMessage(g.getWinners());
             MatchRegistry.getInstance().terminate(match.getId());
@@ -115,39 +115,6 @@ public class CommandManager implements Runnable {
     private void terminateIfEmpty() {
         if (match.getDispatchers().isEmpty())
             MatchRegistry.getInstance().terminate(match.getId());
-    }
-
-    /**
-     * Helper method that adds a new Tuple<{@link Dispatcher}, {@code String}> to the {@link Match}, and performs all
-     * the needed after-join operations.
-     *
-     * @param dispatcher the {@link Dispatcher} instance of the player
-     * @param username   the player's username
-     */
-    private void addPlayer(Dispatcher dispatcher, String username) {
-        try {
-            match.addDispatcher(dispatcher, username);
-        } catch (IllegalArgumentException e) {
-            dispatcher.send(buildErrorMessage(match.getId(), e.getMessage()));
-        }
-        dispatcher.setPlayingState(match);
-    }
-
-    /**
-     * Helper method that removes the corresponding Tuple<{@link Dispatcher}, {@code String}> from the {@link Match},
-     * and performs all the needed after-leave operations.
-     *
-     * @param dispatcher the {@link Dispatcher} instance of the player
-     * @param username   the player's username
-     */
-    private void removePlayer(Dispatcher dispatcher, String username) {
-        try {
-            match.removeDispatcher(dispatcher, username);
-        } catch (IllegalArgumentException e) {
-            dispatcher.send(buildErrorMessage(match.getId(), e.getMessage()));
-        }
-        dispatcher.send(buildLeftMessage(match.getId()));
-        dispatcher.setIdleState();
     }
 
     /**

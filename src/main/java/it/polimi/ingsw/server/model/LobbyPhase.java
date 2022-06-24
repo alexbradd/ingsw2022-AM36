@@ -149,7 +149,7 @@ class LobbyPhase extends Phase {
      * @throws IllegalArgumentException if any argument is null
      */
     @Override
-    PhaseDiff compare(Phase other) {
+    public PhaseDiff compare(Phase other) {
         return other.dump();
     }
 

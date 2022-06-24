@@ -5,6 +5,7 @@ import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.controller.commands.UserCommandType;
 import it.polimi.ingsw.server.model.Game;
+import it.polimi.ingsw.server.model.Phase;
 import it.polimi.ingsw.server.net.Dispatcher;
 
 import java.util.ArrayList;
@@ -31,11 +32,11 @@ public class Match {
     /**
      * The time interval, expressed in milliseconds, for the {@link Pinger} to wait for receiving PONG messages.
      */
-    private final static long WAIT_PONG_TIME = 1000;
+    private final static long WAIT_PONG_TIME = 5000;
     /**
      * The time interval, expressed in milliseconds, for new {@link Pinger} instances to be created.
      */
-    private final static long PING_RATE = 5000;
+    private final static long PING_RATE = 10000;
     /**
      * The unique identifier of the Match.
      */
@@ -101,6 +102,33 @@ public class Match {
     }
 
     /**
+     * A constructor that creates a new {@code Match} instance connected to a {@link Game} instance that is in the
+     * specified {@link Phase}.
+     *
+     * @param id            the id of the Match
+     * @param restoredPhase the {@link Phase} of the {@link Game} instance
+     */
+    Match(long id, Phase restoredPhase) {
+        if (id < 0)
+            throw new IndexOutOfBoundsException("id must be positive.");
+        if (restoredPhase == null)
+            throw new IllegalArgumentException("restoredPhase must not be null");
+
+        this.id = id;
+        this.game = new Game(restoredPhase);
+        this.commands = new LinkedBlockingQueue<>();
+        this.dispatcherList = new ArrayList<>();
+        this.ended = false;
+
+        this.pingThread = new Thread(this::runPinger);
+        this.commandThread = new Thread(new CommandManager(this));
+        pingThread.start();
+        commandThread.start();
+
+        System.out.println("RESTORED MATCH [ID: " + id + "]");
+    }
+
+    /**
      * Getter for the id.
      *
      * @return the Match id
@@ -129,6 +157,10 @@ public class Match {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Getter for the {@link #dispatcherList}.
+     * @return the {@link #dispatcherList} (shallow copy)
+     */
     List<Tuple<Dispatcher, String>> getDispatchersAndNames() {
         return new ArrayList<>(dispatcherList);
     }
@@ -144,6 +176,7 @@ public class Match {
 
     /**
      * Getter for the ended attribute.
+     *
      * @return if the match has ended or not
      */
     boolean hasEnded() {
@@ -155,6 +188,31 @@ public class Match {
      */
     void setEnded() {
         ended = true;
+    }
+
+    /**
+     * Whether the Match is in {@code rejoining} state or not.
+     * @return whether the Match is in {@code rejoining} state or not
+     */
+    boolean isRejoiningState() {
+        return !getMissingPlayers().isEmpty();
+    }
+
+    /**
+     * Returns the list of usernames of the "missing" players, i.e. the players that appear inside the {@link Game}
+     * instance's state but are not associated to any of the {@link Dispatcher}s connected to the {@code Match}. This
+     * list is empty if the game is not in a {@code rejoining} state.
+     *
+     * @return a list of usernames of the "missing" players
+     */
+    List<String> getMissingPlayers() {
+        List<String> connectedUsernames = dispatcherList.stream()
+                .map(Tuple::getSecond)
+                .toList();
+
+        return game.getPlayerUsernames().stream()
+                .filter(u -> !connectedUsernames.contains(u))
+                .toList();
     }
 
     /**
@@ -195,7 +253,7 @@ public class Match {
     }
 
     /**
-     * Helper method that checks whether the {@code dispatcher} and the {@code username} passed correspond to a entry
+     * Helper method that checks whether the {@code dispatcher} and the {@code username} passed correspond to an entry
      * in the {@link #dispatcherList}. If not, then the client probably tried to send a message with another username.
      *
      * @param dispatcher the {@link Dispatcher} instance
@@ -275,6 +333,7 @@ public class Match {
         j.addProperty("nPlayers", game.getNPlayers());
         j.addProperty("expert", game.isExpertMode());
         j.addProperty("playersConnected", dispatcherList.size());
+        j.addProperty("rejoining", isRejoiningState());
         return j;
     }
 

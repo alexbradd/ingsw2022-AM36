@@ -1,5 +1,6 @@
 package it.polimi.ingsw;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -21,6 +22,10 @@ public class ProgramOptions {
      * The address the server will be located at. Default is localhost
      */
     private InetAddress address;
+    /**
+     * The directory to which the server will save its persistent data.
+     */
+    private File persistenceStore = new File(new File("").getAbsolutePath(), "eryantis-store");
 
     /**
      * Default constructor.
@@ -95,6 +100,37 @@ public class ProgramOptions {
     }
 
     /**
+     * Returns the {@link File} representing the directory the server will save its persistence data in.
+     *
+     * @return the {@link File} the server will save its persistence data in.
+     */
+    public File getPersistenceStore() {
+        return persistenceStore;
+    }
+
+    /**
+     * Sets the {@link File} representing the directory the server will save its persistence data in.
+     *
+     * @param persistenceStore the new location
+     * @throws IllegalArgumentException if {@code persistenceStore} does not meet the requirements
+     */
+    public void setPersistenceStore(File persistenceStore) {
+        if (persistenceStore == null) throw new IllegalArgumentException("persistenceStore shouldn't be null");
+        if (persistenceStore.exists()) {
+            if (!persistenceStore.isDirectory())
+                throw new IllegalArgumentException("persistenceStore should be a directory");
+            if (!persistenceStore.canRead() || !persistenceStore.canWrite())
+                throw new IllegalArgumentException("the process doesn't have the necessary permission to modify the directory");
+        } else {
+            File parent = persistenceStore.getAbsoluteFile().getParentFile();
+            if (parent == null) throw new IllegalStateException("persistenceStore does not have a parent directory");
+            if (!parent.canRead() && !parent.canWrite())
+                throw new IllegalArgumentException("the process doesn't have the necessary permission to modify the directory");
+        }
+        this.persistenceStore = persistenceStore;
+    }
+
+    /**
      * Enum representing possible program launch modes
      */
     public enum ProgramMode {
@@ -107,6 +143,7 @@ public class ProgramOptions {
                 "mode=" + mode +
                 ", port=" + port +
                 ", address=" + address +
+                ", persistence-store=" + persistenceStore +
                 '}';
     }
 }

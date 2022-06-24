@@ -88,6 +88,19 @@ public abstract class Phase {
     }
 
     /**
+     * Returns a list containing all the usernames that this phase has knowledge of.
+     *
+     * @return a list containing all the usernames that this phase has knowledge of.
+     * @throws UnsupportedOperationException if this operation is not supported by the current phase of the game
+     */
+    public List<String> getPlayerUsernames() {
+        return getTable()
+                .getPlayers().stream()
+                .map(Player::getUsername)
+                .toList();
+    }
+
+    /**
      * Getter for this Phase's current player. Default implementation throws exception if the phase's has not got a
      * player.
      *
@@ -356,7 +369,7 @@ public abstract class Phase {
      * @return a new {@link PhaseDiff}
      * @throws IllegalArgumentException if any argument is null
      */
-    PhaseDiff compare(Phase other) {
+    public PhaseDiff compare(Phase other) {
         if (other == null) throw new IllegalArgumentException("other shouldn't be null");
         PhaseDiff diff = new PhaseDiff();
 

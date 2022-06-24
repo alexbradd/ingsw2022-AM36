@@ -5,6 +5,9 @@ target/
 log/
 shade/
 
+# Default persistence location
+eryantis-store/
+
 *.iml
 *.iws
 
