@@ -134,4 +134,5 @@ public enum CharacterType {
     public enum ParameterType {
         PIECE_COLOR, ISLAND_INDEX
     }
+
 }

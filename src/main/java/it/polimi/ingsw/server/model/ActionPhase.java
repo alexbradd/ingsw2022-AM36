@@ -1,8 +1,8 @@
 package it.polimi.ingsw.server.model;
 
-import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.enums.CharacterType;
 import it.polimi.ingsw.enums.PieceColor;
+import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.model.exceptions.*;
 
 import java.util.*;
@@ -315,11 +315,14 @@ abstract class ActionPhase extends IteratedPhase {
         if (!isValidIslandIndex(index))
             throw new InvalidPhaseUpdateException("invalid island index");
         ActionPhase ret = this.shallowCopy();
-        ret.table = table.updateIslandList(islands -> {
-            Island i = islands.remove(index).updateStudents(update);
-            islands.add(index, i);
-            return islands;
-        });
+        ret.table = removeWithIndex(ret.table, index)
+                .map((table, removed) -> {
+                    Island updated = removed.getSecond().updateStudents(update);
+                    return table.updateIslandList(islands -> {
+                        islands.add(removed.getFirst(), updated);
+                        return islands;
+                    });
+                });
         return ret;
     }
 
@@ -330,7 +333,35 @@ abstract class ActionPhase extends IteratedPhase {
      * @return true if the given index is inbounds of the ActionPhase's Island list
      */
     boolean isValidIslandIndex(int index) {
-        return index >= 0 && index < table.getIslandList().size();
+        return index >= 0 && index < 12;
+    }
+
+    /**
+     * Removes the island containing the given index from the table's island list.
+     *
+     * @param table the table
+     * @param index the index to remove.
+     * @return A tuple containing the updated table and a tuple containing the index in the tables list of the island
+     * removed and the island
+     */
+    private Tuple<Table, Tuple<Integer, Island>> removeWithIndex(Table table, int index) {
+        var ret = new Object() {
+            Island island;
+            int listIndex;
+        };
+        table = table.updateIslandList(islands -> {
+            for (int i = 0; i < islands.size(); i++) {
+                Island island = islands.get(i);
+                if (island.getIds().contains(index)) {
+                    ret.island = island;
+                    ret.listIndex = i;
+                    islands.remove(island);
+                    return islands;
+                }
+            }
+            throw new IllegalStateException("Impossible that any island does not contain a valid index");
+        });
+        return new Tuple<>(table, new Tuple<>(ret.listIndex, ret.island));
     }
 
     /**
@@ -652,11 +683,14 @@ abstract class ActionPhase extends IteratedPhase {
         if (!isValidIslandIndex(index))
             throw new IllegalArgumentException("index is out of bounds");
         ActionPhase ret = shallowCopy();
-        ret.table = ret.table.updateIslandList(islands -> {
-            Island i = islands.remove(index).pushBlock(block);
-            islands.add(index, i);
-            return islands;
-        });
+        ret.table = removeWithIndex(ret.table, index)
+                .map((table, removed) -> {
+                    Island updated = removed.getSecond().pushBlock(block);
+                    return table.updateIslandList(islands -> {
+                        islands.add(removed.getFirst(), updated);
+                        return islands;
+                    });
+                });
         return ret;
     }
 

@@ -17,7 +17,7 @@ public class ErrorState {
      */
     @Override
     public String toString() {
-        return reason;
+        return "\n* ERROR *\n" + reason;
     }
 
 }

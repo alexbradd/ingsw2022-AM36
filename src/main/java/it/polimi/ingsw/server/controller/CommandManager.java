@@ -106,8 +106,10 @@ public class CommandManager implements Runnable {
         JsonObject update = buildUpdateMessage(diff.toJson().getAsJsonObject(), match.getId());
         match.sendBroadcast(update);
 
-        if (g.isEnded())
+        if (g.isEnded()) {
             sendWinMessage(g.getWinners());
+            MatchRegistry.getInstance().terminate(match.getId());
+        }
     }
 
     private void terminateIfEmpty() {

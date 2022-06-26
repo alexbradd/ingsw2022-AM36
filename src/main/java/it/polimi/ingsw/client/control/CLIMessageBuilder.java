@@ -361,7 +361,7 @@ public class CLIMessageBuilder {
         JsonArray steps = new JsonArray();
         CharacterType character = CharacterType.valueOf(characterType.toUpperCase());
         for (int i = 0; i < character.getMaxSteps(); i++) {
-            if(i > character.getMinSteps()) {
+            if(i > character.getMinSteps() - 1) {
                 System.out.println("Type STOP if you don't want to add any more steps, simply press the enter key otherwise");
                 if(stdin.nextLine().equalsIgnoreCase("stop")) break;
             }

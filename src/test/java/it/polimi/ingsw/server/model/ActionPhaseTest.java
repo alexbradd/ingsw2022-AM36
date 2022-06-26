@@ -206,6 +206,31 @@ public class ActionPhaseTest {
     }
 
     /**
+     * Test that {@link ActionPhase#addToHall(Player, Student)} correctly adds students to the correct index even after
+     * a merge
+     */
+    @Test
+    void testAddToIslandAfterMerge() throws InvalidPhaseUpdateException {
+        Table table = t.updateIslandList(islands -> {
+            Island merge1 = islands.remove(0).updateTowers(ts -> {
+                ts.add(new Tower(TowerColor.WHITE, ann));
+                return ts;
+            });
+            Island merge2 = islands.remove(0).updateTowers(ts -> {
+                ts.add(new Tower(TowerColor.WHITE, ann));
+                return ts;
+            });
+            Island merge = merge1.merge(merge2);
+            islands.add(0, merge);
+            return islands;
+        });
+        ActionPhase phase = new MockActionPhase(table, ann);
+        Phase afterUpdate = phase.addToIsland(ann, 11, new Student(annColor));
+        Island updated = afterUpdate.getTable().getIslandList().get(10);
+        assertEquals(1, updated.getStudents().size());
+    }
+
+    /**
      * Test that update* functions abort when null is returned
      */
     @Test
@@ -261,6 +286,30 @@ public class ActionPhaseTest {
         phase = phase.blockIsland(0, b);
         assertTrue(phase.getTable().getIslandList().get(0).isBlocked());
         assertEquals(b, phase.getTable().getIslandList().get(0).popBlock().getSecond());
+    }
+
+    /**
+     * Test that {@link ActionPhase#blockIsland(int, BlockCard)} correctly block the island with the correct index
+     */
+    @Test
+    void testBlockAfterMerge() {
+        Table table = t.updateIslandList(islands -> {
+            Island merge1 = islands.remove(0).updateTowers(ts -> {
+                ts.add(new Tower(TowerColor.WHITE, ann));
+                return ts;
+            });
+            Island merge2 = islands.remove(0).updateTowers(ts -> {
+                ts.add(new Tower(TowerColor.WHITE, ann));
+                return ts;
+            });
+            Island merge = merge1.merge(merge2);
+            islands.add(0, merge);
+            return islands;
+        });
+        ActionPhase phase = new MockActionPhase(table, ann);
+        Phase afterUpdate = phase.blockIsland(11, new BlockCard(CharacterType.HERBALIST));
+        Island updated = afterUpdate.getTable().getIslandList().get(10);
+        assertEquals(1, updated.getNumOfBlocks());
     }
 
     /**

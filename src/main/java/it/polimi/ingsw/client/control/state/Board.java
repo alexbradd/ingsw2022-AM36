@@ -113,9 +113,9 @@ public class Board {
     @Override
     public String toString() {
         return  (entrance != null && towers != null ? "   " + "\"" + username + "\"\n" +
-                "      Entrance: " + Arrays.toString(entrance) + "\n" +
-                "      Towers: " + Arrays.toString(towers) + "\n" : "") +
-                (hall == null ? "" : "      Hall: " + countHallColors() + "\n") +
+                "      Entrance: " + countColors(entrance) + "\n" +
+                "      Towers: " + countTowers() + "\n" : "") +
+                (hall == null ? "" : "      Hall: " + countColors(hall) + "\n") +
                 (assistants == null ? "" : "      Assistants: " + Arrays.toString(assistants) + "\n") +
                 (mage == null ? "" : "      Mage: " + mage + "\n") +
                 (lastPlayedAssistant == null ? "" : "      Last played assistant: " + lastPlayedAssistant + "\n") +
@@ -123,17 +123,36 @@ public class Board {
     }
 
     /**
-     * Helper method that returns a color-frequency custom formatted string for the hall.
+     * Helper method that returns a color-frequency custom formatted string for the students containers.
      *
      * @return the custom formatted string
      */
-    private String countHallColors() {
+    private String countColors(PieceColor[] colors) {
         StringBuilder s = new StringBuilder();
 
         for(PieceColor color : PieceColor.values()) {
             int count = 0;
-            for (PieceColor student : hall) {
+            for (PieceColor student : colors) {
                 if (student.equals(color)) count++;
+            }
+            s.append(count == 0 ? "" : " " + count + "x" + color);
+        }
+
+        return s.toString();
+    }
+
+    /**
+     * Helper method that returns a color-frequency custom formatted string for the towers.
+     *
+     * @return the custom formatted string
+     */
+    private String countTowers() {
+        StringBuilder s = new StringBuilder();
+
+        for(TowerColor color : TowerColor.values()) {
+            int count = 0;
+            for (TowerColor tower : towers) {
+                if (tower.equals(color)) count++;
             }
             s.append(count == 0 ? "" : " " + count + "x" + color);
         }
