@@ -41,7 +41,7 @@ public class Lobby {
     /**
      * Number of players inside the lobby.
      */
-    private int connectedPlayers;
+    private int playersConnected;
 
     /**
      * Returns the number of players of the game.
@@ -73,7 +73,7 @@ public class Lobby {
      * @return the number of players in the lobby
      */
     public int getConnectedPlayers() {
-        return connectedPlayers;
+        return playersConnected;
     }
 
     // stringify
