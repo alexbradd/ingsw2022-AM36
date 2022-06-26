@@ -34,6 +34,16 @@ public class Lobby {
     }
 
     /**
+     * Flag that indicates if the lobby is of a game in the rejoining state.
+     */
+    private boolean rejoining;
+
+    /**
+     * Number of players inside the lobby.
+     */
+    private int connectedPlayers;
+
+    /**
      * Returns the number of players of the game.
      *
      * @return the number of players of the game
@@ -48,6 +58,22 @@ public class Lobby {
      */
     public boolean isExpert() {
         return expert;
+    }
+
+    /**
+     * Returns the rejoining flag.
+     * @return the rejoining flag
+     */
+    public boolean isRejoining() {
+        return rejoining;
+    }
+
+    /**
+     * Returns the number of players inside the lobby.
+     * @return the number of players in the lobby
+     */
+    public int getConnectedPlayers() {
+        return connectedPlayers;
     }
 
     // stringify

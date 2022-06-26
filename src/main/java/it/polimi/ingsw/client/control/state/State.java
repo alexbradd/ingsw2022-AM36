@@ -97,12 +97,10 @@ public class State {
         if(gameState == null) {
             Gson gson = new Gson();
             gameState = new GameState();
-            gameState.update(o.get("update").getAsJsonObject());
             updateGameInfo(gson.fromJson(o.get("id"), long.class));
         }
-        else {
-            gameState.update(o.get("update").getAsJsonObject());
-        }
+        gameState.update(o.get("update").getAsJsonObject());
+        gameState.updatePersistence(o);
     }
 
     /**
