@@ -78,7 +78,9 @@ public class GUI implements View {
      */
     @Override
     public void showLobbies() {
-        List<Lobby> lobbies = Arrays.asList(controller.getState().getLobbies());
+        List<Lobby> lobbies = Arrays.stream(controller.getState().getLobbies())
+                .filter(l -> l.getConnectedPlayers() < l.getNumPlayers())
+                .toList();
         GuiApplication.afterInit(i -> Event.fireEvent(i.getRoot(), new RefreshLobbiesEvent(RefreshLobbiesEvent.REFESH, lobbies)));
     }
 

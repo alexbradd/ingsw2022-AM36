@@ -91,7 +91,7 @@ public class MainMenuController {
      */
     private Pane buildJoinGameGroup(Lobby lobby, BiConsumer<String, Lobby> joinCallback) {
         Label id = new Label("Id: " + lobby.getId()),
-                players = new Label(lobby.getNumPlayers() + " players"),
+                players = new Label(lobby.getConnectedPlayers() + "/" + lobby.getNumPlayers() + " players"),
                 expert = new Label(lobby.isExpert() ? "Expert mode" : "Simple mode");
         Button joinButton = new Button("Join");
 
