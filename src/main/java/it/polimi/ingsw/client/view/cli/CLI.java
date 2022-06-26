@@ -71,21 +71,27 @@ public class CLI implements View, Runnable {
     public void showLobbies() {
         Lobby[] lobbies = controller.getState().getLobbies();
 
-        System.out.println("Lobbies:\n");
-        for(Lobby l : lobbies) {
-            System.out.println(l);
+        if(lobbies.length == 0) {
+            System.out.println("There are no lobbies available at the moment");
         }
-        System.out.println("Please type one of the following commands:");
-        System.out.println("* JOIN (to start joining an existing lobby)");
+        else {
+            System.out.println("\nLobbies:\n");
+            for (Lobby l : lobbies) {
+                System.out.println(l);
+            }
+        }
+
+        System.out.println("\nPlease type one of the following commands:");
+        System.out.print(lobbies.length != 0 ? "* JOIN (to start joining an existing lobby)\n" : "");
         System.out.println("* BACK (to return to the main menu)");
         System.out.println();
     }
 
     /**
      * Displays the current state of the game.
-     * Displays the available commands.
      */
     public void showGameState() {
+        clearTerminal();
         GameState gameState = controller.getState().getGameState();
         System.out.println(gameState);
         if(gameState.getPhase().equals("LobbyPhase")) {
@@ -95,18 +101,24 @@ public class CLI implements View, Runnable {
         System.out.println();
     }
 
+    /**
+     * Displays the current state of the game.
+     * Displays the available commands.
+     */
     public void showPlayerTurnGameState() {
+        clearTerminal();
         GameState gameState = controller.getState().getGameState();
         System.out.println(gameState);
         if ("PreparePhase".equals(gameState.getPhase())) {
             System.out.println("Available mages: " + Arrays.toString(gameState.getAvailableMages().toArray()));
             System.out.println("Please type the name of the mage you want to use");
-        } else {
+        }
+        else if("PlanningPhase".equals(gameState.getPhase())) {
+            System.out.println("Available assistants: " + Arrays.toString(gameState.getPlayerAssistants()));
+            System.out.print("Please type the name of the assistant you want to use");
+        }
+        else {
             switch (gameState.getPhase()) {
-                case "PlanningPhase" -> {
-                    System.out.println("Available assistants: " + Arrays.toString(gameState.getPlayerAssistants()));
-                    System.out.print("Please type the name of the assistant you want to use");
-                }
                 case "StudentMovePhase" -> System.out.println("Please type the color of the student you want to move");
                 case "MnMovePhase" -> System.out.println("Please type the number of times mother nature has to move");
                 case "CloudPickPhase" -> System.out.println("Please type the id of the cloud you want choose");
@@ -138,6 +150,15 @@ public class CLI implements View, Runnable {
         ErrorState errorState = controller.getState().getErrorState();
         System.out.println(errorState);
         System.out.println();
+    }
+
+    /**
+     * Clears the terminal using the ANSI escape code characters.
+     * Doesn't work on all terminals.
+     */
+    private void clearTerminal() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
     }
 
 }

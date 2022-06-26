@@ -25,7 +25,12 @@ public class Character {
     /**
      * The cost of the character.
      */
-    private int price;
+    private int cost;
+
+    /**
+     * The blocks on the card.
+     */
+    private int blocks;
 
     // getters
 
@@ -44,7 +49,7 @@ public class Character {
      * @return the price of the character
      */
     public int getPrice() {
-        return price;
+        return cost;
     }
 
     /**
@@ -61,7 +66,8 @@ public class Character {
      */
     @Override
     public String toString() {
-        return "   " + type + ":\n" + "      cost: " + price + "\n" +
+        return "   " + type + ":\n" + "      cost: " + cost + "\n" +
+                (blocks == 0 ? "" : "      blocks:" + blocks + "\n") +
                 (students == null ? "" : "      students: " + Arrays.toString(students) + "\n");
     }
 

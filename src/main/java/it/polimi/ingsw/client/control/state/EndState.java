@@ -37,7 +37,7 @@ public class EndState {
     @Override
     public String toString() {
         return "** The game has ended **\n" + reason +
-                (winners != null && winners.length != 0 ? displayWinners() : "") + "\n";
+                (winners != null && winners.length != 0 ? "\n" + displayWinners() : "") + "\n";
     }
 
     /**

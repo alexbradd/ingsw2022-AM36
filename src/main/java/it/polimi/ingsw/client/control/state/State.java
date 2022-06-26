@@ -132,7 +132,7 @@ public class State {
     /**
      * Updates the error state of the game.
      *
-     * @param o the {@code JsonObject} corresponding to a {@code end} message from the server
+     * @param o the {@code JsonObject} corresponding to an {@code error} message from the server
      *        (it is assumed to be correct)
      */
     public void updateErrorState(JsonObject o) {
@@ -217,6 +217,25 @@ public class State {
             }
         }
         return isValid;
+    }
+
+    /**
+     * Returns the lobby with the given id.
+     *
+     * @param id the id of the lobby
+     * @return the lobby with the given id
+     * @throws IllegalArgumentException if the given id is not valid
+     */
+    public Lobby getLobby(int id) throws IllegalArgumentException {
+        Lobby lobby = null;
+        for(Lobby l : lobbies) {
+            if (l.getId() == id) {
+                lobby = l;
+                break;
+            }
+        }
+        if(lobby == null) throw new IllegalArgumentException("invalid lobby id");
+        return lobby;
     }
 
     /**

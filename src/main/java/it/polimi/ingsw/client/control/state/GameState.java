@@ -448,7 +448,7 @@ public class GameState {
                 }
                 case "boards" -> {
                     List<Board> newBoards = Arrays.stream(gson.fromJson(o.get(key), Board[].class)).collect(Collectors.toList());
-                    if(boards.isNull().get()) {
+                    if(boards.isNull().get() && o.has("phase") && !gson.fromJson(o.get("phase"), String.class).equals("LobbyPhase")) {
                         boards.set(FXCollections.observableList(newBoards));
                     }
                     else {
@@ -472,12 +472,12 @@ public class GameState {
                     islandList.set(FXCollections.observableList(newIslandList));
                 }
                 case "islands" -> {
-                    if(o.keySet().contains("islandList")) {
-                        List<IslandGroup> newIslands = Arrays.stream(gson.fromJson(o.get(key), IslandGroup[].class)).collect(Collectors.toList());
+                    List<IslandGroup> newIslands = Arrays.stream(gson.fromJson(o.get(key), IslandGroup[].class)).collect(Collectors.toList());
+                    if(o.has("islandList")) {
                         islands.set(FXCollections.observableList(newIslands));
                     }
                     else {
-                        updateIslands(Arrays.stream(gson.fromJson(o.get(key), IslandGroup[].class)).collect(Collectors.toList()));
+                        updateIslands(newIslands);
                     }
                 }
                 case "clouds" -> {
@@ -591,34 +591,37 @@ public class GameState {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append(getCause() == null ? "" : getCause()).append("\n\n");
+        s.append("\n");
+        s.append(getCause() == null ? "" : getCause() + "\n\n");
         s.append("** State of the Game **\n");
-        s.append("* Current phase: ").append(phase).append("\n");
+        s.append("* Current phase: ").append(phase.get()).append("\n");
         s.append("* Player list: ").append(playerList.get().toString()).append("\n");
-        s.append(currentPlayer.isNull().get() ? "" : "* Current player: " + currentPlayer + "\n");
-        if (islands.isNotNull().get()) {
-            s.append("* Islands: ").append(displayIslands()).append("\n");
-            for (IslandGroup island : islands) s.append(island);
+        if(!phase.get().equals("LobbyPhase")) {
+            s.append(currentPlayer.isNull().get() ? "" : "* Current player: " + currentPlayer.get() + "\n");
+            if (islands.isNotNull().get()) {
+                s.append("* Islands: ").append(displayIslands()).append("\n");
+                for (IslandGroup island : islands) s.append(island);
+            }
+            s.append(motherNature.isEqualTo(0).get() ? "" : "* Mother Nature is on island: " + motherNature.get() + "\n");
+            s.append(usedCharacter.get() ? "* A character has been used\n" : "");
+            if (characters.isNotNull().get()) {
+                s.append("* Characters:\n");
+                for (Character character : characters) s.append(character);
+            }
+            if (clouds.isNotNull().get()) {
+                s.append("* Clouds:\n");
+                for (Cloud cloud : clouds) s.append(cloud);
+            }
+            if (professors.isNotNull().get()) {
+                s.append("* Professors:\n");
+                for (Professor professor : professors) s.append(professor);
+            }
+            if (boards.isNotNull().get()) {
+                s.append("* Boards:\n");
+                for (Board board : boards) s.append(board);
+            }
+            s.append(isSackEmpty.get() ? "* The sack is empty." : "");
         }
-        s.append(motherNature.isEqualTo(0).get() ? "" : "* Mother Nature is on island: " + motherNature + "\n");
-        s.append(usedCharacter.get() ? "* A character has been used\n" : "");
-        if (characters.isNotNull().get()) {
-            s.append("* Characters:\n");
-            for (Character character : characters) s.append(character);
-        }
-        if (clouds.isNotNull().get()) {
-            s.append("* Clouds:\n");
-            for (Cloud cloud : clouds) s.append(cloud);
-        }
-        if (professors.isNotNull().get()) {
-            s.append("* Professors:\n");
-            for (Professor professor : professors) s.append(professor);
-        }
-        if (boards.isNotNull().get()) {
-            s.append("* Boards:\n");
-            for (Board board : boards) s.append(board);
-        }
-        s.append(isSackEmpty.get() ? "* The sack is empty." : "");
 
         return s.toString();
     }
