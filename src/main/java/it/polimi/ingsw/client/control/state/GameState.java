@@ -96,6 +96,16 @@ public class GameState {
      */
     private final ListBinding<Mage> availableMages;
 
+    /**
+     * A flag that indicates if the game is in the rejoining state.
+     */
+    private final SimpleBooleanProperty rejoining = new SimpleBooleanProperty();
+
+    /**
+     * A list of players missing in the rejoining state.
+     */
+    private final SimpleListProperty<String> missingPlayers = new SimpleListProperty<>();
+
     public GameState() {
         availableMages = new ListBinding<>() {
             {
@@ -117,6 +127,39 @@ public class GameState {
     }
 
     // Getters
+
+
+    /**
+     * Returns the rejoining state flag
+     * @return true if the game is in the rejoining state, false otherwise
+     */
+    public boolean isRejoining() {
+        return rejoining.get();
+    }
+
+    /**
+     * Returns the rejoining property.
+     * @return the rejoining property
+     */
+    public SimpleBooleanProperty rejoiningProperty() {
+        return rejoining;
+    }
+
+    /**
+     * Returns a list of missing players of the game in the rejoining state
+     * @return a list of missing players in the rejoining state
+     */
+    public ObservableList<String> getMissingPlayers() {
+        return missingPlayers.get();
+    }
+
+    /**
+     * Returns the missing players property.
+     * @return the missing players property
+     */
+    public SimpleListProperty<String> missingPlayersProperty() {
+        return missingPlayers;
+    }
 
     /**
      * Returns the current phase of the game.
@@ -580,6 +623,22 @@ public class GameState {
                     characters.set(i, c);
                 }
             }
+        }
+    }
+
+    /**
+     * Updates the persistence attributes of the game's state.
+     *
+     * @param o the json object corresponding to the message sent by the server
+     */
+    public void updatePersistence(JsonObject o) {
+        Gson gson = new Gson();
+        if(o.has("rejoining")) {
+            rejoining.set(gson.fromJson(o.get("rejoining"), boolean.class));
+        }
+        if(o.has("missingPlayers")) {
+            List<String> newMissingPlayers = Arrays.stream(gson.fromJson(o.get("missingPlayers"), String[].class)).collect(Collectors.toList());
+            missingPlayers.set(FXCollections.observableList(newMissingPlayers));
         }
     }
 
