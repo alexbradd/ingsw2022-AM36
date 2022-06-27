@@ -53,6 +53,14 @@ Legend:
 - 🟡: Being worked on atm
 - 🟢: Implemented
 
+## Note about the documentation
+
+We have included in the project's deliverables both the documentation as
+presented in the various laboratory meetings and the updated the same documents
+updated with later changes (peer-reviews or other changes made during
+development). The updated documentation is located in `docs/updated` (source)
+and `deliverables/updated`.
+
 ## The team
 
 - [Alexandru Gabriel Bradatan](https://github.com/alexbradd)
