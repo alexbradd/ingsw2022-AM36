@@ -245,6 +245,18 @@ public class GUIControllerBridge {
     }
 
     /**
+     * Returns a read-only boolean property indicating if the match is currently in the "rejoining" state.
+     *
+     * @return a ReadOnlyBooleanProperty
+     * @throws IllegalStateException if the client has not any GameState available
+     */
+    public ReadOnlyBooleanProperty isRejoiningProperty() {
+        GameState state = getGameState();
+        if (state == null) throw new IllegalStateException("There is not a game state available");
+        return state.rejoiningProperty();
+    }
+
+    /**
      * Creates a FETCH message
      *
      * @return a {@link JsonObject} representing the FETCH message

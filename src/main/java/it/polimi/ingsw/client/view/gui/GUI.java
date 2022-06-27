@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static it.polimi.ingsw.client.view.gui.Strings.WIN_REASON;
+
 /**
  * Implements the {@link View} interface for a GUI client.
  * <p>
@@ -29,8 +31,6 @@ import java.util.function.Consumer;
  * through {@link GuiApplication#afterInit(Consumer)}, which is a wrapper for {@link Platform#runLater(Runnable)}.
  */
 public class GUI implements View {
-    private final static String WIN_REASON = "A winner has been found.";
-
     private final Controller controller;
     private final GUIControllerBridge bridge;
     private final MainMenuSceneBuilder mainMenu;
@@ -126,11 +126,13 @@ public class GUI implements View {
         if (lobbyPhase == null)
             lobbyPhase = new LobbyPhaseSceneBuilder(bridge.getGameState().playerListProperty(),
                     bridge.hasPendingUserMessagesProperty(),
+                    bridge.isRejoiningProperty(),
                     bridge::sendLeave,
                     bridge::toMainMenu);
         if (preparePhase == null)
             preparePhase = new PreparePhaseSceneBuilder(bridge.getGameState().availableMagesProperty(),
                     bridge.hasPendingUserMessagesProperty(),
+                    bridge.isRejoiningProperty(),
                     bridge::sendChooseMage,
                     bridge::toMainMenu);
         if (gameScene == null)

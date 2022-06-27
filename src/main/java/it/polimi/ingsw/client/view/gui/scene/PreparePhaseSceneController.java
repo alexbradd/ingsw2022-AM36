@@ -1,5 +1,7 @@
 package it.polimi.ingsw.client.view.gui.scene;
 
+import it.polimi.ingsw.client.view.gui.GUIUtils;
+import it.polimi.ingsw.client.view.gui.Strings;
 import it.polimi.ingsw.client.view.gui.events.GameEndedEvent;
 import it.polimi.ingsw.client.view.gui.events.ShowErrorEvent;
 import it.polimi.ingsw.client.view.gui.events.ToggleInputEvent;
@@ -43,7 +45,9 @@ public class PreparePhaseSceneController {
     @FXML
     private Button modalButton;
     @FXML
-    private StackPane waitingResponsePane;
+    private StackPane waitingPane;
+    @FXML
+    private Label waitingText;
 
     /**
      * A binding containing all the pickable mages
@@ -53,6 +57,10 @@ public class PreparePhaseSceneController {
      * A binding indicating whether the server has any pending messages
      */
     private final ReadOnlyBooleanProperty hasPendingMessages;
+    /**
+     * A boolean property indicating whether this lobby is waiting for other players to join it
+     */
+    private final ReadOnlyBooleanProperty rejoining;
     /**
      * A map associating each mage with its graphic
      */
@@ -75,13 +83,20 @@ public class PreparePhaseSceneController {
      * The change handler for when we are awaiting a server response
      */
     private final ChangeListener<Boolean> pendingMessagesListener = (obs, oldVal, newVal) ->
-            Platform.runLater(() -> waitingResponsePane.setVisible(newVal));
+            GUIUtils.runLaterIfNotOnFxThread(() -> showHideWaitingPane(Strings.WAITING_RESPONSE, newVal));
+    /**
+     * The change handler for when we are waiting other players to join after the match has been pulled from disk
+     */
+    private final ChangeListener<Boolean> rejoiningListener = (obs, oldVal, newVal) ->
+            GUIUtils.runLaterIfNotOnFxThread(() -> showHideWaitingPane(Strings.WAITING_JOIN, newVal));
 
     /**
      * Creates a new instance with the given resources
      *
      * @param availableMages     a binding containing all the pickable mages
      * @param hasPendingMessages a binding indicating whether the server has any pending messages
+     * @param rejoining          a boolean property indicating whether this lobby is waiting for other players to join
+     *                           it
      * @param mageImages         a map associating each mage with its graphic
      * @param onChooseMage       a callback for when the mage has been selected by the user
      * @param afterEnd           a callback for when the user clicks "to main menu" after a game has ended
@@ -89,17 +104,20 @@ public class PreparePhaseSceneController {
      */
     public PreparePhaseSceneController(ListBinding<Mage> availableMages,
                                        ReadOnlyBooleanProperty hasPendingMessages,
+                                       ReadOnlyBooleanProperty rejoining,
                                        Map<Mage, Image> mageImages,
                                        Consumer<String> onChooseMage,
                                        Runnable afterEnd) {
         if (availableMages == null) throw new IllegalArgumentException("availableMages shouldn't be null");
         if (hasPendingMessages == null) throw new IllegalArgumentException("hasPendingMessages shouldn't be null");
+        if (rejoining == null) throw new IllegalArgumentException("rejoining shouldn't be null");
         if (mageImages == null) throw new IllegalArgumentException("mageImages shouldn't be null");
         if (onChooseMage == null) throw new IllegalArgumentException("onChooseMage shouldn't be null");
         if (afterEnd == null) throw new IllegalArgumentException("afterEnd shouldn't be null");
 
         this.availableMages = availableMages;
         this.hasPendingMessages = hasPendingMessages;
+        this.rejoining = rejoining;
         this.mageImages = mageImages;
         this.onChooseMage = onChooseMage;
         this.afterEnd = afterEnd;
@@ -137,6 +155,22 @@ public class PreparePhaseSceneController {
         });
         showMageList(availableMages.get());
         hasPendingMessages.addListener(new WeakChangeListener<>(pendingMessagesListener));
+        rejoining.addListener(new WeakChangeListener<>(rejoiningListener));
+        if (hasPendingMessages.getValue())
+            showHideWaitingPane(Strings.WAITING_RESPONSE, true);
+        else if (rejoining.get())
+            showHideWaitingPane(Strings.WAITING_JOIN, true);
+    }
+
+    /**
+     * Helper that sets the visibility of the "waiting for..." pane showing the given text
+     *
+     * @param text the text to show
+     * @param show the visibility boolean
+     */
+    private void showHideWaitingPane(String text, Boolean show) {
+        waitingText.setText(text);
+        waitingPane.setVisible(show);
     }
 
     /**

@@ -5,6 +5,7 @@ import it.polimi.ingsw.client.control.state.Board;
 import it.polimi.ingsw.client.control.state.Character;
 import it.polimi.ingsw.client.control.state.GameState;
 import it.polimi.ingsw.client.view.gui.AssetManager;
+import it.polimi.ingsw.client.view.gui.Strings;
 import it.polimi.ingsw.client.view.gui.events.GameEndedEvent;
 import it.polimi.ingsw.client.view.gui.events.ShowErrorEvent;
 import it.polimi.ingsw.client.view.gui.events.ToggleInputEvent;
@@ -14,6 +15,7 @@ import it.polimi.ingsw.enums.PieceColor;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.binding.ListBinding;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WeakChangeListener;
 import javafx.collections.FXCollections;
@@ -80,7 +82,9 @@ public class GameSceneController {
     @FXML
     private StackPane tablePane;
     @FXML
-    private StackPane waitingResponsePane;
+    private StackPane waitingPane;
+    @FXML
+    private Label waitingText;
     @FXML
     private ImageView sackImage;
     @FXML
@@ -111,7 +115,12 @@ public class GameSceneController {
      * The change handler controlling whether the "Waiting for response" should be visible or not
      */
     private final ChangeListener<Boolean> pendingUserMessageListener = (observable, oldVal, newVal) ->
-            runLaterIfNotOnFxThread(() -> waitingResponsePane.setVisible(newVal));
+            runLaterIfNotOnFxThread(() -> showHideWaitingPane(Strings.WAITING_RESPONSE, newVal));
+    /**
+     * The change handler for when we are waiting other players to join after the match has been pulled from disk
+     */
+    private final ChangeListener<Boolean> rejoiningListener = (obs, oldVal, newVal) ->
+            runLaterIfNotOnFxThread(() -> showHideWaitingPane(Strings.WAITING_JOIN, newVal));
 
     /**
      * Creates a new instance with the given parameters
@@ -157,7 +166,26 @@ public class GameSceneController {
         rootPane.addEventFilter(ShowErrorEvent.ERROR, e -> showErrorModal(e.getErrorText()));
         rootPane.addEventFilter(GameEndedEvent.END, e -> showEndModal(e.getEndGameText()));
         rootPane.addEventFilter(GameEndedEvent.WIN, e -> showWinModal(e.getWinners()));
-        bridge.hasPendingUserMessagesProperty().addListener(new WeakChangeListener<>(pendingUserMessageListener));
+
+        ReadOnlyBooleanProperty pending = bridge.hasPendingUserMessagesProperty(),
+                rejoining = bridge.isRejoiningProperty();
+        pending.addListener(new WeakChangeListener<>(pendingUserMessageListener));
+        rejoining.addListener(new WeakChangeListener<>(rejoiningListener));
+        if (pending.get())
+            showHideWaitingPane(Strings.WAITING_RESPONSE, true);
+        else if (rejoining.get())
+            showHideWaitingPane(Strings.WAITING_JOIN, true);
+    }
+
+    /**
+     * Helper that sets the visibility of the "waiting for..." pane showing the given text
+     *
+     * @param text the text to show
+     * @param show the visibility boolean
+     */
+    private void showHideWaitingPane(String text, Boolean show) {
+        waitingText.setText(text);
+        waitingPane.setVisible(show);
     }
 
     /**

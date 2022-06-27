@@ -26,6 +26,10 @@ public class PreparePhaseSceneBuilder implements SceneBuilder {
      */
     private final ReadOnlyBooleanProperty hasPendingMessages;
     /**
+     * A boolean property indicating whether this lobby is waiting for other players to join it
+     */
+    private final ReadOnlyBooleanProperty rejoining;
+    /**
      * A map associating each mage with its graphic
      */
     private final EnumMap<Mage, Image> mageImages;
@@ -43,21 +47,26 @@ public class PreparePhaseSceneBuilder implements SceneBuilder {
      *
      * @param availableMages     a binding containing all the pickable mages
      * @param hasPendingMessages a binding indicating whether the server has any pending messages
+     * @param rejoining          a boolean property indicating whether this lobby is waiting for other players to join
+     *                           it
      * @param onChooseMage       a callback for when the mage has been selected by the user
      * @param afterEnd           a callback for when the user clicks "to main menu" after a game has ended
      * @throws IllegalArgumentException if any parameter is null
      */
     public PreparePhaseSceneBuilder(ListBinding<Mage> availableMages,
                                     ReadOnlyBooleanProperty hasPendingMessages,
+                                    ReadOnlyBooleanProperty rejoining,
                                     Consumer<String> onChooseMage,
                                     Runnable afterEnd) {
         if (availableMages == null) throw new IllegalArgumentException("availableMages shouldn't be null");
         if (hasPendingMessages == null) throw new IllegalArgumentException("hasPendingMessages shouldn't be null");
+        if (rejoining == null) throw new IllegalArgumentException("rejoining shouldn't be null");
         if (onChooseMage == null) throw new IllegalArgumentException("onChooseMage shouldn't be null");
         if (afterEnd == null) throw new IllegalArgumentException("afterEnd shouldn't be null");
 
         this.availableMages = availableMages;
         this.hasPendingMessages = hasPendingMessages;
+        this.rejoining = rejoining;
         this.onChooseMage = onChooseMage;
         this.afterEnd = afterEnd;
         this.mageImages = new EnumMap<>(Mage.class);
@@ -86,7 +95,7 @@ public class PreparePhaseSceneBuilder implements SceneBuilder {
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/prepare-phase.fxml"));
         loader.setControllerFactory(__ ->
-                new PreparePhaseSceneController(availableMages, hasPendingMessages, mageImages, onChooseMage, afterEnd));
+                new PreparePhaseSceneController(availableMages, hasPendingMessages, rejoining, mageImages, onChooseMage, afterEnd));
         return loader.<StackPane>load();
     }
 }
