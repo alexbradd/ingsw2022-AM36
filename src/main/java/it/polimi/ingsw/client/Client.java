@@ -70,7 +70,7 @@ public class Client {
                     if (read.equals("")) {
                         JsonObject message = gson.fromJson(msg.toString(), JsonObject.class);
                         if (isPing(message))
-                            writeObjectToStream(socketOut, buildPing(message.get("gameId")));
+                            writeObjectToStream(socketOut, buildPing(message.get("id")));
                         else
                             controller.manageServerEvent(message);
                         msg = new StringBuilder();
@@ -95,7 +95,7 @@ public class Client {
         if (id == null) throw new IllegalArgumentException("id should not be null");
         JsonObject pong = new JsonObject();
         pong.addProperty("type", "PONG");
-        pong.add("id", id);
+        pong.add("gameId", id);
         return pong;
     }
 

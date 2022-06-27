@@ -140,7 +140,7 @@ public class MatchRegistry {
     private void dispatchPong(Dispatcher dispatcher, JsonObject command) {
         long gameId;
         try {
-            gameId = extractNumber(command, "id");
+            gameId = extractNumber(command, "gameId");
             get(gameId).getPinger().notifyResponse(dispatcher);
 
         } catch (NoSuchElementException e) {

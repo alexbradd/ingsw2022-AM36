@@ -175,7 +175,7 @@ public class Messages {
      */
     public static JsonObject buildErrorMessage(long gameId, String reason) {
         JsonObject ret = buildErrorMessage(reason);
-        ret.addProperty("gameId", gameId);
+        ret.addProperty("id", gameId);
         return ret;
     }
 
@@ -188,7 +188,7 @@ public class Messages {
     public static JsonObject buildPingMessage(long gameId) {
         JsonObject ret = new JsonObject();
         ret.addProperty("type", "PING");
-        ret.addProperty("gameId", gameId);
+        ret.addProperty("id", gameId);
         return ret;
     }
 
@@ -202,7 +202,7 @@ public class Messages {
      */
     public static JsonObject buildEndMessage(long gameId, String reason, List<String> winners) {
         JsonObject msg = new JsonObject();
-        msg.addProperty("gameId", gameId);
+        msg.addProperty("id", gameId);
         msg.addProperty("type", "END");
         msg.addProperty("reason", reason);
 
@@ -222,7 +222,7 @@ public class Messages {
     public static JsonObject buildLeftMessage(long gameId) {
         JsonObject ret = new JsonObject();
         ret.addProperty("type", "LEFT");
-        ret.addProperty("gameId", gameId);
+        ret.addProperty("id", gameId);
         return ret;
     }
 
