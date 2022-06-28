@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+        id="Livello_1"
+        data-name="Livello 1"
+        viewBox="0 0 998.69 1000.75"
+        version="1.1"
+        sodipodi:docname="pink.svg"
+        inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:svg="http://www.w3.org/2000/svg">
+    <sodipodi:namedview
+            id="namedview1271"
+            pagecolor="#ffffff"
+            bordercolor="#666666"
+            borderopacity="1.0"
+            inkscape:showpageshadow="2"
+            inkscape:pageopacity="0.0"
+            inkscape:pagecheckerboard="0"
+            inkscape:deskcolor="#d1d1d1"
+            showgrid="false"
+            inkscape:zoom="0.41918561"
+            inkscape:cx="370.95739"
+            inkscape:cy="474.73004"
+            inkscape:window-width="1920"
+            inkscape:window-height="1011"
+            inkscape:window-x="0"
+            inkscape:window-y="32"
+            inkscape:window-maximized="1"
+            inkscape:current-layer="Livello_1"/>
+    <defs
+            id="defs1266">
+        <style
+                id="style1264">.cls-1{fill:#da61a3;}
+        </style>
+    </defs>
+    <ellipse
+            style="fill:#7e385f;stroke:none;stroke-width:5;stroke-opacity:0.998;fill-opacity:1"
+            id="path3257"
+            cx="499.345"
+            cy="500.375"
+            rx="436.95056"
+            ry="417.47342"/>
+    <path
+            class="cls-1"
+            d="M1001.17,502.9C1000.79,776.81,774,1003.2,501,1002.21,225.94,1001.22,2.36,775.12,2.5,498.78,2.65,219,224.86,0,505.06,1.48,780.75,3,1003.48,220.42,1001.17,502.9ZM720,799.58c-10.56-97.71-75-153.2-152.4-203.15,7.72-2,10.37-2.53,12.95-3.31,43.28-13.12,89.79-20.07,129.16-40.67C798.49,506,831.53,421.62,843.84,327.53c1.43-10.94-5.43-23-7.13-29.44-14.63,10.19-25.25,22.67-38,25.5-32.79,7.28-66.56,10.05-99.88,15-72.33,10.81-126.08,52.52-173.37,104.85-22.36,24.74-24.92,24.6-47.24-.06-46.75-51.68-99.5-93.83-171.26-104.23-29.75-4.32-59.85-6.37-89.5-11.25-20.11-3.3-39.43-10.11-44.6-35.12-16.29,21.16-15.52,48.61-.25,100.58,38.62,131.35,135,187.84,268.41,201.29C359.34,644.45,295.68,701,283.48,799.38c99.41,9,167-36.26,218.42-116.7C553.31,762.6,620.32,807.91,720,799.58Z"
+            transform="translate(-2.5 -1.47)"
+            id="path1268"
+            style="stroke:#000000;stroke-opacity:0.99800003;stroke-width:5;stroke-dasharray:none"/>
+</svg>

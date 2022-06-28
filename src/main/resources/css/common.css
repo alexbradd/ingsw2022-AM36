@@ -1,0 +1,55 @@
+* {
+    -fx-font-family: Montserrat;
+}
+
+.ery-background {
+    -fx-background-color: linear-gradient(to bottom right, #497ad2 0%, #A589CDFF 50%, #eaca9a 100%);
+}
+
+.ery-label {
+    -fx-font-family: Montserrat;
+    -fx-text-fill: white;
+    -fx-text-alignment: center;
+}
+
+.ery-label-inverted {
+    -fx-font-family: Montserrat;
+    -fx-text-fill: black;
+    -fx-text-alignment: center;
+}
+
+.ery-label.slightly-bigger {
+    -fx-font-size: 14pt;
+}
+
+.ery-label-inverted.slightly-bigger {
+    -fx-font-size: 14pt;
+}
+
+.ery-big-label {
+    -fx-font-size: 25pt;
+    -fx-font-weight: bold;
+}
+
+.ery-important-button {
+    -fx-font-size: 16;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.ery-modal-background {
+    -fx-background-color: gray;
+    -fx-opacity: 0.6;
+}
+
+.ery-modal {
+    -fx-max-width: 350px;
+    -fx-max-height: 200px;
+    -fx-background-color: white;
+}

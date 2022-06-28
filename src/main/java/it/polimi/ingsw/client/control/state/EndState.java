@@ -29,6 +29,15 @@ public class EndState {
         return reason;
     }
 
+    /**
+     * Returns the array of winners
+     *
+     * @return the array of winners
+     */
+    public String[] getWinners() {
+        return winners;
+    }
+
     // stringify
 
     /**

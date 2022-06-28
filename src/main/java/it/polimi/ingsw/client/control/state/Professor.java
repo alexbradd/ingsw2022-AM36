@@ -31,6 +31,15 @@ public class Professor {
     }
 
     /**
+     * Returns the owner of this professor
+     *
+     * @return the owner of this professor
+     */
+    public String getOwner() {
+        return owner;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

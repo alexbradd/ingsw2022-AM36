@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.*?>
+<?import java.net.URL?>
+<StackPane fx:id="rootPane" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/18"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="it.polimi.ingsw.client.view.gui.scene.GameSceneController">
+    <stylesheets>
+        <URL value="@../css/common.css"/>
+        <URL value="@../css/game.css"/>
+    </stylesheets>
+    <Pane prefHeight="200.0" prefWidth="200.0" styleClass="ery-background"/>
+    <BorderPane>
+        <center>
+            <TabPane prefHeight="200.0" prefWidth="200.0" side="LEFT" tabClosingPolicy="UNAVAILABLE">
+                <Tab closable="false" text="Table">
+                    <StackPane fx:id="tablePane">
+                        <HBox alignment="CENTER">
+                            <Group fx:id="islandsGroup"/>
+                            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="300.0" spacing="5.0">
+                                <TilePane fx:id="characterPane" alignment="CENTER" hgap="2.0"
+                                          prefColumns="2" prefRows="2" vgap="2.0"/>
+                                <ImageView fx:id="sackImage" fitHeight="120.0" fitWidth="120.0"
+                                           pickOnBounds="true" preserveRatio="true">
+                                    <Image url="@../img/sack/full.png"/>
+                                </ImageView>
+                                <FlowPane fx:id="cloudPane" alignment="CENTER"
+                                          columnHalignment="CENTER" hgap="5.0" vgap="5.0"/>
+                            </VBox>
+                        </HBox>
+                    </StackPane>
+                </Tab>
+                <Tab closable="false" text="Boards">
+                    <ScrollPane fitToWidth="true" prefHeight="200.0" prefWidth="200.0">
+                        <VBox fx:id="boardsPane">
+                            <VBox fx:id="boardList" prefHeight="150.0" prefWidth="200.0"/>
+                            <HBox fx:id="assistantList" alignment="CENTER" prefHeight="200.0"
+                                  prefWidth="200.0" spacing="10.0">
+                                <padding>
+                                    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+                                </padding>
+                            </HBox>
+                        </VBox>
+                    </ScrollPane>
+                </Tab>
+            </TabPane>
+        </center>
+        <bottom>
+            <AnchorPane prefHeight="35.0" prefWidth="1280.0" style="-fx-background-color: lightgray;"
+                        BorderPane.alignment="CENTER">
+                <padding>
+                    <Insets left="5.0" right="5.0"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" layoutX="20.0" layoutY="114.0" prefHeight="35.0" prefWidth="500.0"
+                      AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <ListView fx:id="causeLogListView" maxHeight="-Infinity" prefHeight="25.0"
+                              HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox alignment="CENTER_RIGHT" prefHeight="35.0" prefWidth="200.0" AnchorPane.rightAnchor="0.0">
+                    <Label fx:id="currentPlayer" text="Ann">
+                        <styleClass>
+                            <String fx:value="ery-label-inverted"/>
+                            <String fx:value="slightly-bigger"/>
+                        </styleClass>
+                    </Label>
+                    <Label layoutX="174.0" layoutY="19.0" text="'s turn">
+                        <styleClass>
+                            <String fx:value="ery-label-inverted"/>
+                            <String fx:value="slightly-bigger"/>
+                        </styleClass>
+                    </Label>
+                </HBox>
+            </AnchorPane>
+        </bottom>
+    </BorderPane>
+    <StackPane fx:id="waitingPane" prefHeight="150.0" prefWidth="200.0" visible="false">
+        <Pane prefHeight="200.0" prefWidth="200.0" styleClass="ery-modal-background"/>
+        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+            <Label fx:id="waitingText" text="Waiting server response">
+                <styleClass>
+                    <String fx:value="ery-big-label"/>
+                    <String fx:value="ery-label"/>
+                </styleClass>
+            </Label>
+            <ProgressIndicator/>
+        </VBox>
+    </StackPane>
+    <StackPane fx:id="modalPane" prefHeight="150.0" prefWidth="200.0" visible="false">
+        <Pane prefHeight="200.0" prefWidth="200.0" styleClass="ery-modal-background"/>
+        <BorderPane fx:id="moveStudentDialog" maxHeight="200.0" prefHeight="200.0" prefWidth="200.0"
+                    styleClass="ery-modal" visible="false">
+            <top>
+                <HBox alignment="CENTER_RIGHT" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+                    <Label fx:id="studentColorLabel" text="Student color"/>
+                    <Button mnemonicParsing="false" onMouseClicked="#closeModalAction" text="Cancel">
+                        <HBox.margin>
+                            <Insets/>
+                        </HBox.margin>
+                    </Button>
+                </HBox>
+            </top>
+            <center>
+                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="4.0"
+                      BorderPane.alignment="CENTER">
+                    <HBox alignment="CENTER_LEFT" spacing="15.0">
+                        <Label text="Move student to:">
+                            <HBox.margin>
+                                <Insets/>
+                            </HBox.margin>
+                        </Label>
+                        <ChoiceBox fx:id="moveStudentChoiceBox" prefWidth="150.0"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="15.0">
+                        <Label text="Island index: "/>
+                        <Spinner fx:id="islandIndexSpinner"/>
+                    </HBox>
+                    <HBox alignment="CENTER">
+                        <VBox.margin>
+                            <Insets/>
+                        </VBox.margin>
+                        <padding>
+                            <Insets right="5.0"/>
+                        </padding>
+                        <Button fx:id="moveStudentButton" mnemonicParsing="false" text="Move"/>
+                    </HBox>
+                </VBox>
+            </center>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </BorderPane>
+        <BorderPane fx:id="moveMnDialog" layoutX="475.0" layoutY="270.0" maxHeight="200.0" prefHeight="200.0"
+                    prefWidth="200.0" styleClass="ery-modal" visible="false">
+            <top>
+                <HBox alignment="CENTER_RIGHT" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+                    <Label text="Move Mother Nature"/>
+                    <Button mnemonicParsing="false" onMouseClicked="#closeModalAction" text="Cancel">
+                        <HBox.margin>
+                            <Insets/>
+                        </HBox.margin>
+                    </Button>
+                </HBox>
+            </top>
+            <center>
+                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="4.0"
+                      BorderPane.alignment="CENTER">
+                    <HBox alignment="CENTER_LEFT" spacing="15.0">
+                        <Label text="Number  of steps:">
+                            <HBox.margin>
+                                <Insets/>
+                            </HBox.margin>
+                        </Label>
+                        <Spinner fx:id="motherNatureSpinner"/>
+                    </HBox>
+                    <HBox alignment="CENTER">
+                        <VBox.margin>
+                            <Insets/>
+                        </VBox.margin>
+                        <padding>
+                            <Insets right="5.0"/>
+                        </padding>
+                        <Button fx:id="moveMnButton" mnemonicParsing="false" text="Move"/>
+                    </HBox>
+                </VBox>
+            </center>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </BorderPane>
+        <BorderPane fx:id="characterModal" layoutX="475.0" layoutY="270.0" maxHeight="400.0" prefHeight="200.0"
+                    prefWidth="200.0" style="-fx-max-height: unset;" styleClass="ery-modal" visible="false">
+            <top>
+                <HBox fx:id="characterTop" alignment="CENTER_RIGHT" prefWidth="200.0" spacing="10.0"
+                      BorderPane.alignment="CENTER"/>
+            </top>
+            <center>
+                <StackPane fx:id="characterCenter" BorderPane.alignment="CENTER"/>
+            </center>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </BorderPane>
+        <BorderPane fx:id="errorEndDialog" prefHeight="200.0" prefWidth="200.0" styleClass="ery-modal">
+            <top>
+                <HBox alignment="TOP_RIGHT" prefWidth="200.0" BorderPane.alignment="CENTER">
+                    <Button fx:id="modalButton" mnemonicParsing="false" text="Button"/>
+                </HBox>
+            </top>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+            <center>
+                <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+                    <padding>
+                        <Insets top="5.0"/>
+                    </padding>
+                    <Label fx:id="modalTitle" text="Modal title">
+                        <styleClass>
+                            <String fx:value="ery-label-inverted"/>
+                            <String fx:value="ery-big-label"/>
+                        </styleClass>
+                        <VBox.margin>
+                            <Insets bottom="15.0"/>
+                        </VBox.margin>
+                    </Label>
+                    <Label fx:id="modalText" alignment="TOP_CENTER" layoutX="10.0" layoutY="10.0"
+                           prefHeight="104.0" prefWidth="340.0" text="Modal text" wrapText="true">
+                        <styleClass>
+                            <String fx:value="ery-label-inverted"/>
+                            <String fx:value="slightly-bigger"/>
+                        </styleClass>
+                    </Label>
+                </VBox>
+            </center>
+        </BorderPane>
+    </StackPane>
+</StackPane>

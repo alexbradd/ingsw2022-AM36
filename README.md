@@ -34,18 +34,18 @@ The final project will include:
 
 ## Implemented functionalities
 
-| Functionality    | Status                                                    |
-|:-----------------|:---------------------------------------------------------:|
-| Basic rules      | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/32) |
-| Complete rules   | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/32) |
-| Socket           | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/45) |
-| GUI              | 🟡                                                        |
-| CLI              | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/46) |
-| Multiple games   | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/45) |
-| Persistence      | 🟡                                                        |
-| Resilience       | 🔴                                                        |
-| All characters   | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/33) |
-| 4 player mode    | 🔴                                                        |
+| Functionality  |                          Status                           |
+|:---------------|:---------------------------------------------------------:|
+| Basic rules    | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/32) |
+| Complete rules | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/32) |
+| Socket         | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/45) |
+| GUI            | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/50) |
+| CLI            | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/46) |
+| Multiple games | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/45) |
+| Persistence    | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/53) |
+| Resilience     |                            🔴                             |
+| All characters | [🟢](https://github.com/alexbradd/ingsw2022-AM36/pull/33) |
+| 4 player mode  |                            🔴                             |
 
 Legend:
 

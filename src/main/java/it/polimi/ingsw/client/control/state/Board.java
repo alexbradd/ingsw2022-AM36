@@ -67,6 +67,7 @@ public class Board {
 
     /**
      * Returns the player's mage
+     *
      * @return the player's mage
      */
     public Mage getMage() {
@@ -75,6 +76,7 @@ public class Board {
 
     /**
      * Returns the deck of assistants of the player
+     *
      * @return the assistants of the player
      */
     public AssistantType[] getAssistants() {
@@ -83,6 +85,7 @@ public class Board {
 
     /**
      * Returns the username of the player
+     *
      * @return the username of the player
      */
     public String getUsername() {
@@ -91,6 +94,7 @@ public class Board {
 
     /**
      * Returns the last played assistant by the player
+     *
      * @return the last played assistant by the player
      */
     public AssistantType getLastPlayedAssistant() {
@@ -99,10 +103,29 @@ public class Board {
 
     /**
      * Returns the number of coins of the player.
+     *
      * @return the number of coins of the player
      */
     public int getCoins() {
         return coins;
+    }
+
+    /**
+     * Returns the students in this boards hall
+     *
+     * @return the students in this boards hall
+     */
+    public PieceColor[] getHall() {
+        return hall;
+    }
+
+    /**
+     * Returns the towers on this board
+     *
+     * @return the towers on this board
+     */
+    public TowerColor[] getTowers() {
+        return towers;
     }
 
     // stringify
@@ -130,7 +153,7 @@ public class Board {
     private String countColors(PieceColor[] colors) {
         StringBuilder s = new StringBuilder();
 
-        for(PieceColor color : PieceColor.values()) {
+        for (PieceColor color : PieceColor.values()) {
             int count = 0;
             for (PieceColor student : colors) {
                 if (student.equals(color)) count++;

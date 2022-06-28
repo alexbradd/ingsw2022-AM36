@@ -42,12 +42,39 @@ public class IslandGroup {
     }
 
     /**
+     * Returns the towers on the island group.
+     *
+     * @return the towers on the island group
+     */
+    public TowerColor[] getTowers() {
+        return towers;
+    }
+
+    /**
+     * Returns the students on the island group
+     *
+     * @return the students on the island group
+     */
+    public PieceColor[] getStudents() {
+        return students;
+    }
+
+    /**
+     * Return the blocks on the island group
+     *
+     * @return the block on the island group
+     */
+    public int getBlocks() {
+        return blocks;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        if(ids != null) {
+        if (ids != null) {
             s.append("   ");
             for (int id : ids) s.append(id);
             s.append("\n");

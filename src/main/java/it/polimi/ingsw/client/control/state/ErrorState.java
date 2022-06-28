@@ -13,6 +13,15 @@ public class ErrorState {
     private String reason;
 
     /**
+     * Returns the error's reason
+     *
+     * @return the error's reason
+     */
+    public String getReason() {
+        return reason;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
