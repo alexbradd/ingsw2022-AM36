@@ -206,10 +206,10 @@ public class State {
      * @param id a lobby id
      * @return {@code true} if a lobby with the given id exists, {@code false} otherwise
      */
-    public boolean isValidLobby(int id) {
+    public boolean isValidLobby(long id) {
         boolean isValid = false;
         for(Lobby l : lobbies) {
-            if (l.getId() == id) {
+            if (l.getId() == id && l.getConnectedPlayers() < l.getNumPlayers()) {
                 isValid = true;
                 break;
             }
@@ -224,7 +224,7 @@ public class State {
      * @return the lobby with the given id
      * @throws IllegalArgumentException if the given id is not valid
      */
-    public Lobby getLobby(int id) throws IllegalArgumentException {
+    public Lobby getLobby(long id) throws IllegalArgumentException {
         Lobby lobby = null;
         for(Lobby l : lobbies) {
             if (l.getId() == id) {
@@ -234,6 +234,18 @@ public class State {
         }
         if(lobby == null) throw new IllegalArgumentException("invalid lobby id");
         return lobby;
+    }
+
+    /**
+     * Returns true if at least one available lobby is present, false otherwise.
+     * @return {@code true} if at least one available lobby is present, {@code false} otherwise
+     */
+    public boolean areAvailableLobbiesPresent() {
+        if(lobbies == null || lobbies.length == 0) return false;
+        for(Lobby l : lobbies) {
+            if(l.getConnectedPlayers() < l.getNumPlayers()) return true;
+        }
+        return false;
     }
 
     /**
