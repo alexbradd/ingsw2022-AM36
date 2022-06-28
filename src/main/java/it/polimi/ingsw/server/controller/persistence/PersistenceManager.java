@@ -1,14 +1,11 @@
 package it.polimi.ingsw.server.controller.persistence;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import it.polimi.ingsw.functional.ThrowingFunction;
 import it.polimi.ingsw.server.controller.Messages;
-import it.polimi.ingsw.server.model.Game;
-import it.polimi.ingsw.server.model.Phase;
+import it.polimi.ingsw.server.model.*;
+import it.polimi.ingsw.server.model.Character;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -44,6 +41,10 @@ public class PersistenceManager {
      */
     public static final String CLASS_DISCRIMINATOR_PROP_NAME = "_classFullName";
 
+    /**
+     * The GSON instance used by all serialization/deserialization methods of the instance
+     */
+    private final Gson GSON;
     /**
      * The base directory the class will use.
      */
@@ -81,6 +82,11 @@ public class PersistenceManager {
         if (!dir.canRead() || !dir.canWrite())
             throw new IllegalArgumentException("not enough permission to do IO to dir");
         this.dir = dir;
+        this.GSON = new GsonBuilder()
+                .registerTypeAdapterFactory(new ModelPolymorphicTypeAdapterFactory<>(Character.class))
+                .registerTypeAdapterFactory(new ModelPolymorphicTypeAdapterFactory<>(InfluenceCalculator.class))
+                .registerTypeAdapterFactory(new ModelPolymorphicTypeAdapterFactory<>(MaxExtractor.class))
+                .create();
     }
 
     /**
@@ -168,7 +174,7 @@ public class PersistenceManager {
     public void commit(long id, Phase phase) {
         if (phase == null) throw new IllegalArgumentException("phase shouldn't be null");
         File store = childFileSupplier.apply(dir, id + ".json");
-        JsonObject json = new Gson().toJsonTree(phase).getAsJsonObject();
+        JsonObject json = GSON.toJsonTree(phase).getAsJsonObject();
         json.addProperty(CLASS_DISCRIMINATOR_PROP_NAME, phase.getClass().getCanonicalName());
         try (Writer writer = writerSupplier.apply(store)) {
             writer.write(json.toString());
@@ -213,7 +219,7 @@ public class PersistenceManager {
             String className = Messages.extractString(read, CLASS_DISCRIMINATOR_PROP_NAME);
             Class<? extends Phase> clazz = (Class<? extends Phase>) Class.forName(className);
             read.remove(CLASS_DISCRIMINATOR_PROP_NAME);
-            return new Gson().fromJson(read, clazz);
+            return GSON.fromJson(read, clazz);
         } catch (IOException e) {
             throw new StorageException("Cannot do IO on file", e);
         } catch (IllegalArgumentException e) {
