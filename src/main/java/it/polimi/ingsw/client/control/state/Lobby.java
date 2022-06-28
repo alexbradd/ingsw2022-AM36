@@ -85,6 +85,7 @@ public class Lobby {
     public String toString() {
         return "LOBBY N#" + id + "\n" +
                 "* " + nPlayers + " players game" + "\n" +
-                "* " + (expert ? "expert" : "not expert");
+                "* " + (expert ? "expert" : "not expert") + "\n" +
+                (isRejoining() ? "* rejoining lobby" : "");
     }
 }

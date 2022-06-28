@@ -50,8 +50,8 @@ public class CLIMessageBuilder {
                     } else if (inputLine.equalsIgnoreCase("back")) {
                         controller.toMainMenu();
                     }
-                } else if (status == Controller.Status.IN_GAME) {
-                    if (inputLine.equalsIgnoreCase("leave")) {
+                } else if (status == Controller.Status.IN_GAME && !state.getGameState().isRejoining()) {
+                    if (isValidLeave(inputLine, state)) {
                         return buildLeaveMsg(state);
                     } else if (isValidMage(state, inputLine)) {
                         return buildChooseMageMsg(state, inputLine);
@@ -379,7 +379,7 @@ public class CLIMessageBuilder {
             }
             steps.add(step);
         }
-        if(!steps.isEmpty()) arg.add("steps", steps.getAsJsonArray());
+        arg.add("steps", steps.getAsJsonArray());
         args.add(arg);
         o.add("arguments", args.getAsJsonArray());
         return Optional.of(o);
@@ -396,7 +396,19 @@ public class CLIMessageBuilder {
      */
     private static boolean isValidJoin(String joinString, State state) {
         return joinString.equalsIgnoreCase("join")
-                && state.getLobbies() != null && state.getLobbies().length != 0;
+                && state.areAvailableLobbiesPresent();
+    }
+
+    /**
+     * Checks if the given input is a valid leave message.
+     *
+     * @param leaveString the leave input string
+     * @param state the game's state
+     * @return {@code true} if the given input is valid, {@code false} otherwise
+     */
+    private static boolean isValidLeave(String leaveString, State state) {
+        return leaveString.equalsIgnoreCase("leave")
+                && state.getGameState().getPhase().equals("LobbyPhase");
     }
 
     /**

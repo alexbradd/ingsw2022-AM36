@@ -71,18 +71,20 @@ public class CLI implements View, Runnable {
     public void showLobbies() {
         Lobby[] lobbies = controller.getState().getLobbies();
 
-        if(lobbies.length == 0) {
-            System.out.println("There are no lobbies available at the moment");
+        if(!controller.getState().areAvailableLobbiesPresent()) {
+            System.out.println("There are no lobbies available at the moment\n");
         }
         else {
             System.out.println("\nLobbies:\n");
             for (Lobby l : lobbies) {
-                System.out.println(l);
+                if(controller.getState().isValidLobby(l.getId())) {
+                    System.out.println(l);
+                }
             }
         }
 
-        System.out.println("\nPlease type one of the following commands:");
-        System.out.print(lobbies.length != 0 ? "* JOIN (to start joining an existing lobby)\n" : "");
+        System.out.println("Please type one of the following commands:");
+        System.out.print(controller.getState().areAvailableLobbiesPresent() ? "* JOIN (to start joining an existing lobby)\n" : "");
         System.out.println("* BACK (to return to the main menu)");
         System.out.println();
     }
@@ -94,7 +96,10 @@ public class CLI implements View, Runnable {
         clearTerminal();
         GameState gameState = controller.getState().getGameState();
         System.out.println(gameState);
-        if(gameState.getPhase().equals("LobbyPhase")) {
+        if(gameState.isRejoining()) {
+            System.out.println("Please wait till all players rejoin the game");
+        }
+        else if(gameState.getPhase().equals("LobbyPhase")) {
             System.out.println("Please type one of the following commands:");
             System.out.println("* LEAVE (if you want to leave the lobby and return to the main menu)");
         }
@@ -106,25 +111,24 @@ public class CLI implements View, Runnable {
      * Displays the available commands.
      */
     public void showPlayerTurnGameState() {
-        clearTerminal();
+        showGameState();
         GameState gameState = controller.getState().getGameState();
-        System.out.println(gameState);
-        if ("PreparePhase".equals(gameState.getPhase())) {
-            System.out.println("Available mages: " + Arrays.toString(gameState.getAvailableMages().toArray()));
-            System.out.println("Please type the name of the mage you want to use");
-        }
-        else if("PlanningPhase".equals(gameState.getPhase())) {
-            System.out.println("Available assistants: " + Arrays.toString(gameState.getPlayerAssistants()));
-            System.out.print("Please type the name of the assistant you want to use");
-        }
-        else {
-            switch (gameState.getPhase()) {
-                case "StudentMovePhase" -> System.out.println("Please type the color of the student you want to move");
-                case "MnMovePhase" -> System.out.println("Please type the number of times mother nature has to move");
-                case "CloudPickPhase" -> System.out.println("Please type the id of the cloud you want choose");
-            }
-            if (controller.getState().getGameInfo().isExpert()) {
-                System.out.println("or type a name of a character (if you want to play a character)");
+        if(!gameState.isRejoining()) {
+            if ("PreparePhase".equals(gameState.getPhase())) {
+                System.out.println("Available mages: " + Arrays.toString(gameState.getAvailableMages().toArray()));
+                System.out.println("Please type the name of the mage you want to use");
+            } else if ("PlanningPhase".equals(gameState.getPhase())) {
+                System.out.println("Available assistants: " + Arrays.toString(gameState.getPlayerAssistants()));
+                System.out.print("Please type the name of the assistant you want to use");
+            } else {
+                switch (gameState.getPhase()) {
+                    case "StudentMovePhase" -> System.out.println("Please type the color of the student you want to move");
+                    case "MnMovePhase" -> System.out.println("Please type the number of times mother nature has to move");
+                    case "CloudPickPhase" -> System.out.println("Please type the id of the cloud you want choose");
+                }
+                if (controller.getState().getGameInfo().isExpert()) {
+                    System.out.println("or type a name of a character (if you want to play a character)");
+                }
             }
         }
         System.out.println();
