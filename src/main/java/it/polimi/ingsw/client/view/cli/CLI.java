@@ -72,7 +72,7 @@ public class CLI implements View, Runnable {
         Lobby[] lobbies = controller.getState().getLobbies();
 
         if(!controller.getState().areAvailableLobbiesPresent()) {
-            System.out.println("There are no lobbies available at the moment");
+            System.out.println("There are no lobbies available at the moment\n");
         }
         else {
             System.out.println("\nLobbies:\n");
@@ -83,7 +83,7 @@ public class CLI implements View, Runnable {
             }
         }
 
-        System.out.println("\nPlease type one of the following commands:");
+        System.out.println("Please type one of the following commands:");
         System.out.print(controller.getState().areAvailableLobbiesPresent() ? "* JOIN (to start joining an existing lobby)\n" : "");
         System.out.println("* BACK (to return to the main menu)");
         System.out.println();
