@@ -1,11 +1,12 @@
 package it.polimi.ingsw.server.controller.persistence;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import it.polimi.ingsw.functional.ThrowingFunction;
-import it.polimi.ingsw.server.controller.Messages;
-import it.polimi.ingsw.server.model.*;
 import it.polimi.ingsw.server.model.Character;
+import it.polimi.ingsw.server.model.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -39,7 +40,7 @@ public class PersistenceManager {
     /**
      * Name of the JSON key used for reconstructing the runtime type of the various {@link Phase} objects
      */
-    public static final String CLASS_DISCRIMINATOR_PROP_NAME = "_classFullName";
+    public static final String CLASS_DISCRIMINATOR_PROP_NAME = ModelPolymorphicTypeAdapterFactory.TYPE_KEY;
 
     /**
      * The GSON instance used by all serialization/deserialization methods of the instance
@@ -86,6 +87,7 @@ public class PersistenceManager {
                 .registerTypeAdapterFactory(new ModelPolymorphicTypeAdapterFactory<>(Character.class))
                 .registerTypeAdapterFactory(new ModelPolymorphicTypeAdapterFactory<>(InfluenceCalculator.class))
                 .registerTypeAdapterFactory(new ModelPolymorphicTypeAdapterFactory<>(MaxExtractor.class))
+                .registerTypeAdapterFactory(new ModelPolymorphicTypeAdapterFactory<>(Phase.class))
                 .create();
     }
 
@@ -174,10 +176,9 @@ public class PersistenceManager {
     public void commit(long id, Phase phase) {
         if (phase == null) throw new IllegalArgumentException("phase shouldn't be null");
         File store = childFileSupplier.apply(dir, id + ".json");
-        JsonObject json = GSON.toJsonTree(phase).getAsJsonObject();
-        json.addProperty(CLASS_DISCRIMINATOR_PROP_NAME, phase.getClass().getCanonicalName());
+        String json = GSON.toJson(phase);
         try (Writer writer = writerSupplier.apply(store)) {
-            writer.write(json.toString());
+            writer.write(json);
             writer.flush();
         } catch (IOException e) {
             throw new StorageException("Failed to do IO", e);
@@ -211,21 +212,14 @@ public class PersistenceManager {
      * @throws JsonSyntaxException      if the object read from disk is not a valid {@link Phase} or a subclass
      * @throws StorageException         if there was an unpreventable IO error
      */
-    @SuppressWarnings("unchecked")
     private Phase pull(File file) {
         try (Reader r = readerSupplier.apply(file);
              JsonReader reader = new JsonReader(r)) {
-            JsonObject read = JsonParser.parseReader(reader).getAsJsonObject();
-            String className = Messages.extractString(read, CLASS_DISCRIMINATOR_PROP_NAME);
-            Class<? extends Phase> clazz = (Class<? extends Phase>) Class.forName(className);
-            read.remove(CLASS_DISCRIMINATOR_PROP_NAME);
-            return GSON.fromJson(read, clazz);
+            return GSON.fromJson(reader, Phase.class);
         } catch (IOException e) {
             throw new StorageException("Cannot do IO on file", e);
         } catch (IllegalArgumentException e) {
             throw new IllegalStateException("Cannot pull phase: " + CLASS_DISCRIMINATOR_PROP_NAME + " is not a string");
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("Cannot pull phase: cannot find phase with given name", e);
         }
     }
 
