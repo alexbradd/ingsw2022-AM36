@@ -2,6 +2,7 @@ package it.polimi.ingsw.server.controller;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import it.polimi.ingsw.ProgramOptions;
 import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.controller.commands.UserCommandType;
@@ -50,6 +51,11 @@ public class StandardCommandStrategy implements CommandStrategy {
         }
         diff.addAttribute("cause", new JsonPrimitive(command.getFirst().getModificationMessage()));
 
+        if (ProgramOptions.usesPersistence())
+            MatchRegistry.getInstance()
+                    .getPersistenceManager()
+                    .commit(match.getId(), match.getGame().getPhase());
+
         switch (type) {
             case JOIN -> {
                 try {
@@ -59,13 +65,7 @@ public class StandardCommandStrategy implements CommandStrategy {
                     return;
                 }
             }
-            case LEAVE -> {
-                removePlayer(sender, username, match);
-                if (match.getDispatchers().isEmpty()) {
-                    MatchRegistry.getInstance().terminate(match.getId());
-                    return;
-                }
-            }
+            case LEAVE -> removePlayer(sender, username, match);
         }
         JsonObject update = buildUpdateMessage(diff.toJson().getAsJsonObject(), match.getId());
         match.sendBroadcast(update);
