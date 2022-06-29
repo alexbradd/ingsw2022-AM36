@@ -9,10 +9,7 @@ import it.polimi.ingsw.client.view.gui.events.GameEndedEvent;
 import it.polimi.ingsw.client.view.gui.events.RefreshLobbiesEvent;
 import it.polimi.ingsw.client.view.gui.events.ShowErrorEvent;
 import it.polimi.ingsw.client.view.gui.events.ToggleInputEvent;
-import it.polimi.ingsw.client.view.gui.scene.GameSceneBuilder;
-import it.polimi.ingsw.client.view.gui.scene.LobbyPhaseSceneBuilder;
-import it.polimi.ingsw.client.view.gui.scene.MainMenuSceneBuilder;
-import it.polimi.ingsw.client.view.gui.scene.PreparePhaseSceneBuilder;
+import it.polimi.ingsw.client.view.gui.scene.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.Event;
@@ -34,6 +31,7 @@ public class GUI implements View {
     private final Controller controller;
     private final GUIControllerBridge bridge;
     private final MainMenuSceneBuilder mainMenu;
+    private final DisconnectSceneBuilder disconnect;
 
     private LobbyPhaseSceneBuilder lobbyPhase;
     private PreparePhaseSceneBuilder preparePhase;
@@ -51,6 +49,7 @@ public class GUI implements View {
 
         bridge = new GUIControllerBridge(this.controller);
         mainMenu = new MainMenuSceneBuilder(bridge::sendFetch, bridge::sendCreate, bridge::sendJoin);
+        disconnect = new DisconnectSceneBuilder();
         lobbyPhase = null;
         preparePhase = null;
         gameScene = null;
@@ -163,9 +162,12 @@ public class GUI implements View {
         GuiApplication.afterInit(i -> Event.fireEvent(i.getRoot(), ev));
     }
 
+    /**
+     * Displays the disconnect state of the application.
+     */
     @Override
     public void showDisconnectState() {
-
+        GuiApplication.afterInit(i -> i.switchSceneIfDifferent(disconnect));
     }
 
 }

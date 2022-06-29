@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import java.lang.String?>
+<StackPane prefHeight="720.0" prefWidth="1280.0" stylesheets="@../css/common.css" xmlns="http://javafx.com/javafx/18"
+           xmlns:fx="http://javafx.com/fxml/1">
+    <VBox alignment="CENTER" spacing="5.0">
+        <Label text="The server could not be reached or did not respond in time.">
+            <styleClass>
+                <String fx:value="ery-label-inverted"/>
+                <String fx:value="slightly-bigger"/>
+            </styleClass>
+        </Label>
+        <Label styleClass="ery-label-inverted" text=" Please close the application."/>
+    </VBox>
+</StackPane>
