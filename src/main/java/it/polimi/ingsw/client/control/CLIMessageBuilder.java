@@ -42,11 +42,11 @@ public class CLIMessageBuilder {
                     if (inputLine.equalsIgnoreCase("fetch")) {
                         return buildFetchMsg();
                     } else if (inputLine.equalsIgnoreCase("create")) {
-                        return buildCreateMsg(stdin, state);
+                        return buildCreateMsg(stdin, controller);
                     }
                 } else if (status == Controller.Status.FETCHED_LOBBIES) {
                     if (isValidJoin(inputLine, state)) {
-                        return buildJoinMsg(stdin, state);
+                        return buildJoinMsg(stdin, controller);
                     } else if (inputLine.equalsIgnoreCase("back")) {
                         controller.toMainMenu();
                     }
@@ -58,18 +58,21 @@ public class CLIMessageBuilder {
                     } else if (isValidAssistant(state, inputLine)) {
                         return buildPlayAssistantMsg(state, inputLine);
                     } else if (isValidStudent(state, inputLine)) {
-                        return buildMoveStudentMsg(stdin, state, inputLine);
+                        return buildMoveStudentMsg(stdin, controller, inputLine);
                     } else if (isValidNumSteps(state, inputLine)) {
                         return buildMoveMnMsg(state, Integer.parseInt(inputLine));
                     } else if (isValidCloudId(state, inputLine)) {
                         return buildPickCloudMsg(state, Integer.parseInt(inputLine));
                     } else if (isValidCharacter(state, inputLine)) {
-                        return buildPlayCharacterMsg(stdin, state, inputLine);
+                        return buildPlayCharacterMsg(stdin, controller, inputLine);
                     }
                 } else if (status == Controller.Status.END) {
                     if (inputLine.equalsIgnoreCase("back")) {
                         controller.toMainMenu();
                     }
+                }
+                else if(status == Controller.Status.DISCONNECT) {
+                    controller.setToEnd();
                 }
             }
             return Optional.empty();
@@ -95,30 +98,42 @@ public class CLIMessageBuilder {
      * Builds the CREATE message.
      *
      * @param stdin input scanner
-     * @param state the game's state
+     * @param controller the application's controller
      * @return the CREATE message
      */
-    private static Optional<JsonObject> buildCreateMsg(Scanner stdin, State state) {
-        JsonObject o = new JsonObject();
-        assignUsername(stdin, state, o);
-        assignNumPlayersAndExpertMode(stdin, state, o);
-        o.addProperty("type", "CREATE");
-        return Optional.of(o);
+    private static Optional<JsonObject> buildCreateMsg(Scanner stdin, Controller controller) {
+        try {
+            JsonObject o = new JsonObject();
+            assignUsername(stdin, controller, o);
+            assignNumPlayersAndExpertMode(stdin, controller, o);
+            o.addProperty("type", "CREATE");
+            return Optional.of(o);
+        }
+        catch(ApplicationQuitException e) {
+            controller.setToEnd();
+            return Optional.empty();
+        }
     }
 
     /**
      * Builds the JOIN message.
      *
      * @param stdin the input scanner
-     * @param state the game's state
+     * @param controller the application's controller
      * @return the JOIN message
      */
-    private static Optional<JsonObject> buildJoinMsg(Scanner stdin, State state) {
-        JsonObject o = new JsonObject();
-        assignUsername(stdin, state, o);
-        assignLobby(stdin, state, o);
-        o.addProperty("type", "JOIN");
-        return Optional.of(o);
+    private static Optional<JsonObject> buildJoinMsg(Scanner stdin, Controller controller) {
+        try {
+            JsonObject o = new JsonObject();
+            assignUsername(stdin, controller, o);
+            assignLobby(stdin, controller, o);
+            o.addProperty("type", "JOIN");
+            return Optional.of(o);
+        }
+        catch(ApplicationQuitException e) {
+            controller.setToEnd();
+            return Optional.empty();
+        }
     }
 
     /**
@@ -126,16 +141,19 @@ public class CLIMessageBuilder {
      * Also used to update the game's info with the said username.
      *
      * @param stdin the input scanner
-     * @param state the game's state
+     * @param controller the application's controller
      * @param o the message to build
+     * @throws ApplicationQuitException if the user wants to quit the application
      */
-    private static void assignUsername(Scanner stdin, State state, JsonObject o) {
+    private static void assignUsername(Scanner stdin, Controller controller, JsonObject o) throws ApplicationQuitException {
+        State state = controller.getState();
         System.out.println("Please type your username");
         String inputLine = stdin.nextLine();
         while(inputLine.replaceAll(" ", "").equals("")) { //username
             System.out.println("Invalid username");
             inputLine = stdin.nextLine();
         }
+        if(operationToQuit(controller, inputLine)) throw new ApplicationQuitException();
         o.addProperty("username", inputLine);
         state.updateGameInfo(inputLine);
     }
@@ -145,16 +163,19 @@ public class CLIMessageBuilder {
      * Also used to update the game's info with them.
      *
      * @param stdin the input scanner
-     * @param state the game's state
+     * @param controller the application's controller
      * @param o the message to build
+     * @throws ApplicationQuitException if the user wants to quit the application
      */
-    private static void assignNumPlayersAndExpertMode(Scanner stdin, State state, JsonObject o) {
+    private static void assignNumPlayersAndExpertMode(Scanner stdin, Controller controller, JsonObject o) throws ApplicationQuitException {
         JsonArray args = new JsonArray();
         JsonObject argsObject = new JsonObject();
+        State state = controller.getState();
 
         System.out.println("Please enter the number of players in the game (2/3)");
         String inputLine = stdin.nextLine();
         while(!Objects.equals(inputLine, "2") && !Objects.equals(inputLine, "3")) {
+            if(operationToQuit(controller, inputLine)) throw new ApplicationQuitException();
             inputLine = stdin.nextLine();
         }
         argsObject.addProperty("nPlayers", inputLine);
@@ -163,6 +184,7 @@ public class CLIMessageBuilder {
         System.out.println("Expert mode? (Y/N)");
         inputLine = stdin.nextLine();
         while(!Objects.equals(inputLine.toLowerCase(), "y") && !Objects.equals(inputLine.toLowerCase(), "n")) {
+            if(operationToQuit(controller, inputLine)) throw new ApplicationQuitException();
             inputLine = stdin.nextLine();
         }
         argsObject.addProperty("expert", inputLine.equalsIgnoreCase("y") ? "true" : "false");
@@ -177,14 +199,17 @@ public class CLIMessageBuilder {
      * Helper method that used to assign the lobby to the message.
      *
      * @param stdin the input scanner
-     * @param state the game's state
+     * @param controller the application's controller
      * @param o the message to build
+     * @throws ApplicationQuitException if the user wants to quit the application
      */
-    private static void assignLobby(Scanner stdin, State state, JsonObject o) {
+    private static void assignLobby(Scanner stdin, Controller controller, JsonObject o) throws ApplicationQuitException {
+        State state = controller.getState();
         System.out.println("Please type the id of the lobby you want to join");
         String inputLine = stdin.nextLine();
         while(true) { //game id
             try {
+                if(operationToQuit(controller, inputLine)) throw new ApplicationQuitException();
                 int id = Integer.parseInt(inputLine);
                 if(state.isValidLobby(id)) {
                     state.updateGameInfo(state.getLobby(id).isExpert());
@@ -254,17 +279,23 @@ public class CLIMessageBuilder {
      * Builds the MOVE_STUDENT message.
      *
      * @param stdin the input scanner
-     * @param state the game's state
+     * @param controller the application's controller
      * @param studentColor the student color
      * @return the MOVE_STUDENT message
      */
-    private static Optional<JsonObject> buildMoveStudentMsg(Scanner stdin, State state, String studentColor) {
-        JsonObject o = new JsonObject();
-        o.addProperty("gameId", state.getGameInfo().getId());
-        o.addProperty("username", state.getGameInfo().getUsername());
-        o.addProperty("type", "MOVE_STUDENT");
-        assignStudent(stdin, studentColor, o);
-        return Optional.of(o);
+    private static Optional<JsonObject> buildMoveStudentMsg(Scanner stdin, Controller controller, String studentColor) {
+        try {
+            JsonObject o = new JsonObject();
+            o.addProperty("gameId", controller.getState().getGameInfo().getId());
+            o.addProperty("username", controller.getState().getGameInfo().getUsername());
+            o.addProperty("type", "MOVE_STUDENT");
+            assignStudent(stdin, studentColor, controller, o);
+            return Optional.of(o);
+        }
+        catch(ApplicationQuitException e) {
+            controller.setToEnd();
+            return Optional.empty();
+        }
     }
 
     /**
@@ -273,14 +304,16 @@ public class CLIMessageBuilder {
      * @param stdin the input scanner
      * @param studentColor the student color string
      * @param o the message to build
+     * @throws ApplicationQuitException if the user wants to quit the application
      */
-    private static void assignStudent(Scanner stdin, String studentColor, JsonObject o) {
+    private static void assignStudent(Scanner stdin, String studentColor, Controller controller, JsonObject o) throws ApplicationQuitException {
         JsonArray args = new JsonArray();
         JsonObject o1 = new JsonObject();
         o1.addProperty("color", studentColor.toUpperCase());
         System.out.println("Please type the destination you want to move your student to (HALL / ISLAND)");
         String inputLine = stdin.nextLine();
         while(!inputLine.equalsIgnoreCase("hall") && !inputLine.equalsIgnoreCase("island")) {
+            if(operationToQuit(controller, inputLine)) throw new ApplicationQuitException();
             inputLine = stdin.nextLine();
         }
         o1.addProperty("destination", inputLine.toUpperCase());
@@ -289,7 +322,8 @@ public class CLIMessageBuilder {
             inputLine = stdin.nextLine();
             while(true) {
                 try {
-                    if((Integer.parseInt(inputLine) < 0 || Integer.parseInt(inputLine) >= 12)) {
+                    if(inputLine.equalsIgnoreCase("quit")) throw new ApplicationQuitException();
+                    else if((Integer.parseInt(inputLine) < 0 || Integer.parseInt(inputLine) >= 12)) {
                         inputLine = stdin.nextLine();
                     }
                     else {
@@ -346,14 +380,14 @@ public class CLIMessageBuilder {
      * Builds the PLAY_CHARACTER message.
      *
      * @param stdin the input scanner
-     * @param state the game's state
+     * @param controller the application's controller
      * @param characterType the character type string
      * @return the PLAY_CHARACTER message
      */
-    private static Optional<JsonObject> buildPlayCharacterMsg(Scanner stdin, State state, String characterType) {
+    private static Optional<JsonObject> buildPlayCharacterMsg(Scanner stdin, Controller controller, String characterType) {
         JsonObject o = new JsonObject();
-        o.addProperty("gameId", state.getGameInfo().getId());
-        o.addProperty("username", state.getGameInfo().getUsername());
+        o.addProperty("gameId", controller.getState().getGameInfo().getId());
+        o.addProperty("username", controller.getState().getGameInfo().getUsername());
         o.addProperty("type", "PLAY_CHARACTER");
         JsonArray args = new JsonArray();
         JsonObject arg = new JsonObject();
@@ -363,7 +397,12 @@ public class CLIMessageBuilder {
         for (int i = 0; i < character.getMaxSteps(); i++) {
             if(i > character.getMinSteps() - 1) {
                 System.out.println("Type STOP if you don't want to add any more steps, simply press the enter key otherwise");
-                if(stdin.nextLine().equalsIgnoreCase("stop")) break;
+                String inputLine = stdin.nextLine();
+                if(inputLine.equalsIgnoreCase("stop")) break;
+                else if(operationToQuit(controller, inputLine)) {
+                    controller.setToEnd();
+                    return Optional.empty();
+                }
             }
             JsonObject step = new JsonObject();
             for(Tuple<String, CharacterType.ParameterType> p : character.getStepParameters()) {
@@ -375,6 +414,10 @@ public class CLIMessageBuilder {
                     case "entrance" -> System.out.println("Choose a student from the entrance (type the student color):");
                 }
                 String inputLine = stdin.nextLine();
+                if(operationToQuit(controller, inputLine)) {
+                    controller.setToEnd();
+                    return Optional.empty();
+                }
                 step.addProperty(p.getFirst(), inputLine.toUpperCase());
             }
             steps.add(step);
@@ -533,6 +576,23 @@ public class CLIMessageBuilder {
         catch(IllegalArgumentException e) {
             return false;
         }
+    }
+
+    /**
+     * Returns true if an event that requires to quit the operation has happened.
+     *
+     * @param controller the application's controller
+     * @param inputLine the user input line
+     * @return {@code true} if an event that requires to quit the operation has happened
+     */
+    private static boolean operationToQuit(Controller controller, String inputLine) {
+        return inputLine.equalsIgnoreCase("quit") || controller.getStatus() == Controller.Status.DISCONNECT;
+    }
+
+    /**
+     * Exception used internally to signal that the user wants to quit the application.
+     */
+    private static class ApplicationQuitException extends Exception {
     }
 
 }

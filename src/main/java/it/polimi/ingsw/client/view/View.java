@@ -39,4 +39,9 @@ public interface View {
      */
     void showErrorState();
 
+    /**
+     * Displays the disconnect state of the application.
+     */
+    void showDisconnectState();
+
 }

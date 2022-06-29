@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -28,17 +27,14 @@ public class Client {
      */
     public static void exec(ProgramOptions opts) {
         final Controller controller = new Controller();
-
         try (Socket socket = new Socket(opts.getAddress(), opts.getPort());
              BufferedReader socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
              OutputStreamWriter socketOut = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
             System.out.println("Connection established.\n");
-
             controller.setOnUserMessage(userMessage -> {
                 try {
                     writeObjectToStream(socketOut, userMessage);
                 } catch (IOException e) {
-                    System.out.println("Unable to write to socket");
                     e.printStackTrace();
                 }
             });
@@ -52,35 +48,40 @@ public class Client {
             controller.initAndStartUI(opts.getMode());
             readWhileOpen(controller, socket, socketIn, socketOut);
         } catch (IOException e) {
-            controller.setOnEnd(null);
-            controller.setToEnd();
-            e.printStackTrace();
-            System.out.println("Connection error.");
-            System.out.println("Disconnecting..");
+            if(controller.toRun()) {
+                controller.setOnEnd(null);
+                controller.toDisconnectState();
+            }
         }
     }
 
+    /**
+     * Reads the messages sent by the server through the socket while
+     * the connection is open and the application is set to run.
+     *
+     * @param controller the application's controller
+     * @param socket the connection socket
+     * @param socketIn the socket reader
+     * @param socketOut the socket writer
+     * @throws IOException if an error occurs
+     */
     private static void readWhileOpen(Controller controller, Socket socket, BufferedReader socketIn, OutputStreamWriter socketOut) throws IOException {
         final Gson gson = new Gson();
-        try {
-            String read;
-            while (controller.toRun() && !socket.isClosed()) {
-                StringBuilder msg = new StringBuilder();
-                while ((read = socketIn.readLine()) != null) {
-                    if (read.equals("")) {
-                        JsonObject message = gson.fromJson(msg.toString(), JsonObject.class);
-                        if (isPing(message))
-                            writeObjectToStream(socketOut, buildPing(message.get("id")));
-                        else
-                            controller.manageServerEvent(message);
-                        msg = new StringBuilder();
-                    } else {
-                        msg.append(read).append('\n');
-                    }
+        String read;
+        while (controller.toRun() && !socket.isClosed()) {
+            StringBuilder msg = new StringBuilder();
+            while ((read = socketIn.readLine()) != null) {
+                if (read.equals("")) {
+                    JsonObject message = gson.fromJson(msg.toString(), JsonObject.class);
+                    if (isPing(message))
+                        writeObjectToStream(socketOut, buildPing(message.get("id")));
+                    else
+                        controller.manageServerEvent(message);
+                    msg = new StringBuilder();
+                } else {
+                    msg.append(read).append('\n');
                 }
             }
-        } catch (SocketException e) {
-            System.out.println("Disconnected");
         }
     }
 

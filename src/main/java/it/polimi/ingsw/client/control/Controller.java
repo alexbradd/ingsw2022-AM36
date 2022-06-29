@@ -31,6 +31,9 @@ public class Controller {
 
     // Game's mock state
 
+    /**
+     * The game's mock state.
+     */
     private final State state;
 
     // Status
@@ -45,12 +48,16 @@ public class Controller {
      */
     private boolean toEnd;
 
+    /**
+     * Pending user message flag property.
+     */
     private final SimpleBooleanProperty hasPendingUserMessages;
 
     /**
      * Consumer called when a user message is available
      */
     private Consumer<JsonObject> onUserMessageCallback;
+
     /**
      * Callback called when {@link #setToEnd()} is called
      */
@@ -196,6 +203,20 @@ public class Controller {
     }
 
     /**
+     * Sets the application's state to be disconnected.
+     */
+    public synchronized void toDisconnectState() {
+        if(view != null) {
+            view.showDisconnectState();
+            status = Status.DISCONNECT;
+        }
+        else {
+            System.out.println("Connection's not available");
+            System.out.println("Disconnecting..");
+        }
+    }
+
+    /**
      * Sets the callback for the userMessage event. If null is passed, an empty callback is set.
      *
      * @param callback the callback to call on end
@@ -211,7 +232,7 @@ public class Controller {
      * The status of the application.
      */
     public enum Status {
-        INITIAL, FETCHED_LOBBIES, IN_GAME, END
+        INITIAL, FETCHED_LOBBIES, IN_GAME, END, DISCONNECT
     }
 
     /**
