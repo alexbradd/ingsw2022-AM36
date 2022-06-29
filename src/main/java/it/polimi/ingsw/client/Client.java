@@ -23,13 +23,11 @@ public class Client {
 
     /**
      * Main entry point.
-     *
-     * @param opts the given program options
      */
-    public static void exec(ProgramOptions opts) {
+    public static void exec() {
         final Controller controller = new Controller();
 
-        try (Socket socket = new Socket(opts.getAddress(), opts.getPort());
+        try (Socket socket = new Socket(ProgramOptions.getAddress(), ProgramOptions.getPort());
              BufferedReader socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
              OutputStreamWriter socketOut = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
             System.out.println("Connection established.\n");
@@ -49,7 +47,7 @@ public class Client {
                     e.printStackTrace();
                 }
             });
-            controller.initAndStartUI(opts.getMode());
+            controller.initAndStartUI(ProgramOptions.getMode());
             readWhileOpen(controller, socket, socketIn, socketOut);
         } catch (IOException e) {
             controller.setOnEnd(null);

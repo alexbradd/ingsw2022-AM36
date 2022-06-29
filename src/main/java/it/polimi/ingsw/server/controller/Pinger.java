@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.controller;
 
+import it.polimi.ingsw.server.Logger;
 import it.polimi.ingsw.server.net.Dispatcher;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class Pinger implements Runnable {
      */
     @Override
     synchronized public void run() {
-        System.out.println(this);
+        Logger.log(this.toString());
 
         for (Dispatcher d : dispatchers)
             d.send(Messages.buildPingMessage(match.getId()));
@@ -67,7 +68,7 @@ public class Pinger implements Runnable {
             try {
                 MatchRegistry.getInstance().terminate(match.getId(), TERM_REASON);
             } catch (NoSuchElementException e) {
-                System.out.println("Match already terminated...");
+                Logger.log("Match already terminated...");
             }
         }
     }

@@ -45,6 +45,19 @@ public class ProgramOptions {
      */
     private static File persistenceStore;
 
+    static {
+        setPersistenceStore(new File("./eryantis-store"));
+    }
+
+    /**
+     * The maximum selectable ping rate.
+     */
+    private final static long MIN_PING_RATE = 100;
+    /**
+     * The minimum selectable ping rate.
+     */
+    private final static long MAX_PING_RATE = 3000;
+
     /**
      * This static block initializes the {@link #address} to the localhost address.
      */
@@ -168,6 +181,8 @@ public class ProgramOptions {
      * @param maximumPing the maximum ping time acceptable by the server
      */
     public static void setMaximumPing(long maximumPing) {
+        if (maximumPing < MIN_PING_RATE || maximumPing > MAX_PING_RATE)
+            throw new IllegalArgumentException("Choose a ping rate between " + MIN_PING_RATE + "ms and " + MAX_PING_RATE + "ms");
         ProgramOptions.maximumPing = maximumPing;
     }
 
@@ -231,16 +246,15 @@ public class ProgramOptions {
         SERVER, CLIENT_CLI, CLIENT_GUI
     }
 
-    public static String staticToString() {
-        return "ProgramOptions{" +
-                "mode=" + mode +
-                ", port=" + port +
-                ", address=" + address +
-                ", persistence-store=" + persistenceStore +
-                ", use-persistence=" + usePersistence +
-                ", use-ping=" + usePing +
-                ", max-ping=" + maximumPing +
-                ", verbose=" + verbose +
-                '}';
+    public static String printOptions() {
+        return "ProgramOptions:" +
+                "\n mode=" + mode +
+                "\n port=" + port +
+                "\n address=" + address +
+                "\n persistence-store=" + persistenceStore +
+                "\n use-persistence=" + usePersistence +
+                "\n use-ping=" + usePing +
+                "\n max-ping=" + maximumPing +
+                "\n verbose=" + verbose;
     }
 }

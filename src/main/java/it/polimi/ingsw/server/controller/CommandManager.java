@@ -2,7 +2,9 @@ package it.polimi.ingsw.server.controller;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import it.polimi.ingsw.ProgramOptions;
 import it.polimi.ingsw.functional.Tuple;
+import it.polimi.ingsw.server.Logger;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.model.Game;
 import it.polimi.ingsw.server.model.Player;
@@ -91,7 +93,7 @@ public class CommandManager implements Runnable {
      * @see RejoiningCommandStrategy#manageCommand(Tuple, Match)
      */
     void manageCommand(Tuple<UserCommand, Dispatcher> command) {
-        System.out.println("EXECUTING GAME COMMAND [ID: " + match.getId() + "]: " + command.getFirst().getModificationMessage());
+        Logger.log("EXECUTING GAME COMMAND [ID: " + match.getId() + "]: " + command.getFirst().getModificationMessage());
 
         if (match.isRejoiningState())
             setStrategy(REJOIN_STRATEGY);
@@ -100,20 +102,23 @@ public class CommandManager implements Runnable {
 
         strategy.manageCommand(command, match);
 
-        new Thread(() -> MatchRegistry.getInstance()
-                .getPersistenceManager()
-                .commit(match.getId(), match.getGame().getPhase()))
-                .start();
+        if (ProgramOptions.usesPersistence())
+            new Thread(() -> MatchRegistry.getInstance()
+                    .getPersistenceManager()
+                    .commit(match.getId(), match.getGame().getPhase()))
+                    .start();
 
         Game g = match.getGame();
         if (g.isEnded()) {
             sendWinMessage(g.getWinners());
             MatchRegistry.getInstance().terminate(match.getId());
         }
+
+        terminateIfEmpty();
     }
 
     private void terminateIfEmpty() {
-        if (match.getDispatchers().isEmpty())
+        if (match.getDispatchers().isEmpty() && !match.isRejoiningState())
             MatchRegistry.getInstance().terminate(match.getId());
     }
 

@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server.controller;
 
 import com.google.gson.JsonObject;
+import it.polimi.ingsw.ProgramOptions;
 import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.controller.commands.UserCommandType;
@@ -14,8 +15,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -32,11 +31,11 @@ public class Match {
     /**
      * The time interval, expressed in milliseconds, for the {@link Pinger} to wait for receiving PONG messages.
      */
-    private final static long WAIT_PONG_TIME = 5000;
+    private final static long WAIT_PONG_TIME = ProgramOptions.getMaximumPing();
     /**
      * The time interval, expressed in milliseconds, for new {@link Pinger} instances to be created.
      */
-    private final static long PING_RATE = 10000;
+    private final static long PING_RATE = ProgramOptions.getMaximumPing() * 2;
     /**
      * The unique identifier of the Match.
      */
@@ -62,7 +61,7 @@ public class Match {
     /**
      * A thread that runs the {@link #runPinger()} method.
      */
-    private final Thread pingThread;
+    private Thread pingThread = null;
     /**
      * A thread that runs the {@link CommandManager#run()} method.
      */
@@ -93,9 +92,12 @@ public class Match {
         this.dispatcherList = new ArrayList<>();
         this.ended = false;
 
-        this.pingThread = new Thread(this::runPinger);
+        if (ProgramOptions.usesPing()) {
+            this.pingThread = new Thread(this::runPinger);
+            pingThread.start();
+        }
+
         this.commandThread = new Thread(new CommandManager(this));
-        pingThread.start();
         commandThread.start();
 
         System.out.println("NEW MATCH CREATED [ID: " + id + "]");
@@ -120,9 +122,12 @@ public class Match {
         this.dispatcherList = new ArrayList<>();
         this.ended = false;
 
-        this.pingThread = new Thread(this::runPinger);
+        if (ProgramOptions.usesPing()) {
+            this.pingThread = new Thread(this::runPinger);
+            pingThread.start();
+        }
+
         this.commandThread = new Thread(new CommandManager(this));
-        pingThread.start();
         commandThread.start();
 
         System.out.println("RESTORED MATCH [ID: " + id + "]");

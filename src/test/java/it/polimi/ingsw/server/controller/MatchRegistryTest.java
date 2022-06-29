@@ -2,6 +2,7 @@ package it.polimi.ingsw.server.controller;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import it.polimi.ingsw.ProgramOptions;
 import it.polimi.ingsw.server.Server;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.controller.commands.UserCommandType;
@@ -32,7 +33,7 @@ class MatchRegistryTest {
     @BeforeAll
     public void setUp() {
         new File("./target/eryantis-store").mkdirs();
-        Server.persistenceStore = new File("./target/eryantis-store");
+        ProgramOptions.setPersistenceStore(new File("./target/eryantis-store"));
     }
 
     /**

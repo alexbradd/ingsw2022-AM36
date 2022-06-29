@@ -22,19 +22,16 @@ public class Server {
 
     /**
      * Like {@link Main#main}, however it executes only if the program is run in server mode
-     *
-     * @param opts the options the server will use
      */
-    public static void exec(ProgramOptions opts) {
-        persistenceStore = opts.getPersistenceStore();
+    public static void exec() {
+        persistenceStore = ProgramOptions.getPersistenceStore();
         if (!persistenceStore.exists() && !persistenceStore.mkdir())
             throw new IllegalStateException("Server was unable to create the persistence directory");
         ExecutorService threadPool = Executors.newCachedThreadPool();
-        try (ServerSocket server = new ServerSocket(opts.getPort())) {
+        try (ServerSocket server = new ServerSocket(ProgramOptions.getPort())) {
             while (!server.isClosed()) {
                 Socket client = server.accept();
-                System.out.println("Accepted connection, dispatching...");
-                System.out.println(ProgramOptions.staticToString());
+                Logger.log("Accepted connection, dispatching...");
                 threadPool.submit(new Dispatcher(client));
             }
         } catch (IOException e) {
