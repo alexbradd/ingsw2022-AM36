@@ -13,7 +13,7 @@ import java.util.function.Function;
  *
  * @author Alexandru Gabriel Bradatan
  */
-abstract class MaxExtractor implements Function<Map<Player, Integer>, Optional<Player>> {
+public abstract class MaxExtractor implements Function<Map<Player, Integer>, Optional<Player>> {
 
     /**
      * Returns a {@link Map.Entry} from the given {@link Map} containing a possible maximum candidate and the relative

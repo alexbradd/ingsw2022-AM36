@@ -19,7 +19,7 @@ import java.util.Objects;
  * @see ActionPhase
  * @see PreparePhase
  */
-abstract class Character implements Jsonable {
+public abstract class Character implements Jsonable {
     /**
      * This card's character. Represented as a {@link CharacterType} enum.
      */

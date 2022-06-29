@@ -10,13 +10,13 @@ import java.util.Optional;
  * @author Alexandru Gabriel Bradatan
  * @see Island
  */
-interface InfluenceCalculator {
+public interface InfluenceCalculator {
     /**
      * Given an {@link Island}, calculates the influences of all players that have some. An {@link Optional} is
      * returned containing a {@link Map} that maps each player to its non-zero influence. The {@link Optional} is empty
      * if the island is blocked.
      *
-     * @param island the {@link Island} on which to perform the calculation
+     * @param island     the {@link Island} on which to perform the calculation
      * @param professors the List<{@link Professor}> on which to calculate influence
      * @return an {@link Optional} containing a {@link Map} that maps each {@link Player} to its influence
      * @throws IllegalArgumentException if {@code island} is null
