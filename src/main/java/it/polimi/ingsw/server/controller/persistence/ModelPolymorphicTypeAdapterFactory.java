@@ -64,9 +64,22 @@ public class ModelPolymorphicTypeAdapterFactory<T> implements TypeAdapterFactory
      * @throws IllegalArgumentException if {@code superclass} is null
      */
     public ModelPolymorphicTypeAdapterFactory(Class<T> superclass) {
+        this("it.polimi.ingsw.server.model", superclass);
+    }
+
+    /**
+     * Creates a new TypeAdapterFactory for the given superclass overriding the package in which the classes are
+     * searched.
+     *
+     * @param packageOverride the package in which the classes are located
+     * @param superclass      the superclass from which the runtime types will be subtypes of
+     * @throws IllegalArgumentException if {@code superclass} is null
+     */
+    ModelPolymorphicTypeAdapterFactory(String packageOverride, Class<T> superclass) {
         if (superclass == null) throw new IllegalArgumentException("superclass shouldn't be null");
+        if (packageOverride == null) throw new IllegalArgumentException("packageOverride shouldn't be null");
         this.superclass = superclass;
-        nameToSubclass = getSubclassesInModel(superclass);
+        nameToSubclass = getSubclassesInModel(packageOverride, superclass);
         subclassToName = new HashMap<>();
         nameToSubclass.forEach((k, v) -> subclassToName.put(v, k));
     }
@@ -74,11 +87,11 @@ public class ModelPolymorphicTypeAdapterFactory<T> implements TypeAdapterFactory
     /**
      * Returns the first concrete classes that have the given class as their ancestor.
      *
-     * @param superclass the superclass
+     * @param packageName the package in which to search
+     * @param superclass  the superclass
      * @return a map mapping each class to its simple name (as returned by {@link Class#getSimpleName()})
      */
-    private static Map<String, Class<?>> getSubclassesInModel(Class<?> superclass) {
-        String packageName = "it.polimi.ingsw.server.model";
+    private static Map<String, Class<?>> getSubclassesInModel(String packageName, Class<?> superclass) {
         InputStream stream = superclass.getClassLoader()
                 .getResourceAsStream(packageName.replaceAll("[.]", "/"));
         assert stream != null;
@@ -89,7 +102,7 @@ public class ModelPolymorphicTypeAdapterFactory<T> implements TypeAdapterFactory
                 .filter(c -> Objects.equals(c.getSuperclass(), superclass))
                 .<Class<?>>mapMulti((c, consumer) -> {
                     if (Modifier.isAbstract(c.getModifiers())) {
-                        Map<String, Class<?>> subclasses = getSubclassesInModel(c);
+                        Map<String, Class<?>> subclasses = getSubclassesInModel(packageName, c);
                         subclasses.forEach((k, v) -> consumer.accept(v));
                     } else
                         consumer.accept(c);
