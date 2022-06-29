@@ -18,7 +18,26 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * TypeAdapterFactory that correctly handler the model's polymorphic types
+ * TypeAdapterFactory that correctly handler the model's polymorphic types.
+ * <p>
+ * The class will find all the direct subclasses of the parameter type excluding abstract classes. If an abstract class
+ * is found, all its concrete implementation will be recursively added. This effectively means that given the following
+ * inheritance tree the bracketed classes will be handled:
+ *
+ * <pre>
+ *
+ *   / [Concrete] - Concrete
+ *   |
+ * T + Abstract + [Concrete] - Concrete
+ *   |          + [Concrete]
+ *   |
+ *   \ Abstract - Abstract - [Concrete]
+ * </pre>
+ * <p>
+ * The polymorphism is handled by adding to the root object a key with the name {@link #TYPE_KEY} containing the class's
+ * canonical name. During deserialization the class whose name is in the property {@link #TYPE_KEY} will be effectively
+ * instantiated.
+ * @param <T> The type that is handled by this adapter
  */
 public class ModelPolymorphicTypeAdapterFactory<T> implements TypeAdapterFactory {
     /**
@@ -53,7 +72,7 @@ public class ModelPolymorphicTypeAdapterFactory<T> implements TypeAdapterFactory
     }
 
     /**
-     * Returns all the concrete classes that have che given class in their inheritance line.
+     * Returns the first concrete classes that have the given class as their ancestor.
      *
      * @param superclass the superclass
      * @return a map mapping each class to its simple name (as returned by {@link Class#getSimpleName()})
