@@ -27,6 +27,7 @@ public class Client {
      */
     public static void exec(ProgramOptions opts) {
         final Controller controller = new Controller();
+        controller.initUI(opts.getMode());
         try (Socket socket = new Socket(opts.getAddress(), opts.getPort());
              BufferedReader socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
              OutputStreamWriter socketOut = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
@@ -45,7 +46,7 @@ public class Client {
                     e.printStackTrace();
                 }
             });
-            controller.initAndStartUI(opts.getMode());
+            controller.toMainMenu();
             readWhileOpen(controller, socket, socketIn, socketOut);
         } catch (IOException e) {
             if(controller.toRun()) {

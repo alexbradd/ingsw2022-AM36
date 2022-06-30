@@ -84,7 +84,7 @@ public class Controller {
      * @throws IllegalArgumentException if the given mode is not valid
      * @throws IllegalStateException if the game's UI is already initialized
      */
-    public void initAndStartUI(ProgramOptions.ProgramMode mode) throws IllegalArgumentException, IllegalStateException {
+    public void initUI(ProgramOptions.ProgramMode mode) throws IllegalArgumentException, IllegalStateException {
         if(view != null) {
             throw new IllegalStateException("view already initialized");
         }
@@ -102,7 +102,6 @@ public class Controller {
                 gui.launch();
                 view = gui;
             }
-            view.showMainMenu();
         }
     }
 
