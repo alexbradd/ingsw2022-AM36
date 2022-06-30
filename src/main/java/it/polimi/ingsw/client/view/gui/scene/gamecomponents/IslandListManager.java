@@ -13,6 +13,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.transform.Translate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 import static it.polimi.ingsw.client.view.gui.GUIUtils.runLaterIfNotOnFxThread;
@@ -109,7 +110,16 @@ public class IslandListManager {
         for (int i = 0; i < n; i++) {
             double angle = i * (360.0 / n);
             IslandGroup data = list.get(i);
-            BooleanBinding isMnHere = motherNature.isEqualTo(data.getIds()[0]);
+            BooleanBinding isMnHere = new BooleanBinding() {
+                {
+                    super.bind(motherNature);
+                }
+
+                @Override
+                protected boolean computeValue() {
+                    return Arrays.stream(data.getIds()).anyMatch(i -> i == motherNature.get());
+                }
+            };
             IslandGroupManager builder = new IslandGroupManager(data, isMnHere, anIslandIsClickable.and(isMnHere), onMnClick);
             islands.add(builder);
             Node island = builder.build(angle);
