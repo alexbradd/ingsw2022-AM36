@@ -157,6 +157,16 @@ public class CLI implements View, Runnable {
     }
 
     /**
+     * Displays the disconnect state of the application.
+     */
+    public void showDisconnectState() {
+        System.out.println();
+        System.out.println("Connection error");
+        System.out.println("Type anything to exit the application");
+        System.out.println();
+    }
+
+    /**
      * Clears the terminal using the ANSI escape code characters.
      * Doesn't work on all terminals.
      */

@@ -162,4 +162,10 @@ public class GUI implements View {
         ShowErrorEvent ev = new ShowErrorEvent(ShowErrorEvent.ERROR, bridge.getLastErrorText());
         GuiApplication.afterInit(i -> Event.fireEvent(i.getRoot(), ev));
     }
+
+    @Override
+    public void showDisconnectState() {
+
+    }
+
 }

@@ -86,6 +86,6 @@ public class Lobby {
         return "LOBBY N#" + id + "\n" +
                 "* " + nPlayers + " players game" + "\n" +
                 "* " + (expert ? "expert" : "not expert") + "\n" +
-                (isRejoining() ? "* rejoining lobby" : "");
+                (isRejoining() ? "* rejoining lobby\n" : "");
     }
 }
