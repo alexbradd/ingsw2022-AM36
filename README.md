@@ -53,6 +53,14 @@ Legend:
 - 🟡: Being worked on atm
 - 🟢: Implemented
 
+## Coverage report
+
+Coverage report as reported by our IDE (Intellij IDEA):
+
+| Class% | Method% | Line% |
+|:------:|:-------:|:-----:|
+|  98%   |   90%   |  89   |
+
 ## Note about the documentation
 
 We have included in the project's deliverables both the documentation as
