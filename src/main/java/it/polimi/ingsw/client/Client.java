@@ -32,10 +32,13 @@ public class Client {
         controller.initUI(ProgramOptions.getMode());
         try (Socket socket = new Socket(ProgramOptions.getAddress(), ProgramOptions.getPort())) {
             System.out.println("Connection established.\n");
-            socket.setSoTimeout(10000);
+            socket.setSoTimeout(ProgramOptions.getClientSocketTimeout());
             try (BufferedReader socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                  OutputStreamWriter socketOut = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
-                timer.scheduleAtFixedRate(buildPeriodicConnectivityChecker(socketOut), 0, 5000);
+                timer.scheduleAtFixedRate(
+                        buildPeriodicConnectivityChecker(socketOut),
+                        0,
+                        ProgramOptions.getConnectivityCheckInterval());
                 controller.setOnUserMessage(userMessage -> {
                     try {
                         writeObjectToStream(socketOut, userMessage);

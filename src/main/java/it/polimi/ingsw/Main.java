@@ -112,6 +112,28 @@ public class Main {
                     else
                         throw ParameterParsingException.missingParameter(args[i]);
                     break;
+                case "--client-socket-timeout":
+                    if (i + 1 < args.length)
+                        try {
+                            ProgramOptions.setClientSocketTimeout(Integer.parseInt(args[i + 1]));
+                            i++;
+                        } catch (IllegalArgumentException e) {
+                            throw ParameterParsingException.invalidParameter(args[i + 1], args[i], e.getMessage());
+                        }
+                    else
+                        throw ParameterParsingException.missingParameter(args[i]);
+                    break;
+                case "--connectivity-check-interval":
+                    if (i + 1 < args.length)
+                        try {
+                            ProgramOptions.setConnectivityCheckInterval(Long.parseLong(args[i + 1]));
+                            i++;
+                        } catch (IllegalArgumentException e) {
+                            throw ParameterParsingException.invalidParameter(args[i + 1], args[i], e.getMessage());
+                        }
+                    else
+                        throw ParameterParsingException.missingParameter(args[i]);
+                    break;
                 case "--verbose":
                     ProgramOptions.setVerbose(true);
                     break;
