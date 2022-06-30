@@ -481,15 +481,13 @@ public class GUIControllerBridge {
 
         JsonObject invocation = new JsonObject();
         invocation.addProperty("character", type.toString());
-        if (!steps.isEmpty()) {
-            JsonArray stepArray = new JsonArray(steps.size());
-            steps.forEach(m -> {
-                JsonObject step = new JsonObject();
-                m.forEach(step::addProperty);
-                stepArray.add(step);
-            });
-            invocation.add("steps", stepArray);
-        }
+        JsonArray stepArray = new JsonArray(steps.size());
+        steps.forEach(m -> {
+            JsonObject step = new JsonObject();
+            m.forEach(step::addProperty);
+            stepArray.add(step);
+        });
+        invocation.add("steps", stepArray);
 
         JsonArray args = new JsonArray(1);
         args.add(invocation);
