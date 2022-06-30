@@ -96,7 +96,7 @@ class Herbalist extends Character {
         checkEffectParameters(phase, steps);
         int islandIndex = steps[0].getParameterAsIslandIndex("island", phase);
         if (getNumOfBlocks() == 0)
-            throw new InvalidPhaseUpdateException("no more blocks on this card");
+            throw new InvalidPhaseUpdateException("No more blocks on this card");
         return super.doEffect(phase, steps)
                 .map(t -> {
                     ActionPhase p = t.getFirst();

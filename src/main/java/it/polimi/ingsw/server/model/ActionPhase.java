@@ -140,7 +140,7 @@ abstract class ActionPhase extends IteratedPhase {
         if (player == null) throw new IllegalArgumentException("player shouldn't be null");
         if (color == null) throw new IllegalArgumentException("color cannot be null");
         if (table.getBoardOf(player).getEntrance().size(color) == 0)
-            throw new InvalidPhaseUpdateException("Player's entrance is empty");
+            throw new InvalidPhaseUpdateException("Player's entrance hasn't got the color requested");
         Tuple<BoundedStudentContainer, Student> update = table.getBoardOf(player).getEntrance().remove(color);
         return update.map((container, student) -> {
             ActionPhase a = this.shallowCopy();
@@ -162,7 +162,7 @@ abstract class ActionPhase extends IteratedPhase {
         if (player == null) throw new IllegalArgumentException("player shouldn't be null");
         if (student == null) throw new IllegalArgumentException("student shouldn't be null");
         if (table.getBoardOf(player).getEntrance().isFull())
-            throw new InvalidPhaseUpdateException("entrance is full");
+            throw new InvalidPhaseUpdateException("Entrance is full");
         ActionPhase a = shallowCopy();
         a.table = a.table.updateBoardOf(player, b -> b.updateEntrance(e -> e.add(student)));
         return a;
@@ -177,7 +177,7 @@ abstract class ActionPhase extends IteratedPhase {
         if (student == null) throw new IllegalArgumentException("student shouldn't be null");
         Hall old = table.getBoardOf(player).getHall();
         if (old.isFull(student.getColor()))
-            throw new InvalidPhaseUpdateException("cannot add student because this color is already full");
+            throw new InvalidPhaseUpdateException("Cannot add student because this color is already full");
         return updateHall(player, hall -> hall.add(student))
                 .reassignProfessors()
                 .giveCoins(player, old);
@@ -196,7 +196,7 @@ abstract class ActionPhase extends IteratedPhase {
         if (player == null) throw new IllegalArgumentException("player shouldn't be null");
         if (color == null) throw new IllegalArgumentException("color cannot be null");
         if (table.getBoardOf(player).getHall().size(color) == 0)
-            throw new InvalidPhaseUpdateException("Player's entrance is empty");
+            throw new InvalidPhaseUpdateException("Player's hall has not got this color");
         Hall oldHall = table.getBoardOf(player).getHall();
         Tuple<Hall, Student> update = table.getBoardOf(player).getHall().remove(color);
         return update.map((container, student) -> new Tuple<>(
@@ -313,7 +313,7 @@ abstract class ActionPhase extends IteratedPhase {
         if (player == null) throw new IllegalArgumentException("player shouldn't be null");
         if (update == null) throw new IllegalArgumentException("update cannot be null");
         if (!isValidIslandIndex(index))
-            throw new InvalidPhaseUpdateException("invalid island index");
+            throw new InvalidPhaseUpdateException("Invalid island index");
         ActionPhase ret = this.shallowCopy();
         ret.table = removeWithIndex(ret.table, index)
                 .map((table, removed) -> {
@@ -375,12 +375,12 @@ abstract class ActionPhase extends IteratedPhase {
 
         if (!getParameters().isExpertMode())
             throw new InvalidPhaseUpdateException("Action isn't allowed with these rules");
-        if (playedCharacter) throw new InvalidPhaseUpdateException("cannot use 2 characters in the same turn");
+        if (playedCharacter) throw new InvalidPhaseUpdateException("Cannot use 2 characters in the same turn");
 
         Character desired = table.getCharacters().stream()
                 .filter(c -> c.getCharacterType().equals(characterType))
                 .findAny()
-                .orElseThrow(() -> new InvalidPhaseUpdateException("desired characterType is not present on the board"));
+                .orElseThrow(() -> new InvalidPhaseUpdateException("Desired characterType is not present on the board"));
 
         ActionPhase p = spendPlayerCoins(player, desired.getCost())
                 .applyCharacterEffect(desired, steps);
@@ -411,7 +411,7 @@ abstract class ActionPhase extends IteratedPhase {
             return b;
         });
         if (wrapper.failed)
-            throw new InvalidPhaseUpdateException("player cannot buy this character");
+            throw new InvalidPhaseUpdateException("Player cannot buy this character");
         return ret;
     }
 
