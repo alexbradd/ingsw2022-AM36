@@ -28,14 +28,14 @@ class MainTest {
      */
     @Test
     void setMode() throws ParameterParsingException {
-        ProgramOptions opt = Main.fromCli(new String[]{"--server"});
-        assertEquals(ProgramOptions.ProgramMode.SERVER, opt.getMode());
+        Main.fromCli(new String[]{"--server"});
+        assertEquals(ProgramOptions.ProgramMode.SERVER, ProgramOptions.getMode());
 
-        opt = Main.fromCli(new String[]{"--client-cli"});
-        assertEquals(ProgramOptions.ProgramMode.CLIENT_CLI, opt.getMode());
+        Main.fromCli(new String[]{"--client-cli"});
+        assertEquals(ProgramOptions.ProgramMode.CLIENT_CLI, ProgramOptions.getMode());
 
-        opt = Main.fromCli(new String[]{"--client-gui"});
-        assertEquals(ProgramOptions.ProgramMode.CLIENT_GUI, opt.getMode());
+        Main.fromCli(new String[]{"--client-gui"});
+        assertEquals(ProgramOptions.ProgramMode.CLIENT_GUI, ProgramOptions.getMode());
     }
 
     /**
@@ -43,8 +43,8 @@ class MainTest {
      */
     @Test
     void setPort() throws ParameterParsingException {
-        ProgramOptions opt = Main.fromCli(new String[]{"--port", "1234"});
-        assertEquals(1234, opt.getPort());
+        Main.fromCli(new String[]{"--port", "1234"});
+        assertEquals(1234, ProgramOptions.getPort());
     }
 
     /**
@@ -52,8 +52,8 @@ class MainTest {
      */
     @Test
     void setAddress() throws ParameterParsingException {
-        ProgramOptions opt = Main.fromCli(new String[]{"--address", "localhost"});
-        assertEquals("localhost", opt.getAddress().getHostName());
+        Main.fromCli(new String[]{"--address", "localhost"});
+        assertEquals("localhost", ProgramOptions.getAddress().getHostName());
     }
 
     /**
@@ -61,11 +61,11 @@ class MainTest {
      */
     @Test
     void setPersistenceStore() throws ParameterParsingException {
-        ProgramOptions opt = Main.fromCli(new String[]{"--persistence-store", "./deliveries"});
-        assertEquals("deliveries", opt.getPersistenceStore().getName());
-        opt = Main.fromCli(new String[]{"--persistence-store", "aVerySpecificNameNotUsedByAnything"});
-        assertEquals("aVerySpecificNameNotUsedByAnything", opt.getPersistenceStore().getName());
-        opt = Main.fromCli(new String[]{"--persistence-store", "./aVerySpecificNameNotUsedByAnything"});
-        assertEquals("aVerySpecificNameNotUsedByAnything", opt.getPersistenceStore().getName());
+        Main.fromCli(new String[]{"--persistence-store", "./deliveries"});
+        assertEquals("deliveries", ProgramOptions.getPersistenceStore().getName());
+        Main.fromCli(new String[]{"--persistence-store", "aVerySpecificNameNotUsedByAnything"});
+        assertEquals("aVerySpecificNameNotUsedByAnything", ProgramOptions.getPersistenceStore().getName());
+        Main.fromCli(new String[]{"--persistence-store", "./aVerySpecificNameNotUsedByAnything"});
+        assertEquals("aVerySpecificNameNotUsedByAnything", ProgramOptions.getPersistenceStore().getName());
     }
 }

@@ -3,6 +3,7 @@ package it.polimi.ingsw.server.net;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import it.polimi.ingsw.server.Logger;
 import it.polimi.ingsw.server.Server;
 import it.polimi.ingsw.server.controller.*;
 
@@ -83,7 +84,7 @@ public class Dispatcher implements Runnable {
         } catch (Throwable e) {
             e.printStackTrace();
         } finally {
-            System.out.println("Executing callback...");
+            Logger.log("Executing callback...");
             onDisconnect.run();
             System.out.println("Closing connection...");
         }

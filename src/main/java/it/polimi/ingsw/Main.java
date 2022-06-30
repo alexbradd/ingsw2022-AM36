@@ -1,6 +1,7 @@
 package it.polimi.ingsw;
 
 import it.polimi.ingsw.client.Client;
+import it.polimi.ingsw.server.Logger;
 import it.polimi.ingsw.server.Server;
 
 import java.io.File;
@@ -28,18 +29,18 @@ public class Main {
      * @param args the parameters passed from CLI
      */
     public static void main(String[] args) {
-        ProgramOptions options;
         try {
-            options = fromCli(args);
+            fromCli(args);
         } catch (ParameterParsingException e) {
             System.out.println(e.getMessage());
             return;
         }
+        Logger.log(ProgramOptions.printOptions());
 
-        if (options.getMode() == ProgramOptions.ProgramMode.SERVER) {
-            Server.exec(options);
+        if (ProgramOptions.getMode() == ProgramOptions.ProgramMode.SERVER) {
+            Server.exec();
         } else {
-            Client.exec(options);
+            Client.exec();
         }
     }
 
@@ -47,26 +48,24 @@ public class Main {
      * Parse the parameters from CLI into a {@link ProgramOptions} object
      *
      * @param args the CLI parameters to parse
-     * @return a new {@link ProgramOptions}
      * @throws ParameterParsingException if there is a syntax error
      */
-    static ProgramOptions fromCli(String[] args) throws ParameterParsingException {
-        ProgramOptions options = new ProgramOptions();
+    static void fromCli(String[] args) throws ParameterParsingException {
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "--server":
-                    options.setMode(ProgramOptions.ProgramMode.SERVER);
+                    ProgramOptions.setMode(ProgramOptions.ProgramMode.SERVER);
                     break;
                 case "--client-gui":
-                    options.setMode(ProgramOptions.ProgramMode.CLIENT_GUI);
+                    ProgramOptions.setMode(ProgramOptions.ProgramMode.CLIENT_GUI);
                     break;
                 case "--client-cli":
-                    options.setMode(ProgramOptions.ProgramMode.CLIENT_CLI);
+                    ProgramOptions.setMode(ProgramOptions.ProgramMode.CLIENT_CLI);
                     break;
                 case "--port":
                     if (i + 1 < args.length)
                         try {
-                            options.setPort(Integer.parseInt(args[i + 1]));
+                            ProgramOptions.setPort(Integer.parseInt(args[i + 1]));
                             i++;
                         } catch (IllegalArgumentException e) {
                             throw ParameterParsingException.invalidParameter(args[i + 1], args[i], e.getMessage());
@@ -77,7 +76,7 @@ public class Main {
                 case "--address":
                     if (i + 1 < args.length)
                         try {
-                            options.setAddress(args[i + 1]);
+                            ProgramOptions.setAddress(args[i + 1]);
                             i++;
                         } catch (UnknownHostException e) {
                             throw ParameterParsingException.invalidParameter(args[i + 1], args[i], e.getMessage());
@@ -88,7 +87,7 @@ public class Main {
                 case "--persistence-store":
                     if (i + 1 < args.length)
                         try {
-                            options.setPersistenceStore(new File(args[i + 1]));
+                            ProgramOptions.setPersistenceStore(new File(args[i + 1]));
                             i++;
                         } catch (IllegalArgumentException e) {
                             throw ParameterParsingException.invalidParameter(args[i + 1], args[i], e.getMessage());
@@ -96,10 +95,29 @@ public class Main {
                     else
                         throw ParameterParsingException.missingParameter(args[i]);
                     break;
+                case "--no-persistence":
+                    ProgramOptions.setUsePersistence(false);
+                    break;
+                case "--no-ping":
+                    ProgramOptions.setUsePing(false);
+                    break;
+                case "--max-ping":
+                    if (i + 1 < args.length)
+                        try {
+                            ProgramOptions.setMaximumPing(Long.parseLong(args[i + 1]));
+                            i++;
+                        } catch (IllegalArgumentException e) {
+                            throw ParameterParsingException.invalidParameter(args[i + 1], args[i], e.getMessage());
+                        }
+                    else
+                        throw ParameterParsingException.missingParameter(args[i]);
+                    break;
+                case "--verbose":
+                    ProgramOptions.setVerbose(true);
+                    break;
                 default:
                     throw ParameterParsingException.invalidOption(args[i]);
             }
         }
-        return options;
     }
 }

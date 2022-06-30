@@ -13,24 +13,55 @@ public class ProgramOptions {
     /**
      * The mode the program has been launched in. Default is SERVER
      */
-    private ProgramMode mode = ProgramMode.SERVER;
+    private static ProgramMode mode = ProgramMode.SERVER;
     /**
      * Port the server will listen on. Default is 9999
      */
-    private int port = 9999;
+    private static int port = 9999;
     /**
      * The address the server will be located at. Default is localhost
      */
-    private InetAddress address;
+    private static InetAddress address;
     /**
-     * The directory to which the server will save its persistent data.
+     * Whether to send {@code PING} messages to clients (only if SERVER mode). Default is true
      */
-    private File persistenceStore = new File(new File("").getAbsolutePath(), "eryantis-store");
+    private static boolean usePing = true;
+    /**
+     * Whether to store changes to ongoing matches on disk, and restoring these matches at the following start-up, if
+     * the program crashes (only if SERVER mode). Default is true
+     */
+    private static boolean usePersistence = true;
+    /**
+     * The maximum time in milliseconds to wait for clients to respond to {@code PING} messages, before assuming the
+     * connection has been lost (only if SERVER mode). Default is true
+     */
+    private static long maximumPing = 1000;
+    /**
+     * Whether to have verbose output or not.
+     */
+    private static boolean verbose = false;
+    /**
+     * The directory in which to save the match states.
+     */
+    private static File persistenceStore;
+
+    static {
+        setPersistenceStore(new File("./eryantis-store"));
+    }
 
     /**
-     * Default constructor.
+     * The maximum selectable ping rate.
      */
-    public ProgramOptions() {
+    private final static long MIN_PING_RATE = 100;
+    /**
+     * The minimum selectable ping rate.
+     */
+    private final static long MAX_PING_RATE = 3000;
+
+    /**
+     * This static block initializes the {@link #address} to the localhost address.
+     */
+    static {
         try {
             address = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
@@ -43,7 +74,7 @@ public class ProgramOptions {
      *
      * @return the mode the program has been set to run in.
      */
-    public ProgramMode getMode() {
+    public static ProgramMode getMode() {
         return mode;
     }
 
@@ -53,9 +84,9 @@ public class ProgramOptions {
      * @param mode the new program launch mode
      * @throws IllegalArgumentException if {@code mode} is null
      */
-    public void setMode(ProgramMode mode) {
+    public static void setMode(ProgramMode mode) {
         if (mode == null) throw new IllegalStateException("mode shouldn't be null");
-        this.mode = mode;
+        ProgramOptions.mode = mode;
     }
 
     /**
@@ -63,7 +94,7 @@ public class ProgramOptions {
      *
      * @return the port the server will liste on
      */
-    public int getPort() {
+    public static int getPort() {
         return port;
     }
 
@@ -73,9 +104,9 @@ public class ProgramOptions {
      * @param port the new port
      * @throws IllegalArgumentException if the port is less than 0
      */
-    public void setPort(int port) {
+    public static void setPort(int port) {
         if (port < 0) throw new IllegalArgumentException("port should be >= 0");
-        this.port = port;
+        ProgramOptions.port = port;
     }
 
     /**
@@ -83,7 +114,7 @@ public class ProgramOptions {
      *
      * @return the {@link InetAddress} the server will listen on
      */
-    public InetAddress getAddress() {
+    public static InetAddress getAddress() {
         return address;
     }
 
@@ -94,9 +125,83 @@ public class ProgramOptions {
      * @throws UnknownHostException     if {@code address} is not a valid IP address
      * @throws IllegalArgumentException if {@code address} is null
      */
-    public void setAddress(String address) throws UnknownHostException {
+    public static void setAddress(String address) throws UnknownHostException {
         if (address == null) throw new IllegalArgumentException("address shouldn't be null");
-        this.address = InetAddress.getByName(address);
+        ProgramOptions.address = InetAddress.getByName(address);
+    }
+
+    /**
+     * Returns whether the server will use persistence or not.
+     *
+     * @return whether the server will use persistence or not
+     */
+    public static boolean usesPersistence() {
+        return usePersistence;
+    }
+
+    /**
+     * Returns whether the server will send ping messages or not.
+     *
+     * @return whether the server will send ping messages or not
+     */
+    public static boolean usesPing() {
+        return usePing;
+    }
+
+    /**
+     * Sets the value of {@link #usePersistence}.
+     *
+     * @param usePersistence whether to use persistence or not
+     */
+    public static void setUsePersistence(boolean usePersistence) {
+        ProgramOptions.usePersistence = usePersistence;
+    }
+
+    /**
+     * Sets the value of {@link #usePing}.
+     *
+     * @param usePing whether to send pings or not
+     */
+    public static void setUsePing(boolean usePing) {
+        ProgramOptions.usePing = usePing;
+    }
+
+    /**
+     * Returns the maximum ping time acceptable by the server.
+     *
+     * @return the maximum ping time acceptable by the server
+     */
+    public static long getMaximumPing() {
+        return maximumPing;
+    }
+
+    /**
+     * Sets the value of {@link #maximumPing}.
+     *
+     * @param maximumPing the maximum ping time acceptable by the server
+     */
+    public static void setMaximumPing(long maximumPing) {
+        if (maximumPing < MIN_PING_RATE || maximumPing > MAX_PING_RATE)
+            throw new IllegalArgumentException("Choose a ping rate between " + MIN_PING_RATE + "ms and " + MAX_PING_RATE + "ms");
+        ProgramOptions.maximumPing = maximumPing;
+    }
+
+    /**
+     * Returns whether the program should have verbose output or not.
+     *
+     * @return whether the program should have verbose output or not
+     */
+    public static boolean isVerbose() {
+        return verbose;
+    }
+
+    /**
+     * Sets the value of {@link #verbose}.
+     *
+     * @param verbose whether the program should have verbose output or not
+     */
+    public static void setVerbose(boolean verbose) {
+        ProgramOptions.verbose = verbose;
     }
 
     /**
@@ -104,7 +209,7 @@ public class ProgramOptions {
      *
      * @return the {@link File} the server will save its persistence data in.
      */
-    public File getPersistenceStore() {
+    public static File getPersistenceStore() {
         return persistenceStore;
     }
 
@@ -114,7 +219,7 @@ public class ProgramOptions {
      * @param persistenceStore the new location
      * @throws IllegalArgumentException if {@code persistenceStore} does not meet the requirements
      */
-    public void setPersistenceStore(File persistenceStore) {
+    public static void setPersistenceStore(File persistenceStore) {
         if (persistenceStore == null) throw new IllegalArgumentException("persistenceStore shouldn't be null");
         if (persistenceStore.exists()) {
             if (!persistenceStore.isDirectory())
@@ -127,7 +232,11 @@ public class ProgramOptions {
             if (!parent.canRead() && !parent.canWrite())
                 throw new IllegalArgumentException("the process doesn't have the necessary permission to modify the directory");
         }
-        this.persistenceStore = persistenceStore;
+        ProgramOptions.persistenceStore = persistenceStore;
+
+        if (!persistenceStore.exists())
+            if (!persistenceStore.mkdir())
+                throw new IllegalStateException("Something went wrong in the creation of the directory " + persistenceStore);
     }
 
     /**
@@ -137,13 +246,15 @@ public class ProgramOptions {
         SERVER, CLIENT_CLI, CLIENT_GUI
     }
 
-    @Override
-    public String toString() {
-        return "ProgramOptions{" +
-                "mode=" + mode +
-                ", port=" + port +
-                ", address=" + address +
-                ", persistence-store=" + persistenceStore +
-                '}';
+    public static String printOptions() {
+        return "ProgramOptions:" +
+                "\n mode=" + mode +
+                "\n port=" + port +
+                "\n address=" + address +
+                "\n persistence-store=" + persistenceStore +
+                "\n use-persistence=" + usePersistence +
+                "\n use-ping=" + usePing +
+                "\n max-ping=" + maximumPing +
+                "\n verbose=" + verbose;
     }
 }

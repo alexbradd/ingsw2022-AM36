@@ -41,7 +41,7 @@ public class StandardCommandStrategy implements CommandStrategy {
         Game g = match.getGame();
         Dispatcher sender = command.getSecond();
 
-        PhaseDiff diff = null;
+        PhaseDiff diff;
         try {
             diff = g.executeUserCommand(command.getFirst());
         } catch (Exception exc) {

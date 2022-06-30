@@ -2,7 +2,8 @@ package it.polimi.ingsw.server.controller;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.server.Server;
+import it.polimi.ingsw.ProgramOptions;
+import it.polimi.ingsw.server.Logger;
 import it.polimi.ingsw.server.controller.commands.Parser;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.controller.persistence.PersistenceManager;
@@ -53,17 +54,19 @@ public class MatchRegistry {
     /**
      * A {@link PersistenceManager} instance responsible for all the saving/loading operations from disk of the server.
      */
-    private final PersistenceManager persistenceManager;
+    private PersistenceManager persistenceManager = null;
 
     /**
-     * Default constructor. // todo
+     * Default constructor.
      */
     protected MatchRegistry(BiFunction<Integer, Game, Match> matchSupplier) {
         this.matches = new ArrayList<>();
         this.matchSupplier = matchSupplier;
-        this.persistenceManager = new PersistenceManager(Server.persistenceStore);
 
-        persistenceManager.forEach((id, phase) -> matches.add(new Match(id, phase)));
+        if (ProgramOptions.usesPersistence()) {
+            this.persistenceManager = new PersistenceManager(ProgramOptions.getPersistenceStore());
+            persistenceManager.forEach((id, phase) -> matches.add(new Match(id, phase)));
+        }
     }
 
     /**
@@ -111,7 +114,7 @@ public class MatchRegistry {
      * @see #sendCommandToMatch(Dispatcher, JsonObject)
      */
     public void executeCommand(Dispatcher dispatcher, JsonObject jsonCommand) {
-        System.out.println("NEW COMMAND: " + jsonCommand.toString());
+        Logger.log("NEW COMMAND: " + jsonCommand.toString());
 
         String type;
         try {
@@ -138,16 +141,18 @@ public class MatchRegistry {
      * @param command    the {@code JsonObject} representing the {@code PONG} command
      */
     private void dispatchPong(Dispatcher dispatcher, JsonObject command) {
-        long gameId;
-        try {
-            gameId = extractNumber(command, "gameId");
-            get(gameId).getPinger().notifyResponse(dispatcher);
+        if (ProgramOptions.usesPing()) {
+            long gameId;
+            try {
+                gameId = extractNumber(command, "gameId");
+                get(gameId).getPinger().notifyResponse(dispatcher);
 
-        } catch (NoSuchElementException e) {
-            dispatcher.send(buildErrorMessage("No game with such ID."));
+            } catch (NoSuchElementException e) {
+                dispatcher.send(buildErrorMessage("No game with such ID."));
 
-        } catch (IllegalArgumentException e) {
-            dispatcher.send(buildErrorMessage("Wrong PONG message format."));
+            } catch (IllegalArgumentException e) {
+                dispatcher.send(buildErrorMessage("Wrong PONG message format."));
+            }
         }
     }
 
@@ -297,7 +302,9 @@ public class MatchRegistry {
         );
         matches.remove(m);
         m.setEnded();
-        persistenceManager.drop(m.getId());
+
+        if (ProgramOptions.usesPersistence())
+            persistenceManager.drop(m.getId());
 
         System.out.println("MATCH TERMINATED [ID: " + m.getId() + "]");
     }
@@ -322,7 +329,9 @@ public class MatchRegistry {
         );
         matches.remove(m);
         m.setEnded();
-        persistenceManager.drop(m.getId());
+
+        if (ProgramOptions.usesPersistence())
+            persistenceManager.drop(m.getId());
 
         System.out.println("MATCH TERMINATED [ID: " + m.getId() + "]");
     }

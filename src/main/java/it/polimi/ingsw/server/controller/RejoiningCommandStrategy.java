@@ -2,6 +2,7 @@ package it.polimi.ingsw.server.controller;
 
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.functional.Tuple;
+import it.polimi.ingsw.server.Logger;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.controller.commands.UserCommandType;
 import it.polimi.ingsw.server.model.Game;
@@ -30,7 +31,7 @@ public class RejoiningCommandStrategy implements CommandStrategy {
      */
     @Override
     public void manageCommand(Tuple<UserCommand, Dispatcher> command, Match match) {
-        System.out.println("using rejoining strategy...");
+        Logger.log("using rejoining strategy...");
 
         UserCommandType type = command.getFirst().getType();
         String username = command.getFirst().getUsername();
