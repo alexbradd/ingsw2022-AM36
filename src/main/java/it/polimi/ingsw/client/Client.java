@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -39,19 +40,21 @@ public class Client {
                 }
             });
             controller.setOnEnd(() -> {
-                try {
-                    socket.getInputStream().close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (!socket.isClosed()) {
+                    try {
+                        socket.getInputStream().close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
             controller.toMainMenu();
-            readWhileOpen(controller, socket, socketIn, socketOut);
-        } catch (IOException e) {
-            if(controller.toRun()) {
-                controller.setOnEnd(null);
-                controller.toDisconnectState();
-            }
+            readWhileOpen(controller, socketIn, socketOut);
+        } catch (IOException ignored) {
+        }
+        if(controller.toRun()) {
+            controller.setOnEnd(null);
+            controller.toDisconnectState();
         }
     }
 
@@ -60,27 +63,24 @@ public class Client {
      * the connection is open and the application is set to run.
      *
      * @param controller the application's controller
-     * @param socket the connection socket
      * @param socketIn the socket reader
      * @param socketOut the socket writer
      * @throws IOException if an error occurs
      */
-    private static void readWhileOpen(Controller controller, Socket socket, BufferedReader socketIn, OutputStreamWriter socketOut) throws IOException {
+    private static void readWhileOpen(Controller controller, BufferedReader socketIn, OutputStreamWriter socketOut) throws IOException {
         final Gson gson = new Gson();
         String read;
-        while (controller.toRun() && !socket.isClosed()) {
-            StringBuilder msg = new StringBuilder();
-            while ((read = socketIn.readLine()) != null) {
-                if (read.equals("")) {
-                    JsonObject message = gson.fromJson(msg.toString(), JsonObject.class);
-                    if (isPing(message))
-                        writeObjectToStream(socketOut, buildPing(message.get("id")));
-                    else
-                        controller.manageServerEvent(message);
-                    msg = new StringBuilder();
-                } else {
-                    msg.append(read).append('\n');
-                }
+        StringBuilder msg = new StringBuilder();
+        while ((read = socketIn.readLine()) != null) {
+            if (read.equals("")) {
+                JsonObject message = gson.fromJson(msg.toString(), JsonObject.class);
+                if (isPing(message))
+                    writeObjectToStream(socketOut, buildPing(message.get("id")));
+                else
+                    controller.manageServerEvent(message);
+                msg = new StringBuilder();
+            } else {
+                msg.append(read).append('\n');
             }
         }
     }
