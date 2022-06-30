@@ -235,7 +235,7 @@ abstract class ActionPhase extends IteratedPhase {
             Hall h = a.table.getBoardOf(player).getHall();
             int diff = h.size(c) - old.size(c);
             if (diff > 0) {
-                int numOfCoins = (h.size() / 3) - (old.size() / 3);
+                int numOfCoins = (h.size(c) / 3) - (old.size(c) / 3);
                 a.table = a.table.updateBoardOf(player, b -> {
                     for (int i = 0; i < numOfCoins; i++)
                         b = b.receiveCoin();
