@@ -63,9 +63,9 @@ class MainTest {
     void setPersistenceStore() throws ParameterParsingException {
         Main.fromCli(new String[]{"--persistence-store", "./deliveries"});
         assertEquals("deliveries", ProgramOptions.getPersistenceStore().getName());
-        Main.fromCli(new String[]{"--persistence-store", "aVerySpecificNameNotUsedByAnything"});
-        assertEquals("aVerySpecificNameNotUsedByAnything", ProgramOptions.getPersistenceStore().getName());
-        Main.fromCli(new String[]{"--persistence-store", "./aVerySpecificNameNotUsedByAnything"});
-        assertEquals("aVerySpecificNameNotUsedByAnything", ProgramOptions.getPersistenceStore().getName());
+        Main.fromCli(new String[]{"--persistence-store", "eryantis-store"});
+        assertEquals("eryantis-store", ProgramOptions.getPersistenceStore().getName());
+        Main.fromCli(new String[]{"--persistence-store", "./eryantis-store"});
+        assertEquals("eryantis-store", ProgramOptions.getPersistenceStore().getName());
     }
 }
