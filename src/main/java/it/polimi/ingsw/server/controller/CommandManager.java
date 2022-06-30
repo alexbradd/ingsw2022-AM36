@@ -1,8 +1,6 @@
 package it.polimi.ingsw.server.controller;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import it.polimi.ingsw.ProgramOptions;
 import it.polimi.ingsw.functional.Tuple;
 import it.polimi.ingsw.server.Logger;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
@@ -101,12 +99,6 @@ public class CommandManager implements Runnable {
             setStrategy(DEFAULT_STRATEGY);
 
         strategy.manageCommand(command, match);
-
-        if (ProgramOptions.usesPersistence())
-            new Thread(() -> MatchRegistry.getInstance()
-                    .getPersistenceManager()
-                    .commit(match.getId(), match.getGame().getPhase()))
-                    .start();
 
         Game g = match.getGame();
         if (g.isEnded()) {
