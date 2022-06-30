@@ -24,7 +24,7 @@ Il protocollo userà JSON e sarà codificato in UTF-8.
 
 \section{Sequenza}
 
-Distinguiamo 5 possibili scenari di interazione tra le parti:
+Distinguiamo 6 possibili scenari di interazione tra le parti:
 
 \begin{enumerate}
 \item Ricerca delle partite
@@ -32,11 +32,12 @@ Distinguiamo 5 possibili scenari di interazione tra le parti:
 \item Unione/abbandono di una partita
 \item Fase di gioco
 \item Ping
+\item Heartbeat
 \end{enumerate}
 
-Tranne per il ping, che è continuo dall'unione del giocatore fino alla fine
-della partita, tutti gli scenari si svolgeranno nella sequenza con cui sono
-stati indicati sopra.
+Tranne per il ping, che è continuo dall'unione del giocatore fino alla fine della
+partita, e lo heartbeat, un semplice echo, tutti gli scenari si svolgeranno nella
+sequenza con cui sono stati indicati sopra.
 
 \subsection{Ricerca delle partite}
 
@@ -149,6 +150,14 @@ sono stati omessi.
 \end{figure}
 
 \newpage
+
+\subsection{Heartbeat}
+
+Il messaggio di heartbeat può essere mandato dal client in qualsiasi momento. Il
+server semplicemente risponderà con un echo del messaggio. A differenza del
+ping, che è inviato dal server e serve a controllare se un client è ancora
+connesso alla partita, lo heartbeat funge da semplice test di raggiungibilità e
+non altera in alcun modo lo stato del server.
 
 \section{Dettaglio messaggi client}
 
@@ -289,6 +298,14 @@ Per scopi documentativi, sono stati aggiunti dei commenti delimitati da
 {
   "gameId": 1234567890
   "type": "PONG"
+}
+\end{verbatim}
+
+\subsection{\texttt{HEARTBEAT}}
+
+\begin{verbatim}
+{
+  "type": "HEARTBEAT"
 }
 \end{verbatim}
 
