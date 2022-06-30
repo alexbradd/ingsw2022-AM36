@@ -5,13 +5,14 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import it.polimi.ingsw.functional.Tuple;
-import it.polimi.ingsw.server.model.Character;
+import it.polimi.ingsw.server.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
  * The polymorphism is handled by adding to the root object a key with the name {@link #TYPE_KEY} containing the class's
  * canonical name. During deserialization the class whose name is in the property {@link #TYPE_KEY} will be effectively
  * instantiated.
+ *
  * @param <T> The type that is handled by this adapter
  */
 public class ModelPolymorphicTypeAdapterFactory<T> implements TypeAdapterFactory {
@@ -82,6 +84,7 @@ public class ModelPolymorphicTypeAdapterFactory<T> implements TypeAdapterFactory
         nameToSubclass = getSubclassesInModel(packageOverride, superclass);
         subclassToName = new HashMap<>();
         nameToSubclass.forEach((k, v) -> subclassToName.put(v, k));
+        Logger.log("Registered classes for supertype " + superclass + ": " + nameToSubclass.values());
     }
 
     /**
@@ -99,7 +102,7 @@ public class ModelPolymorphicTypeAdapterFactory<T> implements TypeAdapterFactory
         return reader.lines()
                 .filter(line -> line.endsWith(".class"))
                 .map(line -> getClass(line, packageName))
-                .filter(c -> Objects.equals(c.getSuperclass(), superclass))
+                .filter(c -> isDirectDescendantOf(superclass, c))
                 .<Class<?>>mapMulti((c, consumer) -> {
                     if (Modifier.isAbstract(c.getModifiers())) {
                         Map<String, Class<?>> subclasses = getSubclassesInModel(packageName, c);
@@ -120,6 +123,18 @@ public class ModelPolymorphicTypeAdapterFactory<T> implements TypeAdapterFactory
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("Error loading class", e);
         }
+    }
+
+    /**
+     * Returns true if {@code ancestor} is superclass or an implemented interface of {@code toTest}
+     *
+     * @param ancestor the ancestor {@link Class}
+     * @param toTest   the {@link Class} to test
+     * @return true if {@code ancestor} is superclass or an implemented interface of {@code toTest}
+     */
+    private static boolean isDirectDescendantOf(Class<?> ancestor, Class<?> toTest) {
+        return Objects.equals(toTest.getSuperclass(), ancestor) ||
+                Arrays.asList(toTest.getInterfaces()).contains(ancestor);
     }
 
     /**
@@ -146,7 +161,7 @@ public class ModelPolymorphicTypeAdapterFactory<T> implements TypeAdapterFactory
                 @SuppressWarnings("unchecked") // necessary to fix typing
                 TypeAdapter<R> adapter = (TypeAdapter<R>) subtypeToDelegate.get(srcClass);
                 if (adapter == null)
-                    throw new JsonParseException("Unknown subclass");
+                    throw new JsonParseException("Unknown subclass " + srcClass);
                 JsonObject obj = adapter.toJsonTree(value).getAsJsonObject();
                 obj.add(TYPE_KEY, new JsonPrimitive(label));
                 elementAdapter.write(out, obj);
