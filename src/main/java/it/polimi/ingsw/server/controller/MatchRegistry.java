@@ -104,8 +104,8 @@ public class MatchRegistry {
 
     /**
      * This method manages a command, expressed as a JSON object (gson's {@link JsonObject}), and decides whether to
-     * process the response directly (in case of a {@code FETCH} or {@code CREATE} command) or to route it to a specific
-     * {@link Match} (in case of another {@code type} attribute (see net protocol docs).
+     * process the response directly (in case of a {@code FETCH}, {@code CREATE} or {@code HEARTBEAT} command) or to
+     * route it to a specific {@link Match} (in case of another {@code type} attribute (see net protocol docs)).
      *
      * @param dispatcher  the {@link Dispatcher} instance that sent the command
      * @param jsonCommand the command, expressed as a JSON object
@@ -128,6 +128,7 @@ public class MatchRegistry {
             case "PONG" -> dispatchPong(dispatcher, jsonCommand);
             case "FETCH" -> fetchMatches(dispatcher);
             case "CREATE" -> createMatch(dispatcher, jsonCommand);
+            case "HEARTBEAT" -> dispatcher.send(jsonCommand);
             default -> sendCommandToMatch(dispatcher, jsonCommand);
         }
     }
