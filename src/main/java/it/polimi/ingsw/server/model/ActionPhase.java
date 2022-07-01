@@ -463,9 +463,13 @@ abstract class ActionPhase extends IteratedPhase {
      * @return a new updated ActionPhase
      */
     ActionPhase assignTower(int index) {
-        if (index < 0 || index > table.getIslandList().size())
+        if (index < 0 || index > getParameters().getnIslands())
             throw new IllegalArgumentException("island index out of bounds");
-        return assignTower(table.getIslandList().get(index));
+        return table.getIslandList().stream()
+                .filter(i -> i.getIds().contains(index))
+                .findAny()
+                .map(this::assignTower)
+                .orElseThrow(IllegalStateException::new);
     }
 
     /**
