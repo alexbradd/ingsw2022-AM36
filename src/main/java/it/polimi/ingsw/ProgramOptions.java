@@ -44,6 +44,14 @@ public class ProgramOptions {
      * The directory in which to save the match states.
      */
     private static File persistenceStore;
+    /**
+     * The number of milliseconds the client's read will wait before timing out.
+     */
+    private static int clientSocketTimeout = 10000;
+    /**
+     * The amount of time between each of the client's reachability check (in milliseconds)
+     */
+    private static long connectivityCheckInterval = 5000;
 
     static {
         setPersistenceStore(new File("./eryantis-store"));
@@ -237,6 +245,50 @@ public class ProgramOptions {
         if (!persistenceStore.exists())
             if (!persistenceStore.mkdir())
                 throw new IllegalStateException("Something went wrong in the creation of the directory " + persistenceStore);
+    }
+
+    /**
+     * Returns the number of milliseconds the client's read will wait before timing out.
+     *
+     * @return the number of milliseconds the client's read will wait before timing out.
+     */
+    public static int getClientSocketTimeout() {
+        return clientSocketTimeout;
+    }
+
+    /**
+     * Sets the number of milliseconds the client's read will wait before timing out. It must be greater than
+     * {@link #getMaximumPing()}.
+     *
+     * @param clientSocketTimeout the new timeout interval
+     * @throws IllegalArgumentException if the interval is not valid
+     */
+    public static void setClientSocketTimeout(int clientSocketTimeout) {
+        if (clientSocketTimeout < maximumPing)
+            throw new IllegalArgumentException("clientSocketTimout must be at least maximumPing");
+        ProgramOptions.clientSocketTimeout = clientSocketTimeout;
+    }
+
+    /**
+     * Returns the amount of time between each of the client's reachability check (in milliseconds)
+     *
+     * @return the amount of time between each of the client's reachability check
+     */
+    public static long getConnectivityCheckInterval() {
+        return connectivityCheckInterval;
+    }
+
+    /**
+     * Sets the amount of time between each of the client's reachability check (in milliseconds). It must be at least
+     * {@link #getClientSocketTimeout()}.
+     *
+     * @param connectivityCheckInterval the new check interval
+     * @throws IllegalArgumentException if the interval is not valid
+     */
+    public static void setConnectivityCheckInterval(long connectivityCheckInterval) {
+        if (connectivityCheckInterval < clientSocketTimeout)
+            throw new IllegalArgumentException("connectivityCheckInterval must be at least clientSocketTimeout");
+        ProgramOptions.connectivityCheckInterval = connectivityCheckInterval;
     }
 
     /**

@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * This class handles Client's side communication.
@@ -25,33 +27,43 @@ public class Client {
      */
     public static void exec() {
         final Controller controller = new Controller();
+        final Timer timer = new Timer();
 
         controller.initUI(ProgramOptions.getMode());
-        try (Socket socket = new Socket(ProgramOptions.getAddress(), ProgramOptions.getPort());
-             BufferedReader socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-             OutputStreamWriter socketOut = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
+        try (Socket socket = new Socket(ProgramOptions.getAddress(), ProgramOptions.getPort())) {
             System.out.println("Connection established.\n");
-            controller.setOnUserMessage(userMessage -> {
-                try {
-                    writeObjectToStream(socketOut, userMessage);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-            controller.setOnEnd(() -> {
-                try {
-                    socket.getInputStream().close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-            controller.toMainMenu();
-            readWhileOpen(controller, socket, socketIn, socketOut);
-        } catch (IOException e) {
-            if(controller.toRun()) {
-                controller.setOnEnd(null);
-                controller.toDisconnectState();
+            socket.setSoTimeout(ProgramOptions.getClientSocketTimeout());
+            try (BufferedReader socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+                 OutputStreamWriter socketOut = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)) {
+                timer.scheduleAtFixedRate(
+                        buildPeriodicConnectivityChecker(socketOut),
+                        0,
+                        ProgramOptions.getConnectivityCheckInterval());
+                controller.setOnUserMessage(userMessage -> {
+                    try {
+                        writeObjectToStream(socketOut, userMessage);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+                controller.setOnEnd(() -> {
+                    timer.cancel();
+                    if (!socket.isClosed()) {
+                        try {
+                            socket.getInputStream().close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                controller.toMainMenu();
+                readWhileOpen(controller, socketIn, socketOut);
             }
+        } catch (IOException ignored) {
+        }
+        if (controller.toRun()) {
+            controller.setOnEnd(timer::cancel);
+            controller.toDisconnectState();
         }
     }
 
@@ -60,27 +72,24 @@ public class Client {
      * the connection is open and the application is set to run.
      *
      * @param controller the application's controller
-     * @param socket the connection socket
-     * @param socketIn the socket reader
-     * @param socketOut the socket writer
+     * @param socketIn   the socket reader
+     * @param socketOut  the socket writer
      * @throws IOException if an error occurs
      */
-    private static void readWhileOpen(Controller controller, Socket socket, BufferedReader socketIn, OutputStreamWriter socketOut) throws IOException {
+    private static void readWhileOpen(Controller controller, BufferedReader socketIn, OutputStreamWriter socketOut) throws IOException {
         final Gson gson = new Gson();
         String read;
-        while (controller.toRun() && !socket.isClosed()) {
-            StringBuilder msg = new StringBuilder();
-            while ((read = socketIn.readLine()) != null) {
-                if (read.equals("")) {
-                    JsonObject message = gson.fromJson(msg.toString(), JsonObject.class);
-                    if (isPing(message))
-                        writeObjectToStream(socketOut, buildPing(message.get("id")));
-                    else
-                        controller.manageServerEvent(message);
-                    msg = new StringBuilder();
-                } else {
-                    msg.append(read).append('\n');
-                }
+        StringBuilder msg = new StringBuilder();
+        while ((read = socketIn.readLine()) != null) {
+            if (read.equals("")) {
+                JsonObject message = gson.fromJson(msg.toString(), JsonObject.class);
+                if (isPing(message))
+                    writeObjectToStream(socketOut, buildPing(message.get("id")));
+                else if (isNotHeartbeat(message))
+                    controller.manageServerEvent(message);
+                msg = new StringBuilder();
+            } else {
+                msg.append(read).append('\n');
             }
         }
     }
@@ -101,15 +110,56 @@ public class Client {
     }
 
     /**
+     * Creates a new {@link TimerTask} that periodically writes a HEARTBEAT message to the server
+     *
+     * @param out the {@link OutputStreamWriter}
+     * @return a {@link TimerTask}
+     */
+    private static TimerTask buildPeriodicConnectivityChecker(OutputStreamWriter out) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    writeObjectToStream(out, buildHeartbeat());
+                } catch (IOException ignored) {
+                }
+            }
+        };
+    }
+
+    /**
+     * Creates a new HEARTBEAT message
+     *
+     * @return a new JsonObject representing a HEARTBEAT message
+     */
+    private static JsonObject buildHeartbeat() {
+        JsonObject o = new JsonObject();
+        o.addProperty("type", "HEARTBEAT");
+        return o;
+    }
+
+    /**
      * Helper that returns true if the given message is of type PING
      *
      * @param message the message
-     * @return ture if message is of type PING
+     * @return true if message is of type PING
      * @throws IllegalArgumentException if any parameter is null
      */
     private static boolean isPing(JsonObject message) {
         if (message == null) throw new IllegalArgumentException("message should not be null");
         return message.get("type").getAsString().equals("PING");
+    }
+
+    /**
+     * Returns true if the given message is not a HEARTBERAT message
+     *
+     * @param message the message
+     * @return true if the given message is not a HEARTBERAT message
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    private static boolean isNotHeartbeat(JsonObject message) {
+        if (message == null) throw new IllegalArgumentException("message should not be null");
+        return !message.get("type").getAsString().equals("HEARTBEAT");
     }
 
     /**
