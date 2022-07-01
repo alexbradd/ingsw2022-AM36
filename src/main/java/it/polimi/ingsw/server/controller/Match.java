@@ -79,7 +79,7 @@ public class Match {
      * @throws IllegalArgumentException  if the {@link Game} passed is null
      * @throws IndexOutOfBoundsException if the {@code id} is negative
      */
-    Match(int id, Game game) {
+    Match(long id, Game game) {
         if (id < 0)
             throw new IndexOutOfBoundsException("id must be positive.");
 

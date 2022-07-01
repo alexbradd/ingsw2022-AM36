@@ -1,6 +1,8 @@
 package it.polimi.ingsw.server.controller;
 
 import it.polimi.ingsw.server.model.Game;
+import it.polimi.ingsw.server.model.MockPhase;
+import it.polimi.ingsw.server.model.Phase;
 import it.polimi.ingsw.server.net.Dispatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +38,12 @@ class MatchTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> new Match(0, (Game) null));
+
+        assertThrows(IndexOutOfBoundsException.class,
+                () -> new Match(-1, new MockPhase()));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new Match(0, (Phase) null));
     }
 
     /**

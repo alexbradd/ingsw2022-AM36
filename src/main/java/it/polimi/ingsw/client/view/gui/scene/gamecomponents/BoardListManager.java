@@ -19,7 +19,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
 import java.util.Arrays;

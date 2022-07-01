@@ -3,7 +3,10 @@ package it.polimi.ingsw.client.view.cli;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.client.control.CLIMessageBuilder;
 import it.polimi.ingsw.client.control.Controller;
-import it.polimi.ingsw.client.control.state.*;
+import it.polimi.ingsw.client.control.state.EndState;
+import it.polimi.ingsw.client.control.state.ErrorState;
+import it.polimi.ingsw.client.control.state.GameState;
+import it.polimi.ingsw.client.control.state.Lobby;
 import it.polimi.ingsw.client.view.View;
 
 import java.util.Arrays;

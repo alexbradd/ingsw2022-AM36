@@ -1,9 +1,7 @@
 package it.polimi.ingsw.server.controller;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.ProgramOptions;
-import it.polimi.ingsw.server.Server;
 import it.polimi.ingsw.server.controller.commands.UserCommand;
 import it.polimi.ingsw.server.controller.commands.UserCommandType;
 import it.polimi.ingsw.server.model.Game;
@@ -17,6 +15,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import static it.polimi.ingsw.server.controller.ControllerTestUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
@@ -99,60 +98,6 @@ class MatchRegistryTest {
 
         assertIterableEquals(List.of(d2),
                 MatchRegistry.getInstance().get(0).getDispatchers());
-    }
-
-    /**
-     * Helper method for creating a CREATE command
-     * @param name the name of the player
-     * @param nPlayers the number of player of the Match
-     * @param expert whether the Match should be in expert mode or not
-     * @return the CREATE command
-     */
-    private JsonObject generateCreate(String name, int nPlayers, boolean expert) {
-        JsonObject command = new JsonObject();
-        command.addProperty("type", "CREATE");
-        command.addProperty("username", name);
-
-        JsonObject argument = new JsonObject();
-        argument.addProperty("nPlayers", nPlayers);
-        argument.addProperty("expert", expert);
-
-        JsonArray arguments = new JsonArray();
-        arguments.add(argument);
-
-        command.add("arguments", arguments);
-
-        return command;
-    }
-
-    /**
-     * Helper method for creating a JOIN command
-     * @param name the name of the player
-     * @param id the id of the Match to join
-     * @return the JOIN command
-     */
-    private JsonObject generateJoin(String name, int id) {
-        JsonObject command = new JsonObject();
-        command.addProperty("type", "JOIN");
-        command.addProperty("username", name);
-        command.addProperty("gameId", id);
-
-        return command;
-    }
-
-    /**
-     * Helper method for creating a LEAVE command
-     * @param name the name of the player
-     * @param id the id of the Match to leave
-     * @return the LEAVE command
-     */
-    private JsonObject generateLeave(String name, int id) {
-        JsonObject command = new JsonObject();
-        command.addProperty("type", "LEAVE");
-        command.addProperty("username", name);
-        command.addProperty("gameId", id);
-
-        return command;
     }
 }
 
