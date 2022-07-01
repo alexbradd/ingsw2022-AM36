@@ -61,6 +61,30 @@ Coverage report as reported by our IDE (Intellij IDEA):
 |:------:|:-------:|:-----:|
 |  98%   |   90%   |  89   |
 
+## Command line options documentation
+
+The provided executable will accept the following command line options:
+
+- `--server`: runs the executable in server mode (if omitted, the executable 
+  will run in this mode)
+- `--client-cli`: runs the executable in textual mode
+- `--client-gui`: runs the executable in graphical mode
+- `--port [PORT]`: listen/connect to this port (default is *9999*)
+- `--address [IP]`: used only in client mode, connect to this address (default
+  is *localhost*)
+- `--persistence-store [PATH]`: use this path to store persistence files
+  (default is *./eryantis-store*)
+- `--no-persistence`: disable persistence
+- `--no-ping`: disable server pinging during a game (see protocol documentation)
+- `--max-ping [MS]`: used in server mode, set the maximum time in milliseconds
+  to wait for clients to respond to PING messages (see protocol documentation)
+  (default is *1000*, choose a value between 100 and 3000) 
+- `--client-socket-timeout [MS]`: used in client mode, set the socket timeout
+  (default is *10000*)
+- `--connectivity-check-interval [MS]`: used in client mode, set the amount of
+  milliseconds between each HEARTBEAT message (default is *5000*)
+- `--verbose`: use more verbose output
+
 ## Note about the documentation
 
 We have included in the project's deliverables both the documentation as
