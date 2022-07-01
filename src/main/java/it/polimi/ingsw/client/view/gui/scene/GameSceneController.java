@@ -80,7 +80,7 @@ public class GameSceneController {
     @FXML
     private StackPane rootPane;
     @FXML
-    private StackPane tablePane;
+    private HBox tablePane;
     @FXML
     private StackPane waitingPane;
     @FXML

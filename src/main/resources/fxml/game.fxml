@@ -20,21 +20,24 @@
         <center>
             <TabPane prefHeight="200.0" prefWidth="200.0" side="LEFT" tabClosingPolicy="UNAVAILABLE">
                 <Tab closable="false" text="Table">
-                    <StackPane fx:id="tablePane">
-                        <HBox alignment="CENTER">
-                            <Group fx:id="islandsGroup"/>
+                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefViewportHeight="685.0">
+                        <HBox fx:id="tablePane" alignment="CENTER" fillHeight="false" prefHeight="685.0"
+                              prefWidth="1249.0">
+                            <ScrollPane prefViewportHeight="670.0" prefViewportWidth="948.0">
+                                <Group fx:id="islandsGroup"/>
+                            </ScrollPane>
                             <VBox alignment="CENTER" prefHeight="200.0" prefWidth="300.0" spacing="5.0">
-                                <TilePane fx:id="characterPane" alignment="CENTER" hgap="2.0"
-                                          prefColumns="2" prefRows="2" vgap="2.0"/>
-                                <ImageView fx:id="sackImage" fitHeight="120.0" fitWidth="120.0"
-                                           pickOnBounds="true" preserveRatio="true">
+                                <TilePane fx:id="characterPane" alignment="CENTER" hgap="2.0" prefColumns="2"
+                                          prefRows="2" vgap="2.0"/>
+                                <ImageView fx:id="sackImage" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true"
+                                           preserveRatio="true">
                                     <Image url="@../img/sack/full.png"/>
                                 </ImageView>
-                                <FlowPane fx:id="cloudPane" alignment="CENTER"
-                                          columnHalignment="CENTER" hgap="5.0" vgap="5.0"/>
+                                <FlowPane fx:id="cloudPane" alignment="CENTER" columnHalignment="CENTER" hgap="5.0"
+                                          vgap="5.0"/>
                             </VBox>
                         </HBox>
-                    </StackPane>
+                    </ScrollPane>
                 </Tab>
                 <Tab closable="false" text="Boards">
                     <ScrollPane fitToWidth="true" prefHeight="200.0" prefWidth="200.0">

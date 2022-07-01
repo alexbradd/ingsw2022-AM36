@@ -10,6 +10,8 @@ import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Translate;
 
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ public class IslandListManager {
     /**
      * The vertical radius of the ellipse
      */
-    private final static double ELIPSE_RADIUS_Y = 250;
+    private final static double ELIPSE_RADIUS_Y = 255;
 
     /**
      * The currently displayed list of island group managers
@@ -124,7 +126,7 @@ public class IslandListManager {
             islands.add(builder);
             Node island = builder.build(angle);
             Tuple<Double, Double> radius = getEllipseRadius(angle);
-            island.getTransforms().add(new Translate(radius.getFirst(), radius.getSecond()));
+            island.getTransforms().add(radius.map(Translate::new));
             islandPane.getChildren().add(island);
         }
     }
