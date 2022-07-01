@@ -20,7 +20,6 @@ class MainTest {
         assertThrows(ParameterParsingException.class, () -> Main.fromCli(new String[]{"--address", "0.1263.5...456"}));
         assertThrows(ParameterParsingException.class, () -> Main.fromCli(new String[]{"--persistence-store"}));
         assertThrows(ParameterParsingException.class, () -> Main.fromCli(new String[]{"--persistence-store", "./.gitignore"}));
-        assertThrows(ParameterParsingException.class, () -> Main.fromCli(new String[]{"--persistence-store", "/"}));
     }
 
     /**
