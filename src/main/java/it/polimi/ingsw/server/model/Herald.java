@@ -10,7 +10,7 @@ import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class Herald extends Character {
+public class Herald extends Character {
     /**
      * Base constructor. Sets up only the card's initial cost and character
      */

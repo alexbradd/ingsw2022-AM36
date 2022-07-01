@@ -11,7 +11,7 @@ import java.util.Optional;
  * @author Alexandru Gabriel Bradatan
  * @see Island
  */
-class StandardInfluenceCalculator implements InfluenceCalculator {
+public class StandardInfluenceCalculator implements InfluenceCalculator {
     /**
      * Given an {@link Island}, calculates the influences of all players that have some. An {@link Optional} is
      * returned containing a {@link Map} that maps each player to its non-zero influence. The {@link Optional} is empty

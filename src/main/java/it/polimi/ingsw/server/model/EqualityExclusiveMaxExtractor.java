@@ -11,7 +11,7 @@ import java.util.Optional;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class EqualityExclusiveMaxExtractor extends MaxExtractor {
+public class EqualityExclusiveMaxExtractor extends MaxExtractor {
     /**
      * Tries to determine the {@link Player} corresponding to the maximum value in {@link Map}. If it can be
      * determined, it is returned inside an {@link Optional}, else an empty {@link Optional} is returned. The criteria

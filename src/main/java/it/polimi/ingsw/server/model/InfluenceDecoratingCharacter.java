@@ -13,7 +13,7 @@ import java.util.Objects;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class InfluenceDecoratingCharacter extends Character {
+public class InfluenceDecoratingCharacter extends Character {
     private final Behaviour behaviour;
 
     /**

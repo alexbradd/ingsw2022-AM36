@@ -21,19 +21,7 @@ import java.util.stream.Collectors;
 /**
  * TypeAdapterFactory that correctly handler the model's polymorphic types.
  * <p>
- * The class will find all the direct subclasses of the parameter type excluding abstract classes. If an abstract class
- * is found, all its concrete implementation will be recursively added. This effectively means that given the following
- * inheritance tree the bracketed classes will be handled:
- *
- * <pre>
- *
- *   / [Concrete] - Concrete
- *   |
- * T + Abstract + [Concrete] - Concrete
- *   |          + [Concrete]
- *   |
- *   \ Abstract - Abstract - [Concrete]
- * </pre>
+ * Each subtype should be manually registered with {@link #registerSubtype(Class)}.
  * <p>
  * The polymorphism is handled by adding to the root object a key with the name {@link #TYPE_KEY} containing the class's
  * canonical name. During deserialization the class whose name is in the property {@link #TYPE_KEY} will be effectively
@@ -66,75 +54,27 @@ public class ModelPolymorphicTypeAdapterFactory<T> implements TypeAdapterFactory
      * @throws IllegalArgumentException if {@code superclass} is null
      */
     public ModelPolymorphicTypeAdapterFactory(Class<T> superclass) {
-        this("it.polimi.ingsw.server.model", superclass);
-    }
-
-    /**
-     * Creates a new TypeAdapterFactory for the given superclass overriding the package in which the classes are
-     * searched.
-     *
-     * @param packageOverride the package in which the classes are located
-     * @param superclass      the superclass from which the runtime types will be subtypes of
-     * @throws IllegalArgumentException if {@code superclass} is null
-     */
-    ModelPolymorphicTypeAdapterFactory(String packageOverride, Class<T> superclass) {
         if (superclass == null) throw new IllegalArgumentException("superclass shouldn't be null");
-        if (packageOverride == null) throw new IllegalArgumentException("packageOverride shouldn't be null");
         this.superclass = superclass;
-        nameToSubclass = getSubclassesInModel(packageOverride, superclass);
+        nameToSubclass = new HashMap<>();
         subclassToName = new HashMap<>();
-        nameToSubclass.forEach((k, v) -> subclassToName.put(v, k));
-        Logger.log("Registered classes for supertype " + superclass + ": " + nameToSubclass.values());
     }
 
     /**
-     * Returns the first concrete classes that have the given class as their ancestor.
+     * Registers a new subtype
      *
-     * @param packageName the package in which to search
-     * @param superclass  the superclass
-     * @return a map mapping each class to its simple name (as returned by {@link Class#getSimpleName()})
+     * @param subtype the subtype
+     * @throws IllegalArgumentException if {@code subtype} is null, abstract or already registered
      */
-    private static Map<String, Class<?>> getSubclassesInModel(String packageName, Class<?> superclass) {
-        InputStream stream = ModelPolymorphicTypeAdapterFactory.class.getClassLoader()
-                .getResourceAsStream(packageName.replaceAll("[.]", "/"));
-        assert stream != null;
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        return reader.lines()
-                .filter(line -> line.endsWith(".class"))
-                .map(line -> getClass(line, packageName))
-                .filter(c -> isDirectDescendantOf(superclass, c))
-                .<Class<?>>mapMulti((c, consumer) -> {
-                    if (Modifier.isAbstract(c.getModifiers())) {
-                        Map<String, Class<?>> subclasses = getSubclassesInModel(packageName, c);
-                        subclasses.forEach((k, v) -> consumer.accept(v));
-                    } else
-                        consumer.accept(c);
-                })
-                .map(c -> new Tuple<>(c.getCanonicalName(), c.asSubclass(superclass)))
-                .collect(Collectors.toMap(Tuple::getFirst, Tuple::getSecond, (v1, v2) -> v1));
-    }
-
-    /**
-     * Utility method, wraps {@link Class#forName(String)} in a try-catch
-     */
-    private static Class<?> getClass(String className, String packageName) {
-        try {
-            return Class.forName(packageName + "." + className.substring(0, className.lastIndexOf('.')));
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("Error loading class", e);
-        }
-    }
-
-    /**
-     * Returns true if {@code ancestor} is superclass or an implemented interface of {@code toTest}
-     *
-     * @param ancestor the ancestor {@link Class}
-     * @param toTest   the {@link Class} to test
-     * @return true if {@code ancestor} is superclass or an implemented interface of {@code toTest}
-     */
-    private static boolean isDirectDescendantOf(Class<?> ancestor, Class<?> toTest) {
-        return Objects.equals(toTest.getSuperclass(), ancestor) ||
-                Arrays.asList(toTest.getInterfaces()).contains(ancestor);
+    public void registerSubtype(Class<? extends T> subtype) {
+        if (subtype == null) throw new IllegalArgumentException("subtype shouldn't be null");
+        if (subclassToName.containsKey(subtype))
+            throw new IllegalArgumentException("subtype already registered");
+        if (Modifier.isAbstract(subtype.getModifiers()))
+            throw new IllegalArgumentException("only concrete subtypes please");
+        nameToSubclass.put(subtype.getCanonicalName(), subtype);
+        subclassToName.put(subtype, subtype.getCanonicalName());
+        Logger.log("Registered classes for supertype " + superclass + ": " + subtype);
     }
 
     /**

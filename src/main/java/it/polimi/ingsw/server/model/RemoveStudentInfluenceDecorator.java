@@ -11,7 +11,7 @@ import java.util.Optional;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class RemoveStudentInfluenceDecorator extends InfluenceCalculatorDecorator {
+public class RemoveStudentInfluenceDecorator extends InfluenceCalculatorDecorator {
     /**
      * The color of the students that will be excluded during influence calculation.
      */

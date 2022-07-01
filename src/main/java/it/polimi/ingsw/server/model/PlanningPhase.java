@@ -23,7 +23,7 @@ import java.util.function.Function;
  * @see IteratedPhase
  * @see ClockWiseIterator
  */
-class PlanningPhase extends IteratedPhase {
+public class PlanningPhase extends IteratedPhase {
     /**
      * The table instance of the phase.
      */

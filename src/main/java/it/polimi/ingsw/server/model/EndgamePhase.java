@@ -13,7 +13,7 @@ import java.util.Optional;
  * @author Leonardo Bianconi, Alexandru Gabriel Bradatan
  * @see Phase
  */
-class EndgamePhase extends Phase {
+public class EndgamePhase extends Phase {
     /**
      * This EndgamePhase's table
      */

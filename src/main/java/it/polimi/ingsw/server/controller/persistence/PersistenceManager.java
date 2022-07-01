@@ -10,6 +10,8 @@ import it.polimi.ingsw.server.model.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
@@ -43,6 +45,11 @@ public class PersistenceManager {
     public static final String CLASS_DISCRIMINATOR_PROP_NAME = ModelPolymorphicTypeAdapterFactory.TYPE_KEY;
 
     /**
+     * Static map of all handled supertypes and their adapters
+     */
+    private static final Map<Class<?>, ModelPolymorphicTypeAdapterFactory<?>> adapters = new HashMap<>();
+
+    /**
      * The GSON instance used by all serialization/deserialization methods of the instance
      */
     private final Gson GSON;
@@ -70,6 +77,43 @@ public class PersistenceManager {
      */
     private BiFunction<File, String, File> childFileSupplier = DEFAULT_CHILD_FILE_SUPPLIER;
 
+    static {
+        ModelPolymorphicTypeAdapterFactory<Character> characterAdapter = new ModelPolymorphicTypeAdapterFactory<>(Character.class);
+        characterAdapter.registerSubtype(Thief.class);
+        characterAdapter.registerSubtype(PriestAndPrincess.class);
+        characterAdapter.registerSubtype(Messenger.class);
+        characterAdapter.registerSubtype(Jester.class);
+        characterAdapter.registerSubtype(Innkeeper.class);
+        characterAdapter.registerSubtype(InfluenceDecoratingCharacter.class);
+        characterAdapter.registerSubtype(Herbalist.class);
+        characterAdapter.registerSubtype(Herald.class);
+        characterAdapter.registerSubtype(Bard.class);
+
+        ModelPolymorphicTypeAdapterFactory<InfluenceCalculator> influenceAdapter = new ModelPolymorphicTypeAdapterFactory<>(InfluenceCalculator.class);
+        influenceAdapter.registerSubtype(StandardInfluenceCalculator.class);
+        influenceAdapter.registerSubtype(RemoveStudentInfluenceDecorator.class);
+        influenceAdapter.registerSubtype(IgnoreTowersInfluenceDecorator.class);
+        influenceAdapter.registerSubtype(ExtraPointsInfluenceDecorator.class);
+
+        ModelPolymorphicTypeAdapterFactory<MaxExtractor> maxAdapter = new ModelPolymorphicTypeAdapterFactory<>(MaxExtractor.class);
+        maxAdapter.registerSubtype(EqualityInclusiveMaxExtractor.class);
+        maxAdapter.registerSubtype(EqualityExclusiveMaxExtractor.class);
+
+        ModelPolymorphicTypeAdapterFactory<Phase> phaseAdapter = new ModelPolymorphicTypeAdapterFactory<>(Phase.class);
+        phaseAdapter.registerSubtype(StudentMovePhase.class);
+        phaseAdapter.registerSubtype(PreparePhase.class);
+        phaseAdapter.registerSubtype(PlanningPhase.class);
+        phaseAdapter.registerSubtype(MnMovePhase.class);
+        phaseAdapter.registerSubtype(LobbyPhase.class);
+        phaseAdapter.registerSubtype(EndgamePhase.class);
+        phaseAdapter.registerSubtype(CloudPickPhase.class);
+
+        adapters.put(Character.class, characterAdapter);
+        adapters.put(InfluenceCalculator.class, influenceAdapter);
+        adapters.put(MaxExtractor.class, maxAdapter);
+        adapters.put(Phase.class, phaseAdapter);
+    }
+
     /**
      * Creates a new instance using the specified {@link File} as the root directory.
      *
@@ -83,12 +127,23 @@ public class PersistenceManager {
         if (!dir.canRead() || !dir.canWrite())
             throw new IllegalArgumentException("not enough permission to do IO to dir");
         this.dir = dir;
-        this.GSON = new GsonBuilder()
-                .registerTypeAdapterFactory(new ModelPolymorphicTypeAdapterFactory<>(Character.class))
-                .registerTypeAdapterFactory(new ModelPolymorphicTypeAdapterFactory<>(InfluenceCalculator.class))
-                .registerTypeAdapterFactory(new ModelPolymorphicTypeAdapterFactory<>(MaxExtractor.class))
-                .registerTypeAdapterFactory(new ModelPolymorphicTypeAdapterFactory<>(Phase.class))
-                .create();
+        GsonBuilder builder = new GsonBuilder();
+        for (ModelPolymorphicTypeAdapterFactory<?> adapter : adapters.values())
+            builder.registerTypeAdapterFactory(adapter);
+        this.GSON = builder.create();
+    }
+
+    /**
+     * Returns the adapter corresponding to the given class
+     *
+     * @param supertype the subtype
+     * @param <T>       the type of the supertype
+     * @return the corresponding {@link ModelPolymorphicTypeAdapterFactory} or null
+     */
+    @SuppressWarnings("unchecked")
+    static <T> ModelPolymorphicTypeAdapterFactory<T> getAdapter(Class<T> supertype) {
+        if (supertype == null) throw new IllegalArgumentException("supertype shouldn't be null");
+        return (ModelPolymorphicTypeAdapterFactory<T>) adapters.get(supertype);
     }
 
     /**

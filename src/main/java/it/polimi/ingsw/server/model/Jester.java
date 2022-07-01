@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class Jester extends StudentStoreCharacter {
+public class Jester extends StudentStoreCharacter {
     /**
      * Base constructor. Sets up only the card's initial cost and character
      */

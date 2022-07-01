@@ -13,7 +13,7 @@ import it.polimi.ingsw.server.model.iterators.AssistantValueIterator;
  * @see ActionPhase
  * @see MnMovePhase
  */
-class StudentMovePhase extends ActionPhase {
+public class StudentMovePhase extends ActionPhase {
     /**
      * This phase's AssistantValueIterator. It will be passed untouched to the following MnMovePhase
      */

@@ -9,7 +9,7 @@ import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
 
 import java.util.Objects;
 
-class PriestAndPrincess extends StudentStoreCharacter {
+public class PriestAndPrincess extends StudentStoreCharacter {
     private final Behaviour behaviour;
 
     /**

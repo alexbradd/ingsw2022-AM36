@@ -10,7 +10,7 @@ import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class Messenger extends Character {
+public class Messenger extends Character {
     /**
      * Base constructor. Sets up only the card's initial cost and character
      */

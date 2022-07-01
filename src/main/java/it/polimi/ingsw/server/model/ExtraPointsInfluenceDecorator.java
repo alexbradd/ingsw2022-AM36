@@ -9,7 +9,7 @@ import java.util.Optional;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class ExtraPointsInfluenceDecorator extends InfluenceCalculatorDecorator {
+public class ExtraPointsInfluenceDecorator extends InfluenceCalculatorDecorator {
     /**
      * The {@link Player} that will receive the extra amount of points.
      */

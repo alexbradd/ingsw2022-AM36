@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  * @author Mattia Busso
  * @see Phase
  */
-class LobbyPhase extends Phase {
+public class LobbyPhase extends Phase {
     /**
      * A regex pattern that matches acceptable usernames. It corresponds to an alpha-numerical username between 1 and 30
      * characters long.

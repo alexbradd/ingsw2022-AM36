@@ -15,7 +15,7 @@ import java.util.Set;
  * @see MnMovePhase
  * @see ActionPhase
  */
-class CloudPickPhase extends ActionPhase {
+public class CloudPickPhase extends ActionPhase {
     /**
      * This phase's AssistantValueIterator
      */

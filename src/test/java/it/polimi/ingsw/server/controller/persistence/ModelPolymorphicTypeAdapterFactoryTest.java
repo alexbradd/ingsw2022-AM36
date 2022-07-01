@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Named;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -12,6 +13,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests class for {@link ModelPolymorphicTypeAdapterFactory}
@@ -24,10 +26,21 @@ class ModelPolymorphicTypeAdapterFactoryTest {
      */
     @BeforeAll
     static void setup() {
-        String pkg = "it.polimi.ingsw.server.controller.persistence";
+        ModelPolymorphicTypeAdapterFactory<AbstractSuperType> adapter = new ModelPolymorphicTypeAdapterFactory<>(AbstractSuperType.class);
+        adapter.registerSubtype(ConcreteChild.class);
+        adapter.registerSubtype(ConcreteGrandchild.class);
         GSON = new GsonBuilder()
-                .registerTypeAdapterFactory(new ModelPolymorphicTypeAdapterFactory<>(pkg, AbstractSuperType.class))
+                .registerTypeAdapterFactory(adapter)
                 .create();
+    }
+
+    /**
+     * Test that you cannot register abstract classes
+     */
+    @Test
+    void register_Abstract() {
+        ModelPolymorphicTypeAdapterFactory<AbstractSuperType> adapter = new ModelPolymorphicTypeAdapterFactory<>(AbstractSuperType.class);
+        assertThrows(IllegalArgumentException.class, () -> adapter.registerSubtype(AbstractChild.class));
     }
 
     /**

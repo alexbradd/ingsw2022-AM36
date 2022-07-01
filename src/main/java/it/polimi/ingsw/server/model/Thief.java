@@ -15,7 +15,7 @@ import java.util.EmptyStackException;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class Thief extends Character {
+public class Thief extends Character {
     /**
      * Base constructor. Sets up only the card's initial cost and character
      */

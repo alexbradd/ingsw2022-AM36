@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class Bard extends Character {
+public class Bard extends Character {
     /**
      * Base constructor. Sets up only the card's initial cost and character
      */

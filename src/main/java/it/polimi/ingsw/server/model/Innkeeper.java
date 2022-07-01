@@ -10,7 +10,7 @@ import it.polimi.ingsw.server.model.exceptions.InvalidPhaseUpdateException;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class Innkeeper extends Character {
+public class Innkeeper extends Character {
     /**
      * Base constructor.
      */

@@ -6,6 +6,7 @@ import it.polimi.ingsw.enums.DiffKeys;
 import it.polimi.ingsw.server.model.MockPhase;
 import it.polimi.ingsw.server.model.Phase;
 import it.polimi.ingsw.server.model.PhaseDiff;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,14 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class PersistenceManagerTest {
     private HashMap<String, Function<Object[], Object>> rootHandlers;
+
+    /**
+     * Adds MockPhase to the adaptee list
+     */
+    @BeforeAll
+    static void beforeAll() {
+        PersistenceManager.getAdapter(Phase.class).registerSubtype(MockPhase.class);
+    }
 
     /**
      * Creates new mock objects

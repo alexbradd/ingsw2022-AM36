@@ -11,7 +11,7 @@ import java.util.Objects;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class MnMovePhase extends ActionPhase {
+public class MnMovePhase extends ActionPhase {
     /**
      * This phase's iterator.
      */

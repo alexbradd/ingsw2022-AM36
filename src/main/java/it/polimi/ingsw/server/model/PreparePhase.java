@@ -26,7 +26,7 @@ import java.util.function.Function;
  * @see LobbyPhase
  * @see PlanningPhase
  */
-class PreparePhase extends IteratedPhase {
+public class PreparePhase extends IteratedPhase {
     /**
      * The table instance of the phase.
      */

@@ -11,7 +11,7 @@ import java.util.Optional;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class EqualityInclusiveMaxExtractor extends MaxExtractor {
+public class EqualityInclusiveMaxExtractor extends MaxExtractor {
     /**
      * The player that is privileged in the maximum calculation.
      */

@@ -10,7 +10,7 @@ import java.util.Optional;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class IgnoreTowersInfluenceDecorator extends InfluenceCalculatorDecorator {
+public class IgnoreTowersInfluenceDecorator extends InfluenceCalculatorDecorator {
     /**
      * Creates a new decorator for the given {@link InfluenceCalculator}.
      *

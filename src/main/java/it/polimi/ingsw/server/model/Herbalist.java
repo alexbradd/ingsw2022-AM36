@@ -15,7 +15,7 @@ import java.util.Objects;
  *
  * @author Alexandru Gabriel Bradatan
  */
-class Herbalist extends Character {
+public class Herbalist extends Character {
 
     /**
      * Stack of blocks placed on the card
