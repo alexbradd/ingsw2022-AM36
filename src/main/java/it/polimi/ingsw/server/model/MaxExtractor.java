@@ -26,8 +26,12 @@ public abstract class MaxExtractor implements Function<Map<Player, Integer>, Opt
     protected Optional<Map.Entry<Player, Integer>> getMaximumCandidate(Map<Player, Integer> map) {
         if (map == null) throw new IllegalArgumentException("map shouldn't be null");
         return map.entrySet().stream()
-                .max(Comparator.comparingInt(Map.Entry::getValue));
-
+                .max(Comparator.comparingInt(Map.Entry::getValue))
+                .map(candidate -> {
+                    if (candidate.getValue() == 0)
+                        return null;
+                    return candidate;
+                });
     }
 
     /**
