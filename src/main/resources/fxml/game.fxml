@@ -174,7 +174,7 @@
             </padding>
         </BorderPane>
         <BorderPane fx:id="characterModal" layoutX="475.0" layoutY="270.0" maxHeight="400.0" prefHeight="200.0"
-                    prefWidth="200.0" style="-fx-max-height: unset;" styleClass="ery-modal" visible="false">
+                    prefWidth="200.0" style="-fx-max-height: 400.0;" styleClass="ery-modal" visible="false">
             <top>
                 <HBox fx:id="characterTop" alignment="CENTER_RIGHT" prefWidth="200.0" spacing="10.0"
                       BorderPane.alignment="CENTER"/>
