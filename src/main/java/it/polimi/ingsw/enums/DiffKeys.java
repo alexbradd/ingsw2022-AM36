@@ -10,7 +10,7 @@ public enum DiffKeys {
     ISLAND_LIST("islandList"),
     ISLANDS("islands"),
     MOTHER_NATURE("motherNature"),
-    HAS_PLAYED_CHARACTER("hasPlayedCharacter"),
+    HAS_PLAYED_CHARACTER("usedCharacter"),
     CHARACTERS("characters"),
     IS_SACK_EMPTY("isSackEmpty"),
     CLOUDS("clouds"),

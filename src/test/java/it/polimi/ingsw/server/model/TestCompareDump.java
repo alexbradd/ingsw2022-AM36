@@ -333,7 +333,7 @@ public class TestCompareDump {
 
         assertEquals(2, diff.getAttributes().keySet().size());
         assertEquals(2, diff.getEntityUpdates().keySet().size());
-        assertTrue(diff.getAttributes().get("hasPlayedCharacter").getAsBoolean());
+        assertTrue(diff.getAttributes().get("usedCharacter").getAsBoolean());
         assertEquals(MockActionPhase.class.getSimpleName(), diff.getAttributes().get("phase").getAsString());
         assertEquals(1, diff.getEntityUpdates().get("characters").size());
         assertEquals(1, diff.getEntityUpdates().get("boards").size());
