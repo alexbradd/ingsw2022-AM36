@@ -60,7 +60,7 @@ class RemoveStudentInfluenceDecorator extends InfluenceCalculatorDecorator {
                     if (owner.isPresent()) {
                         inf.put(owner.get(), inf.get(owner.get()) - correction);
                         if (inf.get(owner.get()) <= 0)
-                            inf.put(owner.get(), null);
+                            inf.remove(owner.get());
                     }
                     return inf;
                 });
