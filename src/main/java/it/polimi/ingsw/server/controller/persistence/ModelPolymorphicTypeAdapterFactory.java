@@ -95,7 +95,7 @@ public class ModelPolymorphicTypeAdapterFactory<T> implements TypeAdapterFactory
      * @return a map mapping each class to its simple name (as returned by {@link Class#getSimpleName()})
      */
     private static Map<String, Class<?>> getSubclassesInModel(String packageName, Class<?> superclass) {
-        InputStream stream = superclass.getClassLoader()
+        InputStream stream = ModelPolymorphicTypeAdapterFactory.class.getClassLoader()
                 .getResourceAsStream(packageName.replaceAll("[.]", "/"));
         assert stream != null;
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
