@@ -13,7 +13,7 @@ implementation of the game, created as the final test of the "Software
 Engineering" course held at Politecnico di Milano (2021/2022).
 
 - Assigned professor: Alessandro Margara
-- Final score: TBD
+- Final score: 30L
 
 ## Project specification
 
